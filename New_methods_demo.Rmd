@@ -1,0 +1,245 @@
+---
+title: "New method estmating R, G and Z from size distribution"
+author: "Charles Hinchliffe"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+This .rmd contains the new method for estimating recruitment $R$, growth $G$ and mortality $Z$, from a size distribution of larval fishes.
+
+First we generate data based on the the following assumptions:
+* $\bar{z}$ is average mortality,
+* There is a linear relationship between age and size, such that $s(a) = s_0 + \bar{g}\, a,$ where $\bar{g}$ is average growth rate across the individuals lifetime. 
+This implies that $\frac{\delta\, g}{\delta \,s} = 0$, and $a = (s - s_0)/\bar{g}$, leading to a predicted size distribution of 
+
+$$n(s,t) = \frac{R(t)}{g(s_0)} \, \exp\left(- \frac{\bar{z} \, (s - s_0)}{\bar{g}} \right)$$
+
+We then use a combination of
+
+```{r}
+library(rstan)
+library(tidyverse)
+
+#Data generation and manipulation functions
+source("R/generate_sample.R")
+source("R/trim_data_to_mode.R")
+source("R/create_bins.R")
+source("R/data_for_stan_age.R")
+source("R/data_for_stan_size.R")
+source("R/data_for_stan_size_growth_without_var.R")
+source("R/data_for_stan_size_growth.R")
+
+#Plotting functions
+source("R/plot_age_dist.R")
+source("R/plot_size_dist.R")
+```
+
+
+## Simulating larval fish population 
+First generate a population using the simulate_catch_data() function.
+```{r}
+#for plotting
+pars <- list(R = 1000,
+             s0_av = 3,
+             log10s0_sd = 0,
+             g_av = 0.21,
+             log10g_sd = 0,
+             z_av = 0.25, 
+             log10z_sd = 0,
+             bin_width_age = 1,
+             bin_width_size = 0.1)
+
+#simulate population
+data <- simulate_catch_data(R = 1000,
+                            s0_av = 3,
+                            log10s0_sd = 0,
+                            g_av = 0.21,
+                            log10g_sd = 0,
+                            z_av = 0.25, 
+                            log10z_sd = 0)
+
+plot(size_sampled ~ age, data= data)
+```
+
+## Plotting functions
+Check plot againt theoretical age distribution
+```{r}
+plot_age_dist(data, pars)
+```
+
+
+Check plot againt theoretical size distribution
+```{r}
+plot_size_dist(data, pars)
+```
+
+# Bin data 
+
+Create age and size bin variable for data at smallest possible resolution (based on measurement technique)
+
+```{r}
+data_binned <-  create_bins(data,
+                    bin_width_age = 1,
+                    bin_width_size = 0.1)
+```
+
+
+## Basic Age model 
+
+Generate data for mortality age model
+```{r}
+data_for_stan_age2 <- data_for_stan_age(data = data_binned, bin_width_age = 1)
+```
+
+Run stan model
+```{r}
+ret_age <- stan_model(file="stan/mortality_age.stan")
+
+fit_age <- sampling(ret_age, data=data_for_stan_age2, iter = 999, chains = 3)
+
+# stan_trace(fit_age, inc_warmup = TRUE)
+# stan_hist(fit)
+print(fit_age, probs=c(0.025, 0.5, 0.975))
+
+fit_Z_age <- mean(rstan::extract(fit_age, pars="Z")[["Z"]])
+fit_R_age <- mean(rstan::extract(fit_age, pars="R")[["R"]])
+
+# plot fitted object
+fitted_age <- list(
+              R = fit_R_age,
+              z_av = fit_Z_age,
+              bin_width_age = pars$bin_width_age
+)
+
+plot_age_dist(data, pars, fitted_age)
+```
+
+## Basic Size mdoel
+
+Estimating mortality from size (with known G).
+
+Generate data for mortality size model
+```{r}
+data_for_stan_size2 <- data_for_stan_size(data = data_binned, bin_width_size = 0.1, s0_av = 3)
+```
+
+Run stan model and observe output
+```{r}
+ret_size <- stan_model(file="stan/mortality_size_known_g.stan")
+
+fit_size <- sampling(ret_size, data = data_for_stan_size2, iter = 999, chains = 3)
+
+print(fit_size, probs=c(0.025, 0.5, 0.975))
+fit_Z_size <- mean(rstan::extract(fit_size, pars="Z")[["Z"]])
+fit_R_size <- mean(rstan::extract(fit_size, pars="R")[["R"]])
+fit_g_size <- mean(rstan::extract(fit_size, pars="g")[["g"]])
+
+# plot fitted object
+fitted_size <- list(
+              R = fit_R_size,
+              s0_av = pars$s0_av,
+              z_av = fit_Z_size,
+              g_av = fit_g_size,
+              bin_width_size = pars$bin_width_size
+)
+
+plot_size_dist(data, pars, fitted_size)
+
+```
+
+
+## Size model also estimating growth
+
+Now try estimating growth rates too (without variance). 
+
+Produce data for mortality_size_growth model without variance in age-length
+```{r}
+data_for_stan_size_growth_without_var2 <- data_for_stan_size_growth_without_var(data = data_binned,
+                                                  bin_width_size = 0.1,
+                                                  rough_bin_width = 1.5,
+                                                  n_samples_each = 3)
+```
+
+Now fit stan model
+```{r}
+ret_size_growth <- stan_model(file="stan/mortality_size_growth_estimatel0.stan")
+
+fit_size_growth <- sampling(ret_size_growth, data= data_for_stan_size_growth_without_var2, iter = 999, chains = 3)
+
+print(fit_size_growth, probs=c(0.025, 0.5, 0.975))
+fit_Z_sg <- mean(rstan::extract(fit_size_growth, pars="Z")[["Z"]])
+fit_R_sg <- mean(rstan::extract(fit_size_growth, pars="R")[["R"]])
+fit_g_sg <- mean(rstan::extract(fit_size_growth, pars="g")[["g"]])
+fit_l0_sg <- mean(rstan::extract(fit_size_growth, pars="l0")[["l0"]])
+
+# plot fitted object
+fitted_sg <- list(
+              R = fit_R_sg,
+              s0_av = fit_l0_sg,
+              z_av = fit_Z_sg,
+              g_av = fit_g_sg,
+              bin_width_size = pars$bin_width_size
+)
+
+plot_size_dist(data, pars, fitted_sg)
+```
+
+
+Wow, pretty good, cool!!
+
+# Size model with var age-length
+
+Now let's add some measurement error to age-length samples
+
+Create data with age-length error applied
+
+```{r}
+data_for_stan_size_growth <- data_for_stan_size_growth(data = data_binned,
+                                                  bin_width_size = 0.1,
+                                                  rough_bin_width = 1.5,
+                                                  n_samples_each = 3,
+                                                  age_var = 1,
+                                                  size_var = 0.1)
+                                    
+```
+
+
+Now run size model that estimates Z, G and R!
+```{r}
+
+ret_size_growth <- stan_model(file="stan/mortality_size_growth.stan")
+
+fit_size_growth <- sampling(ret_size_growth, data=data_for_stan_size_growth, iter = 999, chains = 3)
+
+print(fit_size_growth, probs=c(0.025, 0.5, 0.975))
+
+stan_hist(fit_size_growth)
+stan_trace(fit_size_growth, inc_warmup = TRUE)
+
+
+fit_Z_sg <- mean(rstan::extract(fit_size_growth, pars="Z")[["Z"]])
+fit_R_sg <- mean(rstan::extract(fit_size_growth, pars="R")[["R"]])
+fit_g_sg <- mean(rstan::extract(fit_size_growth, pars="g")[["g"]])
+
+# plot fitted object
+fitted_sg <- list(
+              R = fit_R_sg,
+              s0_av = pars$s0_av,
+              z_av = fit_Z_sg,
+              g_av = fit_g_sg,
+              bin_width_size = pars$bin_width_size
+)
+
+plot_size_dist(data, pars, fitted_sg)
+```
+
+
+## next steps
+
+Try generating data with variation in other parameters
+
+
+
