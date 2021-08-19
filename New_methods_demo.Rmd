@@ -6,8 +6,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-
-
 This .rmd contains the new method for estimating recruitment $R$, growth $G$ and mortality $Z$, from a size distribution of larval fishes.
 
 First we generate data based on the the following assumptions:
