@@ -1,26 +1,21 @@
 #' plot_size_dist
 #'
-#'This function is for plotting the age distribution of siminulated fish populations.
-#' @param data a dataframe with a simulated sample of larval fish, created using simulate_catch_data function
-#'             and binned to smallest resolution using round_by_bin function.
-#' @param pars is a list containing the parameters used to generate simulated population eg; R, s0_av , g_av, z_av = 0.25, 
-#'             bin_width_age, bin_width_size.
-#' @param fitted is a list containg estimated parameters from a stan mortality_size model.
+#'This function is for plotting the size distribution of simulated populations.
+#' @param data a dataframe with a simulated size, size_sampled
+#' @param pars list of parameter values for the size-distribution model, including model name
+#' @param binwidth              
+#' @param fitted is a list containing estimated parameters from a stan mortality_size model.
 #'
 #' @return a ggplot of size-frequency histogram with fitted function line
 
-plot_size_dist <- function(data, pars, fitted = NULL) {
+plot_size_dist <- function(data, pars, binwidth, fitted = NULL) {
   p1 <- data %>% 
     ggplot(aes(size_sampled)) + 
-    geom_histogram(binwidth = pars$bin_width_size) +
-    stat_function(fun = function(x) pars$R / pars$g_av * exp(-pars$z_av/pars$g_av*(x-pars$s0_av))*pars$bin_width_size)  
+    geom_histogram(binwidth = binwidth) +
+    stat_function(fun = function(x) size_dist_model(x, pars) * binwidth, col="red")
   
   if (!is.null(fitted))
-    
-    p1 <- p1 + stat_function(fun = function(x) fitted$R / fitted$g_av * exp(-fitted$z_av/fitted$g_av*(x-fitted$s0_av))*fitted$bin_width_size, col = "red")
-  
+    p1 <- p1 + stat_function(fun = size_dist_model(x, fitted)*fitted$binwidth, col = "red")
   
   p1
-  
-  
 }

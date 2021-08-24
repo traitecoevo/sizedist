@@ -24,7 +24,8 @@ library(rstan)
 library(tidyverse)
 
 #Data generation and manipulation functions
-source("R/generate_sample.R")
+source("R/simulate_population.R")
+source("R/model1.R")
 source("R/trim_data_to_mode.R")
 source("R/create_bins.R")
 source("R/data_for_stan_age.R")
@@ -38,6 +39,8 @@ source("R/plot_size_dist.R")
 ```
 
 
+
+
 ## Simulating larval fish population 
 First generate a population using the simulate_catch_data() function.
 ```{r}
@@ -49,31 +52,24 @@ pars <- list(R = 1000,
              log10g_sd = 0,
              z_av = 0.25, 
              log10z_sd = 0,
-             bin_width_age = 1,
-             bin_width_size = 0.1)
+             model = "model1")
+
+binwidth_age <- 1
+binwidth_size <- 0.1
 
 #simulate population
-data <- simulate_catch_data(R = 1000,
-                            s0_av = 3,
-                            log10s0_sd = 0,
-                            g_av = 0.21,
-                            log10g_sd = 0,
-                            z_av = 0.25, 
-                            log10z_sd = 0)
-
-plot(size_sampled ~ age, data= data)
+data <- simulate_population(pars = pars)
 ```
 
 ## Plotting functions
-Check plot againt theoretical age distribution
+Check plot against theoretical age distribution
 ```{r}
-plot_age_dist(data, pars)
+plot_age_dist(data, pars, binwidth_age)
 ```
 
-
-Check plot againt theoretical size distribution
+Check plot against theoretical size distribution
 ```{r}
-plot_size_dist(data, pars)
+plot_size_dist(data, pars, binwidth_size)
 ```
 
 # Bin data 
@@ -82,8 +78,8 @@ Create age and size bin variable for data at smallest possible resolution (based
 
 ```{r}
 data_binned <-  create_bins(data,
-                    bin_width_age = 1,
-                    bin_width_size = 0.1)
+                    binwidth_age = 1,
+                    binwidth_size = 0.1)
 ```
 
 
