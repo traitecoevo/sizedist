@@ -1,0 +1,84 @@
+---
+title: "Theory"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Theory}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, eval=FALSE}
+library(sizedist)
+```
+The `sizedist` package provides functions to both simulate and fit size and age-structured populations models to data. Let $s$ be the size of an individual, $g(s)$ be its growth rate (size per unit time) and $z(s)$ be its instantaneous mortality rate, and $n(s)$ be the size density distribution of individuals. Both growth and mortality rates can vary as a function of individual size. Given specifieid relationships, the theory of size-structured populations enables us to solve $n$ from $z$ and $g$ (de Roos 1997, Muller-Landau et al. 2006).  
+
+# Theory
+
+Predictions are derived from the general McKendrick-von Foerster partial differential equation (PDE) for size structured population dynamics (Von Foerster 1959; Sinko and Streifer 1967): 
+
+$$\frac{\partial n(s)}{\partial t}=\ -\frac{\partial\left[g(s) n(s)\right]}{\partial s}-z(s) n(s).$$ 
+
+Following de Roos 1997, the PDE can be solved to give an equation for $n$, as 
+$$n\left(s\right)=n\left(s_0 \right)\ \exp{\left(-\int_{0}^{t_b(s)}{\left(\frac{\delta g\left(s(t^\prime)\right)}{\delta s}+z\left(s(t^\prime)\right)\right)dt^\prime}\right)},$$
+where $n\left(s_0\right)$ is the initial density of recruits, $s(a^\prime,E)$ is the size of individuals age $t^\prime$ , and $t_b(s)$ is the age of individuals size $s$. By linking the flux of individuals across the lower bound $s_0$ of the size distribution to the rate $R$ at which new individuals arrive (i.e., birth rate), we can substitute 
+$$n\left(s_0\right)= \frac{R}{g(s_0)}.$$
+Further, we can reorganise eq. xxx  so that the integral is expressed in terms of size, not age. Following equation 22 of de Roos (1997), we get 
+$$n\left(s\right)=\frac{R}{g\left(s\right)}\ \exp{\left(-\int_{s_0}^{s}{\frac{z\left(s^\prime\right)}{g\left(s^\prime\right)}ds^\prime}\right)}.$$
+
+Substituting in specific functions for $z(s)$ and $g(s)$, leads to a solution for $n$ (Muller-Landau et al. 2006).
+
+Below we outline XXX models withe exact analytic solutions. The different models will apply to different kinds of organisms. In each case, we are interested in XXX outcomes:
+
+* Individual size as a function of time: $s(t) = s_0 + \int_{0}^{t} g\left(s(t^\prime)\right) dt^\prime$
+* Survival of individual to age $t$: $Z(t) =\int_{0}^{t} z\left(s(t^\prime)\right) dt^\prime$
+* Size density distribution of individuals: $n(s)$
+* Total number of individuals between sizes $s_1, s_2$: $N(s_1, s_2) = \int_{s_1}^{s_2} n(s) ds$ 
+* Age density distribution of individuals, $n_a(a)$
+* Total number of individuals between ages $a_1, a_2$: $N_a(a_1, a_2) = \int_{a_1}^{a_2} n_a(a) da$ 
+
+These form the basis for predicted population dynamics, given specified parameters. 
+
+
+## Model 1: Constant growth and mortality
+
+The simplest model assumes growth and mortality rates are constants, independent of size. This leads to a predicted size distribution (Muller-Landau et al. 2006) as follows:
+
+Growth rate: $g = r.$
+Mortality rate: $z = d.$
+
+Individual size as a function of time: $s(t) = s_0 + r \, t.$
+
+Survival of individual to age $t$: 
+
+$$Z(t) = d \,t$$
+
+Size density distribution of individuals: 
+
+$$n\left(s\right)=\ \frac{R\left(t\right)}{r}\ \exp{\left(-\frac{d}{r}\left(s-s_0\right)\right)}.$$
+
+Total number of individuals between sizes $s_1, s_2$:
+
+$$N(s_1, s_2)=\ -\frac{R}{d}\ \left(\exp{\left(-\frac{d}{r}\ \left(s_2-s_0\right)\right)}-\exp{\left(-\frac{d}{r}\ \left(s_1-s_0\right)\right)}\right).$$
+Age density distribution of individuals:
+
+$$n_a(t)= -R \ \exp{\left(-d\ t\right)}.$$
+Total number of individuals between ages $a_1, a_2$: 
+
+$$N_a{(a_1, a_2)}=\ -\frac{R}{d}\left(\exp{\left(-d\ \ a_2\right)}-\exp{\left(-d\ \ a_1\right)}\right).$$
+## Model 2: 
+
+## Model 3: 
+
+## Model 4: 
+
+# Fitting models to data
+
+The size distributions outlined above predict the number of individuals within an interval of size, i.e. $N(s_1, s_2)$. This estimate can be compared to the observed counts using a Poisson probability distribution
+$$Pr(N_{obs}(s_1, s_2), N(s_1, s_2)) = \textrm{Poisson}\left(N_{obs}(s_1, s_2), N(s_1, s_2)\right).$$
