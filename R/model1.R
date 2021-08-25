@@ -9,7 +9,7 @@ default_pars_model1 <- function() {
     log10g_sd = 0.0,
     z_av = 0.25,
     log10z_sd = 0.0,
-    name = "model1"
+    model = "model1"
   )
 }
 
@@ -28,13 +28,15 @@ sample_individual_variation_model1 <- function(n, pars) {
 #' @rdname simulate_growth
 simulate_growth_model1 <- function(individual_data) {
   with(individual_data,
-       size_birth + growth_rate * age)
+       size_birth + growth_rate * age
+       )
 }
 
 #' @rdname simulate_cumulative_mortality
 simulate_cumulative_mortality_model1 <- function(individual_data) {
   with(individual_data,
-       mortality_rate * age)
+       mortality_rate * age
+       )
 }
 
 #' @rdname age_dist_model

@@ -34,9 +34,11 @@ sample_birth_times <- function(R, time_end) {
   # 5. k = k + 1, Sk = t.
   # 6. Go to step 2.
   
+  # to make sure we get enough individuals in the sample, simulate 2 x the expected number
   r <- runif(2 * R * time_end)
   inter_event_times <- -log(r) / R
   birth_times <- cumsum(inter_event_times)
+  # cull to only those born within allowable time interval
   birth_times[birth_times <= time_end]
 }
 
@@ -95,7 +97,7 @@ simulate_cumulative_mortality <- function(individual_data, model) {
 #' @keep_dead logical indicating whether dead individuals should be kept
 #' @return a data frame (tibble) of simulated data
 simulate_population <-  function(time_end = 25,
-                                      pars = default_pars(model),
+                                      pars = default_pars("model1"),
                                       keep_dead = FALSE) {
   df <-
     tibble(
@@ -113,9 +115,12 @@ simulate_population <-  function(time_end = 25,
   
   df$size_sampled <- simulate_growth(df, pars$model)
   df$cumulative_hazard <- simulate_cumulative_mortality(df, pars$model)
+
+  # common across all models
   df$survival <- exp(-df$cumulative_hazard)
   df$is_dead <- df$survival < runif(length(df$survival))
   
+  # remove dead individuals, unless otherwise specified
   if (!keep_dead)
     df <- df %>% filter(!is_dead)
   
