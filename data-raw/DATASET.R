@@ -1,93 +1,81 @@
 ## Code to prepare `fishlarvae` dataset goes here
 
-#' Simulating a dataset of individual larval fish which are caught in a towed net.
+source("R/simulate_population.R")
+source("R/model1.R")
+
+#' create_bins
 #'
-#' @param R Number of fish born per day
-#' @param s0_av The mean size of individuals at hatch
-#' @param log10s0_sd Variance of individuals around the mean size at hatch
-#' @param g_av The mean growth rate of individuals in the cohort
-#' @param log10g_sd Variance of individual growth rates around the mean growth rate of the cohort
-#' @param z_av The mean mortality rate of individuals in the cohort
-#' @param log10z_sd Variance of individual growth rates around the mean mortality rate of the cohort
-#' @param growth_in_weight if TRUE growth rate is considered as the instanteous growth coefficient in weight (i.e  "size_sampled = size_birth * exp(growth_rate*age)"), If FALSE growth is modelled as change in length using a linear model.
+#' This function is used to creat bins requires for the size distrbution models
 #'
-#' @return a dataframe of simulated data
-#' @import dplyr %>%
+#' @param data a dataframe containg a fish population generated using simulate_catch_data()
+#' @param bin_width_age the bin width you want to use for age, usually the smallest resolution of measurement eg 1 day
+#' @param bin_width_size the bin width you want to use for size, usually the smallest resolution of measurement eg 0.1 mm
+#'
+#' @return a dataframe age_bin and size_bin bariables added
+add_bins <- function(data,
+                        bin_width_age = 1,
+                        bin_width_size = 0.1) {
 
-simulate_catch_data <-  function(R = 1000,
-                                 s0_av = 3,
-                                 log10s0_sd = 0,
-                                 g_av = 0.21,
-                                 log10g_sd = 0.0,
-                                 z_av = 0.25,
-                                 log10z_sd = 0.0,
-                                 max_age = 25,
-                                 growth_in_weight = FALSE
-) {
-
-  n_days <- 25
-  gen_data <- dplyr::tibble(
-    day_born = seq(0, max_age-1, by = 1),
-    R = R,
-    s0_av = s0_av,
-    log10s0_sd = log10s0_sd,
-    g_av = g_av,
-    log10g_sd = log10g_sd,
-    z_av = z_av,
-    log10z_sd = log10z_sd
-  )
-
-  tmp <- gen_data %>%
-    rowwise() %>%
-    dplyr::mutate(
-      n_born = rpois(1, R),
-      individuals = list(
-        dplyr::tibble(
-          day_born = day_born,
-          age = max_age - (day_born + runif(n_born)),
-          individual = seq_len(n_born),
-          size_birth = 10^rnorm(n_born, log10(s0_av), log10s0_sd),
-          growth_rate = 10^rnorm(n_born, log10(g_av), log10g_sd),
-          size_sampled = size_birth + growth_rate*age,
-          mortality_rate = 10^rnorm(n_born, log10(z_av), log10z_sd),
-          pr_survival = exp(-mortality_rate*age)
-        ) %>%
-          dplyr::filter(pr_survival > runif(n()))
-      ),
-      n_sampled = nrow(individuals),
-      size_average = mean(individuals$size_sampled)
-    )
-
-
-  #remove individuals smaller than modal size.
-  if (growth_in_weight) {
-
-    tmp <- gen_data %>%
-      rowwise() %>%
-      dplyr::mutate(
-        n_born = rpois(1, R),
-        individuals = list(
-          dplyr::tibble(
-            day_born = day_born,
-            age = max_age - (day_born + runif(n_born)),
-            individual = seq_len(n_born),
-            size_birth = 10^rnorm(n_born, log10(s0_av), log10s0_sd),
-            growth_rate = 10^rnorm(n_born, log10(g_av), log10g_sd),
-            size_sampled = size_birth * exp(growth_rate*age),
-            mortality_rate = 10^rnorm(n_born, log10(z_av), log10z_sd),
-            pr_survival = exp(-mortality_rate*age)
-          ) %>%
-            dplyr::filter(pr_survival > runif(n()))
-        ),
-        n_sampled = nrow(individuals),
-        size_average = mean(individuals$size_sampled)
-      )
-
+  round_by_bin <- function(x, bin_width) {
+    round(x/bin_width, 0)*bin_width
   }
 
-  tmp$individuals %>% bind_rows()
+  data_binned <- data %>%
+    mutate(
+      age_bin = round_by_bin(age, bin_width_age),
+      size_bin = round_by_bin(size_sampled, bin_width_size)
+    )
+
+  data_binned
+
 }
 
-fishlarvae <- simulate_catch_data()
+#' Prepare data from a generated catch sample for use in 'mortality_age.stan' model
+#'
+#' This requires a dataframe from the simulate_catch_data function; source("R/generate_sample.R")
+#'
+#' @param data a dataframe with a simulated sample of larval fish, created using simulate_catch_data function
+#'             and binned to smallest resolution using round_by_bin function.
+#' @param bin_width_age The bin size used for age, eg 1 day.
+#'
+#' @return a list of data for use in a mortality-from-age model 'mortality_age.stan'
+
+
+compose_bin_data <- function(data,
+                              bin_width_age = 1){
+
+  #prepare data by grouping age bins and making counts
+  tmp <-
+    tibble(
+      age_bin = seq(min(data$age_bin), max(data$age_bin), by = bin_width_age),
+      age_lower = age_bin - 0.5*bin_width_age,
+      age_upper = age_bin + 0.5*bin_width_age
+    ) %>%
+    left_join(by="age_bin",
+              data %>% group_by(age_bin) %>% summarise(counts= n())
+    ) %>%
+    tidyr::replace_na(list(counts=0))
+
+  tmp$age_lower[1] <- tmp$age_bin[1]
+  tmp$age_lower[nrow(tmp)] <- tmp$age_bin[nrow(tmp)]
+
+  #make data into list format for use in Stan
+  ret <-
+    list(
+      age_lower = tmp$age_lower,
+      age_upper = tmp$age_upper,
+      counts = tmp$counts,
+      N = length(tmp$age_lower)
+    )
+
+  ret
+
+}
+
+pars <- default_pars("model1")
+fishlarvae <- simulate_population(pars = pars)
+fishlarvae <- add_bins(fishlarvae)
+stan_fishlarvae <- compose_bin_data(fishlarvae)
 
 usethis::use_data(fishlarvae, overwrite = TRUE)
+usethis::use_data(stan_fishlarvae, overwrite = TRUE)

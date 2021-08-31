@@ -1,6 +1,6 @@
 #' The 'sizedist' package.
 #'
-#' @description A DESCRIPTION OF THE PACKAGE
+#' @description Fitting size distributions to estimate growth and mortality
 #'
 #' @docType package
 #' @name sizedist-package
