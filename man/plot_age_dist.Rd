@@ -2,15 +2,17 @@
 % Please edit documentation in R/plot_age_dist.R
 \name{plot_age_dist}
 \alias{plot_age_dist}
-\title{plot_age_dist}
+\title{Plot the age distribution}
 \usage{
 plot_age_dist(data, pars, binwidth, fitted = NULL)
 }
 \arguments{
-\item{data}{a dataframe with a simulated sample of larval fish, created using simulate_catch_data function
+\item{data}{a data frame with a simulated sample of larval fish, created using simulate_catch_data function
 and binned to smallest resolution using round_by_bin function.}
 
 \item{pars}{list of parameter values for the size-distribution model, including model name}
+
+\item{binwidth}{The bin width for age, usually the smallest resolution of resampling e.g. 1 day}
 
 \item{fitted}{is a list containing estimated parameters from mortality_age.stan model}
 }
@@ -18,5 +20,5 @@ and binned to smallest resolution using round_by_bin function.}
 a ggplot of age-frequency histogram with fitted function line
 }
 \description{
-This function is for plotting the age distribution of simulated fish populations.
+This function is for plotting the age distribution of simulated populations.
 }

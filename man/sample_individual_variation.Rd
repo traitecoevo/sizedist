@@ -8,6 +8,8 @@ sample_individual_variation(n, pars)
 }
 \arguments{
 \item{n}{number of individuals to sample}
+
+\item{pars}{list of parameter values for the size-distribution model, including model name}
 }
 \value{
 list of parameter values for the size-distribution model, including model name

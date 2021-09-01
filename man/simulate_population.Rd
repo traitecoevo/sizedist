@@ -14,6 +14,8 @@ simulate_population(
 \item{time_end}{Time to end simulation}
 
 \item{pars}{list of parameter values for the size-distribution model, including model name}
+
+\item{keep_dead}{logical indicating whether dead individuals should be kept}
 }
 \value{
 a data frame (tibble) of simulated data

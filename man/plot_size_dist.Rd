@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_size_dist.R
 \name{plot_size_dist}
 \alias{plot_size_dist}
-\title{plot_size_dist}
+\title{Plot the size distribution}
 \usage{
 plot_size_dist(data, pars, binwidth, fitted = NULL)
 }
@@ -10,6 +10,8 @@ plot_size_dist(data, pars, binwidth, fitted = NULL)
 \item{data}{a dataframe with a simulated size, size_sampled}
 
 \item{pars}{list of parameter values for the size-distribution model, including model name}
+
+\item{binwidth}{The bin width for size, usually the smallest resolution of measurement e.g 0.1 mm}
 
 \item{fitted}{is a list containing estimated parameters from a stan mortality_size model.}
 }

@@ -1,11 +1,11 @@
-#' plot_size_dist
+#' Plot the size distribution
 #'
-#'This function is for plotting the size distribution of simulated populations.
+#' @description This function is for plotting the size distribution of simulated populations.
 #' @param data a dataframe with a simulated size, size_sampled
 #' @param pars list of parameter values for the size-distribution model, including model name
-#' @param binwidth
+#' @param binwidth The bin width for size, usually the smallest resolution of measurement e.g 0.1 mm
 #' @param fitted is a list containing estimated parameters from a stan mortality_size model.
-#'
+#' @importFrom ggplot2 ggplot aes geom_histogram stat_function
 #' @return a ggplot of size-frequency histogram with fitted function line
 
 plot_size_dist <- function(data, pars, binwidth, fitted = NULL) {
