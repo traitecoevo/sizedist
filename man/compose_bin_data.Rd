@@ -4,7 +4,7 @@
 \alias{compose_bin_data}
 \title{Compile data frame into Stan friendly format for size distribution models}
 \usage{
-compose_bin_data(data, ...)
+compose_bin_data(data, pars = default_pars("model1"), ...)
 }
 \arguments{
 \item{data}{A data frame containing age and/or size bins counts created using \code{add_bins()} and \code{create_age_bin_counts()}}

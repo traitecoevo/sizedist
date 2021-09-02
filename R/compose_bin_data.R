@@ -6,6 +6,13 @@
 #' @seealso `fit_age()` and `create_age_bin_counts()`
 #' @return A data list where each list element is a column from the original data frame
 
-compose_bin_data <- function(data, ...){
-  tidybayes::compose_data(data, ...)
+compose_bin_data <- function(data, pars = default_pars("model1"), ...){
+  ret <- tidybayes::compose_data(data, ...)
+
+  if(pars$model == "model2"){
+    ret$l0 <- dplyr::first(ret$l0)
+    ret$known_g <- dplyr::first(ret$known_g)
+  }
+
+  ret
 }

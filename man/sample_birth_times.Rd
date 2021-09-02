@@ -11,9 +11,6 @@ sample_birth_times(R, time_end)
 
 \item{time_end}{Duration of simulation}
 }
-\value{
-
-}
 \description{
 Samples are drawn assuming a homogeneous Poisson process. Under this distribution, the inter-arrival times follow a log distribution. https://en.wikipedia.org/wiki/Poisson_distribution
 }

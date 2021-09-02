@@ -1,12 +1,14 @@
 ---
 title: "New method estmating R, G and Z from size distribution"
 author: "Charles Hinchliffe, Daniel Falster"
-output: html_notebook
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 editor_options: 
   chunk_output_type: console
 ---
-
-
 
 This .rmd contains the new method for estimating recruitment $R$, growth $G$ and mortality $Z$, from a size distribution of larval fishes.
 
@@ -20,6 +22,10 @@ $$n(s,t) = \frac{R(t)}{g(s_0)} \, \exp\left(- \frac{\bar{z} \, (s - s_0)}{\bar{g
 We then use a combination of
 
 ```{r}
+library(devtools)
+load_all()
+
+#Or
 library(rstan)
 library(tidyverse)
 
@@ -55,3 +61,84 @@ Check plot against theoretical size distribution
 ```{r}
 plot_size_dist(data, pars, binwidth_size)
 ```
+
+## Adding size/age bin intervals to data
+
+```{r}
+#This works for the simulated data
+data %>% add_bins()
+
+#Alternatively, users can supply their own age or size/weight data
+#E.g. th  Loblolly pine tree growth data set (height in feet, age is years)
+
+hist(Loblolly$height, breaks = 30)
+
+Loblolly %>% add_bins(age_var = age,
+                      size_var = height,
+                      bin_width_age = 1,
+                      bin_width_size = 0.1)
+```
+
+## Creating age bin counts for mortality age model
+
+```{r}
+# Simulated data
+age_counts <- data %>% 
+  add_bins() %>% 
+  create_age_bin_counts()
+
+# Real data
+loblolly_age <- Loblolly %>% 
+  add_bins(age_var = age,
+           size_var = height,
+           bin_width_age = 1) %>%  #Throws error without specifying size_var = height --> TEST and fix!
+  create_age_bin_counts() 
+```
+
+## Creating size bin counts for mortality age, known growth model
+
+```{r}
+# Simulated data
+size_counts <- data %>% 
+  add_bins() %>% 
+  create_size_bin_counts()
+
+# Real data
+loblolly_size <- Loblolly %>% 
+  add_bins(age_var = age,
+           size_var = height,
+           bin_width_size = 0.1) %>%  
+  create_size_bin_counts() #By default this adds the known growth rate - how can user edit this? ?edit_pars() ?create_pars()
+```
+
+## Make the data Stan readable
+
+```{r}
+#Age model
+age_stan <- age_counts %>% compose_bin_data()
+
+loblolly_age_stan <- loblolly_age %>% compose_bin_data()
+
+#Size model
+size_stan <- size_counts %>% compose_bin_data(pars = default_pars("model2")) #single known_g and single n, but still comes up when pars not provided. FIX
+
+loblolly_size %>% compose_bin_data(default_pars("model2")) #oops can't change known_g
+```
+
+## Run pre-compiled Stan mortality age models
+
+```{r}
+age_fit <- fit_age(data = age_stan)
+
+ll_age_fit <- fit_age(data = loblolly_age_stan)
+```
+
+
+## Run pre-compiled Stan mortality age, known growth models
+
+```{r}
+size_fit <- fit_known_g(data = size_stan)
+
+ll_size_fit <- loblolly_size %>% compose_bin_data(default_pars("model2")) %>% fit_known_g() #runs slower, more data
+```
+

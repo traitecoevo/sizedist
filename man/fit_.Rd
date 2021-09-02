@@ -2,9 +2,12 @@
 % Please edit documentation in R/fit_age.R
 \name{fit_age}
 \alias{fit_age}
+\alias{fit_known_g}
 \title{Simple Mortality Age Model with Stan}
 \usage{
 fit_age(data, ...)
+
+fit_known_g(data, ...)
 }
 \arguments{
 \item{data}{Stan-friendly data list created by XX function}

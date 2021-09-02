@@ -1,4 +1,4 @@
-#' Counts for age and size bin data
+#' Counts for age bin data
 #'
 #' @param data A data frame, data frame extension (e.g. tibble) containing `age` as a column
 #' @param bin_width_age The bin width for age, usually the smallest resolution of re-ssampling e.g. 1 day
@@ -62,6 +62,15 @@ create_age_bin_counts <- function(data, bin_width_age = 1){
 #
 #   tmp
 # }
+
+
+#' Counts for size bin data
+#'
+#' @param data A data frame, data frame extension (e.g. tibble) containing `age` as a column
+#' @param bin_width_age The bin width for age, usually the smallest resolution of re-sampling e.g. 1 day
+#' @return a data frame containing lower and upper bounds as well as counts for each `size_bin`
+#' @export
+#' @seealso `simulate_population()` `add_bins()`
 
 create_size_bin_counts <- function(data,
                                    pars = default_pars("model2"),
