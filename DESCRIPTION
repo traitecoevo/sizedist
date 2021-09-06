@@ -40,7 +40,8 @@ Imports:
     tidybayes,
     tidyr,
     stats,
-    ggplot2
+    ggplot2,
+    rlang
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
