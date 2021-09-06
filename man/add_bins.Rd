@@ -4,36 +4,25 @@
 \alias{add_bins}
 \title{Creates bins}
 \usage{
-add_bins(
-  data,
-  age_var = age,
-  size_var = size_sampled,
-  bin_width_age = 1,
-  bin_width_size = 0.1
-)
+add_bins(data, var, bin_width)
 }
 \arguments{
 \item{data}{A data frame, data frame extension (e.g. tibble) containing \code{age} and \code{size} variable as columns}
 
-\item{age_var}{Name of age variable, using tidy evaluation with data masking}
+\item{var}{Name of variable, using tidy evaluation with data masking}
 
-\item{size_var}{Name of size variable, using tidy evaluation with data masking}
-
-\item{bin_width_age}{The bin width for age, usually the smallest resolution of resampling e.g. 1 day}
-
-\item{bin_width_size}{The bin width for size, usually the smallest resolution of measurement e.g 0.1 mm}
+\item{bin_width}{The bin width for variable, usually the smallest resolution of resampling or measurement}
 }
 \value{
-a data frame with \code{age_bin} and \code{size_bin} variables added
+a data frame with binned variable added with suffix \verb{_bin}
 }
 \description{
 add_bins() adds size and/or age bins to the dataset.
 }
 \examples{
 \dontrun{
-fishlarvae \%>\% add_bins()
 
-data \%>\% add_bins(age_var = days_since_birth, size_var = length)
+Loblolly \%>\% add_bins(var = height, bin_width = 0.5)
 }
 
 }
