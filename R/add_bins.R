@@ -23,6 +23,11 @@ add_bins <- function(data,
     round(x/bin_width, 0)*bin_width
   }
 
+  # #Abort if not numeric
+  # if(! is.numeric({{var}})){
+  #   stop("Variable must be numeric")
+  # }
+
   # Rounding data value to specific bin
   tmp <- data %>%
     dplyr::mutate(

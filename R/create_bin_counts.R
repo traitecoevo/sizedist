@@ -94,7 +94,7 @@ create_size_bin_counts <- function(data,
 
   #My version
   # ret <- tmp %>% mutate(
-  #   size_lower = replace(size_lower, size_lower < 0, 0),
+  #   size_lower = replace(size_lower, size_lower < 0, 0), #when size_lower is < min(size_bin), first(size_bin)
   #   size_lower = replace(size_lower, row_number() == n(), last(size_bin)),
   #   known_g = known_g)
 
