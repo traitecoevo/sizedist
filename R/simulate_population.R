@@ -108,7 +108,7 @@ simulate_population <-  function(time_end = 25,
   # could be converted to mutate with pipe
   # need to pass all columns into functions, but without knowing names
 
-  df$size_sampled <- simulate_growth(df, pars$model)
+  df$size<- simulate_growth(df, pars$model)
   df$cumulative_hazard <- simulate_cumulative_mortality(df, pars$model)
 
   # common across all models

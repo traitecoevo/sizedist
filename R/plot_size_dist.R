@@ -10,7 +10,7 @@
 
 plot_size_dist <- function(data, pars, binwidth, fitted = NULL) {
   p1 <- data %>%
-    ggplot(aes(size_sampled)) +
+    ggplot(aes(size)) +
     geom_histogram(binwidth = binwidth) +
     stat_function(fun = function(x) size_dist_model(x, pars) * binwidth)
 
