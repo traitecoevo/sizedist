@@ -28,6 +28,14 @@ add_bins <- function(data,
   #   stop("Variable must be numeric")
   # }
 
+  if(missing(var)){
+    message("`var` is missing! Which variable do you want to add bins to?")
+  }
+
+  if(missing(bin_width)){
+    message("`bin_width` must be supplied! This is usually the smallest measurement resolution for `var`")
+  }
+
   # Rounding data value to specific bin
   tmp <- data %>%
     dplyr::mutate(
