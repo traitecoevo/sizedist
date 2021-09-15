@@ -4,12 +4,12 @@
 \alias{fit_dist}
 \title{Fit size distribution model with Stan}
 \usage{
-fit_dist(stan_data)
+fit_dist(data, ...)
 }
 \arguments{
-\item{stan_data}{Stan-friendly data list created by XX function}
-
 \item{...}{Arguments passed to \code{rstan::sampling} (e.g. iter, chains).}
+
+\item{stan_data}{Stan-friendly data list created by XX function}
 }
 \value{
 An object of class \code{stanfit} returned by \code{rstan::sampling}

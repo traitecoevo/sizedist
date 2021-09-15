@@ -4,10 +4,10 @@
 \alias{mutate_pars}
 \title{Create, modify and remove model parameters}
 \usage{
-mutate_pars(pars = default_pars("model1"), ...)
+mutate_pars(pars, ...)
 }
 \arguments{
-\item{pars}{The name of the model in the format default_pars("modelname")}
+\item{pars}{The name of the model in the format default_pars("model1")}
 
 \item{...}{Name and value pair:
 \itemize{

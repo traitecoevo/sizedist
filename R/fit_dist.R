@@ -5,11 +5,11 @@
 #' @param ... Arguments passed to `rstan::sampling` (e.g. iter, chains).
 #' @return An object of class `stanfit` returned by `rstan::sampling`
 #'
-fit_dist <- function(stan_data) {
+fit_dist <- function(data, ...) {
   out <-
-    switch(stan_data$model,
-           model1 = rstan::sampling(stanmodels$mortality_age, data = stan_data, ...),
-           model2 = rstan::sampling(stanmodels$mortality_size_known_g, data = stan_data, ...)
+    switch(data$model,
+           model1 = rstan::sampling(stanmodels$mortality_age, data = data, ...),
+           model2 = rstan::sampling(stanmodels$mortality_size_known_g, data = data, ...)
   )
 
   return(out)

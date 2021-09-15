@@ -5,7 +5,6 @@ data {
   real age_lower[n];
   real age_upper[n];
   int counts[n];
-  real Z_sd;
 }
 
 parameters {
@@ -18,7 +17,7 @@ model {
   real counts_est[n];
 
   // Priors
-  Z ~ cauchy(0, Z_sd);
+  Z ~ cauchy(0, 10);
 
   // Model estimated counts
   for(i in 1:n){
