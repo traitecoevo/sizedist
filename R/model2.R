@@ -9,7 +9,6 @@ default_pars_model2 <- function() {
     log10g_sd = 0.0,
     z_av = 0.25,
     log10z_sd = 0.0,
-    known_g = 0.21,
     model = "model2"
   )
 }

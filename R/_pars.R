@@ -18,5 +18,20 @@ mutate_pars <- function(pars = default_pars("model1"), ...){
   ls
 }
 
+join_pars <- function(stan_data,
+                      pars,
+                      var){
+
+  out  <- c(stan_data,
+            pars[var])
+
+  #Order the list with model at the end I don't know if this is important but it looks nice
+  out <- c(purrr::discard(out, is.character),
+          purrr::keep(out, is.character))
+
+  out
+
+}
+
 
 

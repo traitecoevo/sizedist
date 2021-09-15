@@ -33,17 +33,18 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_mortality_age");
-    reader.add_event(31, 29, "end", "model_mortality_age");
+    reader.add_event(32, 30, "end", "model_mortality_age");
     return reader;
 }
 #include <stan_meta_header.hpp>
 class model_mortality_age
   : public stan::model::model_base_crtp<model_mortality_age> {
 private:
-        int N;
+        int n;
         std::vector<double> age_lower;
         std::vector<double> age_upper;
         std::vector<int> counts;
+        double Z_sd;
 public:
     model_mortality_age(stan::io::var_context& context__,
         std::ostream* pstream__ = 0)
@@ -75,50 +76,56 @@ public:
         try {
             // initialize data block variables from context__
             current_statement_begin__ = 4;
-            context__.validate_dims("data initialization", "N", "int", context__.to_vec());
-            N = int(0);
-            vals_i__ = context__.vals_i("N");
+            context__.validate_dims("data initialization", "n", "int", context__.to_vec());
+            n = int(0);
+            vals_i__ = context__.vals_i("n");
             pos__ = 0;
-            N = vals_i__[pos__++];
+            n = vals_i__[pos__++];
             current_statement_begin__ = 5;
-            validate_non_negative_index("age_lower", "N", N);
-            context__.validate_dims("data initialization", "age_lower", "double", context__.to_vec(N));
-            age_lower = std::vector<double>(N, double(0));
+            validate_non_negative_index("age_lower", "n", n);
+            context__.validate_dims("data initialization", "age_lower", "double", context__.to_vec(n));
+            age_lower = std::vector<double>(n, double(0));
             vals_r__ = context__.vals_r("age_lower");
             pos__ = 0;
-            size_t age_lower_k_0_max__ = N;
+            size_t age_lower_k_0_max__ = n;
             for (size_t k_0__ = 0; k_0__ < age_lower_k_0_max__; ++k_0__) {
                 age_lower[k_0__] = vals_r__[pos__++];
             }
             current_statement_begin__ = 6;
-            validate_non_negative_index("age_upper", "N", N);
-            context__.validate_dims("data initialization", "age_upper", "double", context__.to_vec(N));
-            age_upper = std::vector<double>(N, double(0));
+            validate_non_negative_index("age_upper", "n", n);
+            context__.validate_dims("data initialization", "age_upper", "double", context__.to_vec(n));
+            age_upper = std::vector<double>(n, double(0));
             vals_r__ = context__.vals_r("age_upper");
             pos__ = 0;
-            size_t age_upper_k_0_max__ = N;
+            size_t age_upper_k_0_max__ = n;
             for (size_t k_0__ = 0; k_0__ < age_upper_k_0_max__; ++k_0__) {
                 age_upper[k_0__] = vals_r__[pos__++];
             }
             current_statement_begin__ = 7;
-            validate_non_negative_index("counts", "N", N);
-            context__.validate_dims("data initialization", "counts", "int", context__.to_vec(N));
-            counts = std::vector<int>(N, int(0));
+            validate_non_negative_index("counts", "n", n);
+            context__.validate_dims("data initialization", "counts", "int", context__.to_vec(n));
+            counts = std::vector<int>(n, int(0));
             vals_i__ = context__.vals_i("counts");
             pos__ = 0;
-            size_t counts_k_0_max__ = N;
+            size_t counts_k_0_max__ = n;
             for (size_t k_0__ = 0; k_0__ < counts_k_0_max__; ++k_0__) {
                 counts[k_0__] = vals_i__[pos__++];
             }
+            current_statement_begin__ = 8;
+            context__.validate_dims("data initialization", "Z_sd", "double", context__.to_vec());
+            Z_sd = double(0);
+            vals_r__ = context__.vals_r("Z_sd");
+            pos__ = 0;
+            Z_sd = vals_r__[pos__++];
             // initialize transformed data variables
             // execute transformed data statements
             // validate transformed data
             // validate, set parameter ranges
             num_params_r__ = 0U;
             param_ranges_i__.clear();
-            current_statement_begin__ = 11;
-            num_params_r__ += 1;
             current_statement_begin__ = 12;
+            num_params_r__ += 1;
+            current_statement_begin__ = 13;
             num_params_r__ += 1;
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
@@ -137,7 +144,7 @@ public:
         (void) pos__; // dummy call to supress warning
         std::vector<double> vals_r__;
         std::vector<int> vals_i__;
-        current_statement_begin__ = 11;
+        current_statement_begin__ = 12;
         if (!(context__.contains_r("Z")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable Z missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("Z");
@@ -150,7 +157,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable Z: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 12;
+        current_statement_begin__ = 13;
         if (!(context__.contains_r("R")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable R missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("R");
@@ -188,14 +195,14 @@ public:
         try {
             stan::io::reader<local_scalar_t__> in__(params_r__, params_i__);
             // model parameters
-            current_statement_begin__ = 11;
+            current_statement_begin__ = 12;
             local_scalar_t__ Z;
             (void) Z;  // dummy to suppress unused var warning
             if (jacobian__)
                 Z = in__.scalar_lb_constrain(0, lp__);
             else
                 Z = in__.scalar_lb_constrain(0);
-            current_statement_begin__ = 12;
+            current_statement_begin__ = 13;
             local_scalar_t__ R;
             (void) R;  // dummy to suppress unused var warning
             if (jacobian__)
@@ -204,22 +211,22 @@ public:
                 R = in__.scalar_lb_constrain(0);
             // model body
             {
-            current_statement_begin__ = 17;
-            validate_non_negative_index("counts_est", "N", N);
-            std::vector<local_scalar_t__  > counts_est(N, local_scalar_t__(DUMMY_VAR__));
+            current_statement_begin__ = 18;
+            validate_non_negative_index("counts_est", "n", n);
+            std::vector<local_scalar_t__  > counts_est(n, local_scalar_t__(DUMMY_VAR__));
             stan::math::initialize(counts_est, DUMMY_VAR__);
             stan::math::fill(counts_est, DUMMY_VAR__);
-            current_statement_begin__ = 20;
-            lp_accum__.add(cauchy_log<propto__>(Z, 0, 10));
-            current_statement_begin__ = 23;
-            for (int i = 1; i <= N; ++i) {
-                current_statement_begin__ = 24;
+            current_statement_begin__ = 21;
+            lp_accum__.add(cauchy_log<propto__>(Z, 0, Z_sd));
+            current_statement_begin__ = 24;
+            for (int i = 1; i <= n; ++i) {
+                current_statement_begin__ = 25;
                 stan::model::assign(counts_est, 
                             stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                             ((-(R) / Z) * (stan::math::exp((-(Z) * get_base1(age_upper, i, "age_upper", 1))) - stan::math::exp((-(Z) * get_base1(age_lower, i, "age_lower", 1))))), 
                             "assigning variable counts_est");
             }
-            current_statement_begin__ = 28;
+            current_statement_begin__ = 29;
             lp_accum__.add(poisson_log<propto__>(counts, counts_est));
             }
         } catch (const std::exception& e) {

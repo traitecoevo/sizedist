@@ -1,10 +1,11 @@
 //simple mortality function
 
 data {
-  int N;
-  real age_lower[N];
-  real age_upper[N];
-  int counts[N];
+  int n;
+  real age_lower[n];
+  real age_upper[n];
+  int counts[n];
+  real Z_sd;
 }
 
 parameters {
@@ -13,14 +14,14 @@ parameters {
 }
 
 model {
-  
-  real counts_est[N];
+
+  real counts_est[n];
 
   // Priors
-  Z ~ cauchy(0, 10);
-  
+  Z ~ cauchy(0, Z_sd);
+
   // Model estimated counts
-  for(i in 1:N){
+  for(i in 1:n){
       counts_est[i] =  -R/Z * ( exp(-Z*age_upper[i]) - exp(-Z*age_lower[i]));
   }
 
