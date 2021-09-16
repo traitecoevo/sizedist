@@ -41,6 +41,8 @@ Imports:
     tidyr,
     stats,
     ggplot2,
+    glue,
+    purrr,
     rlang,
     stringr
 LinkingTo: 

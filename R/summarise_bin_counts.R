@@ -2,14 +2,14 @@
 
 summarise_bin_counts <- function(data, bin_var, bin_width) {
 
+  #Add bin variable to data
+  data <- data %>% add_bins({{bin_var}}, bin_width)
+
  bin_var <- enquo(bin_var)
-
- data <- data %>% mutate(x4235_corn_bob = !!bin_var)
-
 
  #Get counts
  bin_counts <- data %>%
-   group_by(x4235_corn_bob) %>%
+   group_by(binned_var) %>%
    summarise(counts = n()) %>%
    ungroup()
 
@@ -28,21 +28,20 @@ summarise_bin_counts <- function(data, bin_var, bin_width) {
 
   #Creating new df with all bins
   tmp <- dplyr::tibble(
-    x4235_corn_bob = data %>% pull(x4235_corn_bob) %>% create_all_bins(bin_width),
-    !!bin_nm := x4235_corn_bob,
-    !!lb_name := x4235_corn_bob - 0.5 * bin_width,
-    !!ub_name := x4235_corn_bob + 0.5 * bin_width)
+    binned_var = data %>% pull(binned_var) %>% create_all_bins(bin_width),
+    !!bin_nm := binned_var,
+    !!lb_name := binned_var - 0.5 * bin_width,
+    !!ub_name := binned_var + 0.5 * bin_width)
 
   #Get the bin counts and then joining to data
-  tmp %>% left_join(by = "x4235_corn_bob", bin_counts) %>%
+  tmp %>% left_join(by = "binned_var", bin_counts) %>%
     tidyr::replace_na(list(counts = 0)) %>%
-    dplyr::select(-x4235_corn_bob)
+    dplyr::select(-binned_var)
 
 }
 
 # #data <- simulate_population() %>% add_bins(size_sampled, 0.1)
-data %>% add_bins(size, 0.1) %>%
-  summarise_bin_counts(size_bin, 0.1) #Add_bins into summarise_by_bin(), count_by_bin()
+data %>% summarise_bin_counts(size, 0.1)
 summarise_bin_counts(Loblolly, age, 10)
 
 data$size %>% unique()

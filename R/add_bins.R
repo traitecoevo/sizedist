@@ -23,33 +23,19 @@ add_bins <- function(data,
     round(x/bin_width, 0)*bin_width
   }
 
-  # #Abort if not numeric
-  # if(! is.numeric({{var}})){
-  #   stop("Variable must be numeric")
-  # }
-
   if(missing(var)){
-    message("`var` is missing! Which variable do you want to add bins to?")
+    stop("`var` is missing! Which variable do you want to add bins to?")
   }
 
   if(missing(bin_width)){
-    message("`bin_width` must be supplied! This is usually the smallest measurement resolution for `var`")
+    stop("`bin_width` must be supplied! This is usually the smallest measurement resolution for `var`")
   }
 
   # Rounding data value to specific bin
-  tmp <- data %>%
+  data %>%
+    dplyr::tibble() %>% #Become tibble
     dplyr::mutate(
-     binned_var = round_by_bin({{var}}, bin_width)
+      binned_var = round_by_bin({{var}}, bin_width)
     )
-
-  # Suffix to append to end of variable name
-  suffix <-"_bin"
-
-  # Renaming the variable using supplied variable name and suffix
-  out <- tmp %>%
-    dplyr::rename("{{var}}{suffix}" := binned_var)
-
-  #Return as tibble
-  dplyr::tibble(out)
 
 }

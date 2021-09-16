@@ -1,7 +1,7 @@
 #' Counts for age bin data
 #'
 #' @param data A data frame, data frame extension (e.g. tibble) containing `age` as a column
-#' @param bin_width_age The bin width for age, usually the smallest resolution of re-ssampling e.g. 1 day
+#' @param bin_width The bin width for age, usually the smallest resolution of re-ssampling e.g. 1 day
 #' @return a data frame containing lower and upper bounds as well as counts for each `age_bin`
 #' @export
 #' @seealso `simulate_population()` `add_bins()`
@@ -11,7 +11,7 @@
 #' fishlarvae %>% add_bins() %>% create_age_bin_counts()
 #' }
 #'
-create_age_bin_counts <- function(data, bin_width_age = 1){
+create_age_bin_counts <- function(data, bin_width = 1){
 
   tmp <-
     tibble(
@@ -38,13 +38,13 @@ create_age_bin_counts <- function(data, bin_width_age = 1){
 #' Counts for size bin data
 #'
 #' @param data A data frame, data frame extension (e.g. tibble) containing `age` as a column
-#' @param bin_width_age The bin width for age, usually the smallest resolution of re-sampling e.g. 1 day
+#' @param bin_width The bin width for age, usually the smallest resolution of re-sampling e.g. 1 day
 #' @return a data frame containing lower and upper bounds as well as counts for each `size_bin`
 #' @export
 #' @seealso `simulate_population()` `add_bins()`
 
 create_size_bin_counts <- function(data,
-                                   bin_width_size = 0.1){
+                                   bin_width = 0.1){
   tmp <-
     tibble(
       size_bin = seq(min(data$size_bin), max(data$size_bin), by = bin_width_size),

@@ -4,12 +4,12 @@
 \alias{create_age_bin_counts}
 \title{Counts for age bin data}
 \usage{
-create_age_bin_counts(data, bin_width_age = 1)
+create_age_bin_counts(data, bin_width = 1)
 }
 \arguments{
 \item{data}{A data frame, data frame extension (e.g. tibble) containing \code{age} as a column}
 
-\item{bin_width_age}{The bin width for age, usually the smallest resolution of re-ssampling e.g. 1 day}
+\item{bin_width}{The bin width for age, usually the smallest resolution of re-ssampling e.g. 1 day}
 }
 \value{
 a data frame containing lower and upper bounds as well as counts for each \code{age_bin}
