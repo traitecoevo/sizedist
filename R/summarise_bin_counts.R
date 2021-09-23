@@ -20,7 +20,7 @@ summarise_bin_counts <- function(data, bin_var, bin_width) {
  #Get counts
  bin_counts <- data %>%
    dplyr::group_by(binned_var) %>%
-   dplyr::summarise(counts = n()) %>%
+   dplyr::summarise(counts = dplyr::n()) %>%
    dplyr::ungroup()
 
   #Create all possible bins
