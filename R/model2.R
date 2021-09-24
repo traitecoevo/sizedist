@@ -17,7 +17,7 @@ default_pars_model2 <- function() {
 sample_individual_variation_model2 <- function(n, pars) {
   with(
     pars,
-    tibble(
+    dplyr::tibble(
       size_birth = 10 ^ rnorm(n, log10(s0_av), log10s0_sd),
       growth_rate = 10 ^ rnorm(n, log10(g_av), log10g_sd),
       mortality_rate = 10 ^ rnorm(n, log10(z_av), log10z_sd)

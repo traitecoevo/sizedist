@@ -91,8 +91,9 @@ simulate_cumulative_mortality <- function(individual_data, model) {
 #' @param pars list of parameter values for the size-distribution model, including model name
 #' @param keep_dead logical indicating whether dead individuals should be kept
 #' @return a data frame (tibble) of simulated data
-simulate_population <-  function(time_end = 25,
-                                 pars = default_pars("model1"),
+#' @export
+simulate_population <-  function(pars = default_pars("model1"),
+                                 time_end = 25,
                                  keep_dead = FALSE) {
   df <-
     dplyr::tibble(

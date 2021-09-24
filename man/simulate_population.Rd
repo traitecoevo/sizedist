@@ -5,15 +5,15 @@
 \title{Simulates individuals sampled from population process with particular size-distribution model}
 \usage{
 simulate_population(
-  time_end = 25,
   pars = default_pars("model1"),
+  time_end = 25,
   keep_dead = FALSE
 )
 }
 \arguments{
-\item{time_end}{Time to end simulation}
-
 \item{pars}{list of parameter values for the size-distribution model, including model name}
+
+\item{time_end}{Time to end simulation}
 
 \item{keep_dead}{logical indicating whether dead individuals should be kept}
 }

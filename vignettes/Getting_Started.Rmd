@@ -1,0 +1,52 @@
+---
+title: "Getting Started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting_Started}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  results = "hold"
+)
+
+library(sizedist)
+```
+
+### An introduction on how to fit size distribution models to estimate growth and mortality
+
+`sizedist` provides functions to simulate and fit size and age-structured populations models to data. In this *Getting Started* vignette, we will cover the simplest model that is implemented in the package. `model1` assumes mortality and growth are constants. See the Theory vignette for more details on the various models in `sizedist`
+
+To begin, let's first start by simulating some data of a hypothetical population. In order to simulate a population, we first need to set some **hyperparameters** that are used to inform the simulation. See the XXX vignette on the definitions for each hyperparameter. `sizedist` has default hyperparameters that you can access using the `default_pars()` function. Note that these hyperparameters are organised as a **list** object. Learn more about lists <here>(https://www.tutorialspoint.com/r/r_lists.htm).  
+```{r hyperparams}
+library(sizedist)
+
+#Calling this function will return a list of hyperparameters
+#Tip: Assign this function into an object for later use
+pars <- default_pars("model1")
+
+pars
+```
+
+We can now use these hyperparameters to simulate some data using the `simulate_population()` function.
+
+```{r simulate}
+#Tip: Assign this function to an object so you have access to the data
+data <- simulate_population(pars)
+
+data
+```
+
+We created two plotting functions to visualise the distribution of different sizes and ages of the simulated data
+
+```{r visualise}
+plot_age_dist(data, pars, binwidth = 1)
+plot_size_dist(data, pars, binwidth = 0.1)
+```
+

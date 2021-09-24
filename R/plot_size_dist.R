@@ -7,6 +7,7 @@
 #' @param fitted is a list containing estimated parameters from a stan mortality_size model.
 #' @importFrom ggplot2 ggplot aes geom_histogram stat_function
 #' @return a ggplot of size-frequency histogram with fitted function line
+#' @export
 
 plot_size_dist <- function(data, pars, binwidth, fitted = NULL) {
   p1 <- data %>%
