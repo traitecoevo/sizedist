@@ -3,10 +3,10 @@
 #' @param data A data frame containing age and/or size bins counts created using `add_bins()` and `create_age_bin_counts()`
 #' @param ... Arguments passed to tidybayes::compose_data
 #' @export
-#' @seealso `fit_age()` and `create_age_bin_counts()`
+#' @seealso `fit_sizedist()` and `create_age_bin_counts()`
 #' @return A data list where each list element is a column from the original data frame
 
-compose_data <- function(data,...){
+compose_count_data <- function(data,...){
   ret <- tidybayes::compose_data(data, ...)
 
   #rename list name for $n
@@ -17,7 +17,15 @@ compose_data <- function(data,...){
     .x
   }
 
-  ls_rename(ret, N_counts = n)
+  out <- ls_rename(ret,
+                   N_counts = n)
+
+  if("size" %in% names(ret)){
+    ls_rename(out,
+              size_sampled = size)
+  }
+
+  out
 }
 
 
@@ -53,7 +61,9 @@ compose_growth_data <- function(data,
     .x
   }
 
-  ls_rename(out, N_growth = n)
+  ls_rename(out,
+            N_growth = n,
+            size_ind = {{size_var}})
 
 }
 
