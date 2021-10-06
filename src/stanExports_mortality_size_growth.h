@@ -41,9 +41,9 @@ class model_mortality_size_growth
   : public stan::model::model_base_crtp<model_mortality_size_growth> {
 private:
         int N_counts;
-        double l0;
-        std::vector<double> size_lower;
-        std::vector<double> size_upper;
+        double s0_av;
+        std::vector<double> bin_lower;
+        std::vector<double> bin_upper;
         std::vector<int> counts;
         int N_growth;
         vector_d age;
@@ -85,30 +85,30 @@ public:
             pos__ = 0;
             N_counts = vals_i__[pos__++];
             current_statement_begin__ = 7;
-            context__.validate_dims("data initialization", "l0", "double", context__.to_vec());
-            l0 = double(0);
-            vals_r__ = context__.vals_r("l0");
+            context__.validate_dims("data initialization", "s0_av", "double", context__.to_vec());
+            s0_av = double(0);
+            vals_r__ = context__.vals_r("s0_av");
             pos__ = 0;
-            l0 = vals_r__[pos__++];
+            s0_av = vals_r__[pos__++];
             current_statement_begin__ = 8;
-            validate_non_negative_index("size_lower", "N_counts", N_counts);
-            context__.validate_dims("data initialization", "size_lower", "double", context__.to_vec(N_counts));
-            size_lower = std::vector<double>(N_counts, double(0));
-            vals_r__ = context__.vals_r("size_lower");
+            validate_non_negative_index("bin_lower", "N_counts", N_counts);
+            context__.validate_dims("data initialization", "bin_lower", "double", context__.to_vec(N_counts));
+            bin_lower = std::vector<double>(N_counts, double(0));
+            vals_r__ = context__.vals_r("bin_lower");
             pos__ = 0;
-            size_t size_lower_k_0_max__ = N_counts;
-            for (size_t k_0__ = 0; k_0__ < size_lower_k_0_max__; ++k_0__) {
-                size_lower[k_0__] = vals_r__[pos__++];
+            size_t bin_lower_k_0_max__ = N_counts;
+            for (size_t k_0__ = 0; k_0__ < bin_lower_k_0_max__; ++k_0__) {
+                bin_lower[k_0__] = vals_r__[pos__++];
             }
             current_statement_begin__ = 9;
-            validate_non_negative_index("size_upper", "N_counts", N_counts);
-            context__.validate_dims("data initialization", "size_upper", "double", context__.to_vec(N_counts));
-            size_upper = std::vector<double>(N_counts, double(0));
-            vals_r__ = context__.vals_r("size_upper");
+            validate_non_negative_index("bin_upper", "N_counts", N_counts);
+            context__.validate_dims("data initialization", "bin_upper", "double", context__.to_vec(N_counts));
+            bin_upper = std::vector<double>(N_counts, double(0));
+            vals_r__ = context__.vals_r("bin_upper");
             pos__ = 0;
-            size_t size_upper_k_0_max__ = N_counts;
-            for (size_t k_0__ = 0; k_0__ < size_upper_k_0_max__; ++k_0__) {
-                size_upper[k_0__] = vals_r__[pos__++];
+            size_t bin_upper_k_0_max__ = N_counts;
+            for (size_t k_0__ = 0; k_0__ < bin_upper_k_0_max__; ++k_0__) {
+                bin_upper[k_0__] = vals_r__[pos__++];
             }
             current_statement_begin__ = 10;
             validate_non_negative_index("counts", "N_counts", N_counts);
@@ -308,7 +308,7 @@ public:
                 current_statement_begin__ = 39;
                 stan::model::assign(counts_est, 
                             stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
-                            ((-(R) / Z) * (stan::math::exp(((-(Z) / g) * (get_base1(size_upper, i, "size_upper", 1) - l0))) - stan::math::exp(((-(Z) / g) * (get_base1(size_lower, i, "size_lower", 1) - l0))))), 
+                            ((-(R) / Z) * (stan::math::exp(((-(Z) / g) * (get_base1(bin_upper, i, "bin_upper", 1) - s0_av))) - stan::math::exp(((-(Z) / g) * (get_base1(bin_lower, i, "bin_lower", 1) - s0_av))))), 
                             "assigning variable counts_est");
             }
             current_statement_begin__ = 42;
@@ -318,7 +318,7 @@ public:
                 current_statement_begin__ = 46;
                 stan::model::assign(size_est, 
                             stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
-                            (l0 + (get_base1(age, i, "age", 1) * g)), 
+                            (s0_av + (get_base1(age, i, "age", 1) * g)), 
                             "assigning variable size_est");
             }
             current_statement_begin__ = 50;

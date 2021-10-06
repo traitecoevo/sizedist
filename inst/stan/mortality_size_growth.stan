@@ -5,8 +5,8 @@ data {
   // Data on counts
   int N_counts;
   real s0_av;
-  real size_lower[N_counts];
-  real size_upper[N_counts];
+  real bin_lower[N_counts];
+  real bin_upper[N_counts];
   int counts[N_counts];
 
   // Data on growth
@@ -37,7 +37,7 @@ model {
   // Model for counts
   for(i in 1:N_counts) {
     counts_est[i] =
-        - R/Z * (exp(-Z/g*(size_upper[i] - s0_av)) - exp(-Z/g*(size_lower[i] - s0_av)));
+        - R/Z * (exp(-Z/g*(bin_upper[i] - s0_av)) - exp(-Z/g*(bin_lower[i] - s0_av)));
   }
   counts ~ poisson(counts_est);
 
