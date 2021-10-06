@@ -29,24 +29,15 @@ summarise_bin_counts <- function(data, bin_var, bin_width) {
     ret
   }
 
-  #Create variable name
-  bin_nm <- rlang::as_label(bin_var)
-
-  #Append suffixes for lower and upper bounds
-  lb_name  <- glue::glue(bin_nm, "_lower")
-  ub_name  <- glue::glue(bin_nm, "_upper")
-
   #Creating new df with all bins
   tmp <- dplyr::tibble(
     binned_var = data %>% dplyr::pull(binned_var) %>% create_all_bins(bin_width),
-    !!bin_nm := binned_var,
-    !!lb_name := binned_var - 0.5 * bin_width,
-    !!ub_name := binned_var + 0.5 * bin_width)
+    bin_lower := binned_var - 0.5 * bin_width,
+    bin_upper := binned_var + 0.5 * bin_width)
 
   #Get the bin counts and then joining to data
   out <- tmp %>% dplyr::left_join(by = "binned_var", bin_counts) %>%
-    tidyr::replace_na(list(counts = 0)) %>%
-    dplyr::select(-binned_var)
+    tidyr::replace_na(list(counts = 0))
 
   #Correct the lower bounds of the first and last bins
   out[1,2] <- out[1,1]
