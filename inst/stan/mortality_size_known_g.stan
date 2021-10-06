@@ -2,7 +2,7 @@
 
 data {
   int N_counts;
-  real l0;
+  real s0_av;
   real known_g;
   real size_lower[N_counts];
   real size_upper[N_counts];
@@ -26,9 +26,9 @@ model {
 
   // Model estimated countss
   for(i in 1:N_counts) {
-    //counts_est[i] = 0.5*(R/g * (exp(-Z/g*(sizes[i+1] - l0)) + exp(-Z/g*(sizes[i] - l0))));
+    //counts_est[i] = 0.5*(R/g * (exp(-Z/g*(sizes[i+1] - s0_av)) + exp(-Z/g*(sizes[i] - s0_av))));
     counts_est[i] =
-        - R/Z * (exp(-Z/g*(size_upper[i] - l0)) - exp(-Z/g*(size_lower[i] - l0)));
+        - R/Z * (exp(-Z/g*(size_upper[i] - s0_av)) - exp(-Z/g*(size_lower[i] - s0_av)));
   }
 
   // Likelihood

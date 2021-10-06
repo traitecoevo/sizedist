@@ -4,7 +4,7 @@ data {
 
   // Data on counts
   int N_counts;
-  real l0;
+  real s0_av;
   real size_lower[N_counts];
   real size_upper[N_counts];
   int counts[N_counts];
@@ -37,13 +37,13 @@ model {
   // Model for counts
   for(i in 1:N_counts) {
     counts_est[i] =
-        - R/Z * (exp(-Z/g*(size_upper[i] - l0)) - exp(-Z/g*(size_lower[i] - l0)));
+        - R/Z * (exp(-Z/g*(size_upper[i] - s0_av)) - exp(-Z/g*(size_lower[i] - s0_av)));
   }
   counts ~ poisson(counts_est);
 
   // Model for growth rate
   for(i in 1:N_growth) {
-    size_est[i] = l0 + age[i]*g;
+    size_est[i] = s0_av + age[i]*g;
   }
 
   // model for how y varies
