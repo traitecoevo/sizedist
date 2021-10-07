@@ -35,13 +35,22 @@ join_pars <- function(data,
 #' @export
 #'
 #' @examples
-add_pars <- function(data, pars = NULL, type = NULL){
+add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
   if(is.null(pars) & is.null(type)){
     rlang::abort("Hyperparameters or type of model must be supplied")
   }
 
    if(is.null(pars) & ! is.null(type) & is.character(type)){
     pars <- default_pars(type)
+   }
+
+  if(prune){
+  prune_pars <- function(pars, vars){
+    sim_vars <- c("R", "log10s0_sd", "g_av", "log10g_sd", "z_av", "log10z_sd")
+    purrr::discard(pars, names(pars) %in% sim_vars)
+  }
+
+  pars <- prune_pars(pars)
   }
 
   out  <- c(data,
@@ -52,11 +61,6 @@ add_pars <- function(data, pars = NULL, type = NULL){
            purrr::keep(out, is.character))
 
   out
-
-}
-
-
-prune_pars <- function(pars, vars){
 
 }
 
