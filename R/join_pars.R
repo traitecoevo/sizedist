@@ -7,6 +7,8 @@
 #' @return List with variables from pars appended
 #' @export
 
+
+
 join_pars <- function(data,
                       pars,
                       var){
@@ -19,6 +21,42 @@ join_pars <- function(data,
            purrr::keep(out, is.character))
 
   out
+
+}
+
+
+#' Add_pars Join_pars superseder
+#'
+#' @param data Data created by summarise_bin_counts
+#' @param pars pars object
+#' @param type Character string of model
+#'
+#' @return
+#' @export
+#'
+#' @examples
+add_pars <- function(data, pars = NULL, type = NULL){
+  if(is.null(pars) & is.null(type)){
+    rlang::abort("Hyperparameters or type of model must be supplied")
+  }
+
+   if(is.null(pars) & ! is.null(type) & is.character(type)){
+    pars <- default_pars(type)
+  }
+
+  out  <- c(data,
+            pars)
+
+  #Order the list with model at the end I don't know if this is important but it looks nice
+  out <- c(purrr::discard(out, is.character),
+           purrr::keep(out, is.character))
+
+  out
+
+}
+
+
+prune_pars <- function(pars, vars){
 
 }
 
