@@ -33,8 +33,6 @@ join_pars <- function(data,
 #'
 #' @return
 #' @export
-#'
-#' @examples
 add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
   if(is.null(pars) & is.null(type)){
     rlang::abort("Hyperparameters or type of model must be supplied")

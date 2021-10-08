@@ -15,11 +15,11 @@ summarise_bin_counts <- function(data, bin_var, bin_width) {
   bin_var <- enquo(bin_var)
 #
 #   if(missing(bin_var)){
-#     abort("bin_var must be supplied!")
+#     stop("bin_var must be supplied!")
 #   }
 #
 #   if(missing(bin_width)){
-#     abort("bin_width must be supplied!")
+#     stop("bin_width must be supplied!")
 #   }
 
 
@@ -64,7 +64,6 @@ summarise_bin_counts <- function(data, bin_var, bin_width) {
 #' @param bin_width The bin width for variable, usually the smallest resolution of resampling or measurement
 #' @return a data frame with binned variable added with suffix `_bin`
 #' @export
-#' @importFrom rlang :=
 #' @seealso simulate_population()
 #' @examples
 #' \dontrun{

@@ -7,7 +7,6 @@
 #' @param bin_width The bin width for variable, usually the smallest resolution of resampling or measurement
 #' @return a data frame with binned variable added with suffix `_bin`
 #' @export
-#' @importFrom rlang :=
 #' @seealso simulate_population()
 #' @examples
 #' \dontrun{
