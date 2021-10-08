@@ -19,11 +19,11 @@ knitr::opts_chunk$set(
 library(sizedist)
 ```
 
-### An introduction on how to fit size distribution models to estimate growth and mortality
-
 `sizedist` provides functions to simulate and fit size and age-structured populations models to data. In this *Getting Started* vignette, we will cover the simplest model that is implemented in the package. `model1` assumes mortality and growth are constants. See the Theory vignette for more details on the various models in `sizedist`
 
-To begin, let's first start by simulating some data of a hypothetical population. In order to simulate a population, we first need to set some **hyperparameters** that are used to inform the simulation. See the XXX vignette on the definitions for each hyperparameter. `sizedist` has default hyperparameters that you can access using the `default_pars()` function. Note that these hyperparameters are organised as a **list** object. Learn more about lists <here>(https://www.tutorialspoint.com/r/r_lists.htm).  
+### Simulating size and age structureded data
+
+To begin, let's first start by simulating some data of a hypothetical population. We first need to set some **hyper-parameters** that are used to inform the simulation. See the XXX vignette on the definitions for each hyperparameter. `sizedist` has default hyper-parameters that you can access using the `default_pars()` function. Note that these hyper-parameters are organised as a **list** object. Learn more about lists <here>(https://www.tutorialspoint.com/r/r_lists.htm).  
 ```{r hyperparams}
 library(sizedist)
 
@@ -43,10 +43,21 @@ data <- simulate_population(pars)
 data
 ```
 
-We created two plotting functions to visualise the distribution of different sizes and ages of the simulated data
+We created two plotting functions to visualise the distribution of size and age of the simulated population 
 
 ```{r visualise}
 plot_age_dist(data, pars, binwidth = 1)
 plot_size_dist(data, pars, binwidth = 0.1)
 ```
 
+### Creating binned data for model fitting
+
+In order to estimate a distribution for size/age in our models, we need  to create bins or 'class intervals' for these variables and tally up the number of observations that fall into each of these bins. The `summarise_bin_counts()` function will do the trick!
+
+```{r data set up}
+data %>% summarise_bin_counts()
+```
+
+
+
+### An introduction on how to fit size distribution models to estimate growth and mortality

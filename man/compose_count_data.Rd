@@ -18,5 +18,5 @@ A data list where each list element is a column from the original data frame
 Compile data frame into Stan friendly format for size distribution models
 }
 \seealso{
-\code{fit_age()} and \code{create_age_bin_counts()}
+\code{fit_sizedist()} and \code{create_age_bin_counts()}
 }

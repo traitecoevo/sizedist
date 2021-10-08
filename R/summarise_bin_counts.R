@@ -3,7 +3,7 @@
 #' @param data A data frame or tibble
 #' @param bin_var Numeric variable that bin intervals and counts are computed
 #' @param bin_width The bin width for `age`bin_var`, usually the smallest resolution of re-sampling
-#'
+#' @importFrom rlang enquo abort
 #' @return A tibble containing `bin_var`, lower and upper bounds and counts for each bin
 #' @export
 #'
@@ -12,10 +12,19 @@
 #'
 summarise_bin_counts <- function(data, bin_var, bin_width) {
 
+  bin_var <- enquo(bin_var)
+#
+#   if(missing(bin_var)){
+#     abort("bin_var must be supplied!")
+#   }
+#
+#   if(missing(bin_width)){
+#     abort("bin_width must be supplied!")
+#   }
+
+
   #Add bin variable to data
   data <- data %>% add_bins({{bin_var}}, bin_width)
-
- bin_var <- rlang::enquo(bin_var)
 
  #Get counts
  bin_counts <- data %>%
@@ -32,8 +41,8 @@ summarise_bin_counts <- function(data, bin_var, bin_width) {
   #Creating new df with all bins
   tmp <- dplyr::tibble(
     binned_var = data %>% dplyr::pull(binned_var) %>% create_all_bins(bin_width),
-    bin_lower := binned_var - 0.5 * bin_width,
-    bin_upper := binned_var + 0.5 * bin_width)
+    bin_lower = binned_var - 0.5 * bin_width,
+    bin_upper = binned_var + 0.5 * bin_width)
 
   #Get the bin counts and then joining to data
   out <- tmp %>% dplyr::left_join(by = "binned_var", bin_counts) %>%
@@ -41,7 +50,7 @@ summarise_bin_counts <- function(data, bin_var, bin_width) {
 
   #Correct the lower bounds of the first and last bins
   out[1,2] <- out[1,1]
-  out[nrow(out),2] <-out[nrow(out), 1]
+  out[nrow(out),2] <- out[nrow(out), 1]
 
   out
 }
