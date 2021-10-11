@@ -44,7 +44,8 @@ Imports:
     glue,
     purrr,
     rlang,
-    stringr
+    stringr,
+    tidyselect
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),

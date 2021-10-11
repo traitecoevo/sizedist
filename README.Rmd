@@ -28,7 +28,7 @@ Hinchliffe, C., Pepin, P., Suthers, I. M., & Falster, D. S. (2021). [A novel app
 
 ```{r, install}
 # install.packages("remotes")
-remotes::install.packages("sizedist", ref = "develop")
+remotes::install_github("traitecoevo/sizedist", ref = "develop", build_vignettes = TRUE)
 ```
 
 We recommend users to take a look at the "Getting Started" vignette for a brief introduction on some of the functions in `sizedist`

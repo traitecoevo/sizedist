@@ -12,6 +12,8 @@ add_pars(data, pars = NULL, type = NULL, prune = TRUE)
 \item{pars}{pars object}
 
 \item{type}{Character string of model}
+
+\item{prune}{If TRUE, hyperparams used for simulate_population() will be dropped}
 }
 \value{
 

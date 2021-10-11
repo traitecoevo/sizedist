@@ -21,7 +21,7 @@ install the current version of `sizedist` using:
 
 ``` r
 # install.packages("remotes")
-remotes::install.packages("sizedist", ref = "develop")
+remotes::install_github("traitecoevo/sizedist", ref = "develop", build_vignettes = TRUE)
 ```
 
 We recommend users to take a look at the “Getting Started” vignette for

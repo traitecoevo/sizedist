@@ -30,6 +30,7 @@ join_pars <- function(data,
 #' @param data Data created by summarise_bin_counts
 #' @param pars pars object
 #' @param type Character string of model
+#' @param prune If TRUE, hyperparams used for simulate_population() will be dropped
 #'
 #' @return
 #' @export
