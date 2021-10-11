@@ -6,27 +6,25 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of sizedist is to …
+`sizedist` allow users to estimate growth and mortality in populations
+as continuous functions using the theory of size-structured populations.
+Read more about how `sizedist` is implemented in: Hinchliffe, C., Pepin,
+P., Suthers, I. M., & Falster, D. S. (2021). [A novel approach for
+estimating growth and mortality of fish
+larvae](https://academic.oup.com/icesjms/advance-article/doi/10.1093/icesjms/fsab161/6364353?login=true)
+*ICES Journal of Marine Science*.
 
 ## Installation
 
-You can install the released version of sizedist from
-[CRAN](https://CRAN.R-project.org) with:
+`sizedist` is still currently under *active* development. You can
+install the current version of `sizedist` using:
 
 ``` r
-install.packages("sizedist")
+# install.packages("remotes")
+remotes::install.packages("sizedist", ref = "develop")
 ```
 
-And the development version from [GitHub](https://github.com/) with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("traitecoevo/sizedist")
-```
-
-## Example
-
-This is a basic example which shows you how to solve a common problem:
+To get started with `sizedist` we recommend users to
 
 ``` r
 library(sizedist)

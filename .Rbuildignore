@@ -4,3 +4,5 @@
 ^data-raw$
 ^ignore$
 ^README\.Rmd$
+^doc$
+^Meta$
