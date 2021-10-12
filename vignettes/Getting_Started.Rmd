@@ -61,14 +61,6 @@ age_data <- data %>% summarise_bin_counts(bin_var = age,
 age_data
 ```
 
-```{r size counts, include = FALSE}
-# Compute bins for size
-size_data <- data %>% summarise_bin_counts(bin_var = size, 
-                                          bin_width = 0.1)
-
-size_data
-```
-
 ### Compose data for model fitting
 
 `sizedist` relies on Stan for estimating size/age distribution models. Stan requires our input data to be a specific list format. Conveniently, the `compose_count_data()` function will translate your binned data into a list for you. Each column from your bin data is converted into a list element with the same name. Learn more about [lists](https://www.tutorialspoint.com/r/r_lists.html)
@@ -79,9 +71,11 @@ standata_age <- age_data %>% compose_count_data()
 str(standata_age) # Ta da! Your binned data is now a list!
 ```
 
-### Fitting your first model
+### Fitting your model 
 
-`sizedist` has several models you can fit, here we will fit `model1` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some hyper-parameters into our data list. Any relevant hyper-parameters such as the name of the model is added automatically using the `add_pars()` function. 
+`sizedist` currently suports three types of models.We will fit `model1` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some hyper-parameters into our data list. Any relevant hyper-parameters such as the name of the model is added automatically using the `add_pars()` function. 
+
+#### Constant Mortality and Growth model
 
 ```{r fit}
 standata_age_mod1 <- standata_age %>% add_pars(pars = default_pars("model1")) 
@@ -89,10 +83,94 @@ standata_age_mod1 <- standata_age %>% add_pars(pars = default_pars("model1"))
 str(standata_age_mod1) #Model name is added to the end of the data list
 ```
 
-### Let's fit the model! 
-
-```{r, results = "hide"}
+```{r, eval = FALSE, results = "hide"}
 age_fit <- fit_sizedist(standata_age_mod1)
 ```
+
+### Other models that are supported in sizedist
+
+#### Constant Mortality, known Growth model
+
+In some instances, a known growth rate found in the literature or other studies can be used to inform the model that is estimating XXX. In this example, we will use the simulated size data.
+
+```{r, fig.align='center'}
+plot_size_dist(data, pars, binwidth = 0.1)
+```
+
+```{r size counts}
+# Compute bins for size
+size_data <- data %>% summarise_bin_counts(bin_var = size, 
+                                          bin_width = 0.1)
+# Compose data
+standata_size <- size_data %>% compose_count_data()
+```
+
+In order to fit the *Constant Mortality, known Growth model*, we will need to edit the model name and add in our `known_g` value using `mutate_pars()`.
+```{r}
+# Assign default parameters into an object
+p  <- default_pars("model1")
+
+p_cm_kg <- mutate_pars(p,
+                       model = "model2",
+                       known_g = 0.9)
+
+p_cm_kg
+```
+
+Similar to the first example, we will know need to add these hyperparameters to our data list in order to run our model with `add_pars()` 
+
+```{r}
+standata_size_mod2 <- standata_size %>% add_pars(p_cm_kg)
+
+str(standata_size_mod2)
+```
+
+```{r, eval = FALSE, results = "hide"}
+knowng_fit <- fit_sizedist(standata_size_mod2)
+```
+
+#### Estimating mortality and growth simultaneously
+
+The final model that `sizedist` currently supports (`model3`) can estimate mortality and growth using size and age data. In our simulated dataset, we have information on individual's sizes at particular ages as well as the overall distribution of sizes across the population. We first need to put the growth data in the correct Stan friendly format using `compose_growth_data()`.
+
+```{r}
+# Counts data
+standata_size <- size_data %>% 
+  compose_count_data()
+
+# Growth data
+standata_growth <- data %>% compose_growth_data(age_var = age, 
+                                                size_var = size)
+
+str(standata_growth)
+```
+
+Now we will bring these data together using `join_stan_data()`
+
+```{r}
+# Combining the two types of data lists together
+standata_size_growth_mod3 <- join_stan_data(standata_size, standata_growth)
+
+str(standata_size_growth_mod3)
+```
+
+To fit this final model (`model3`), we will again need to update our hyperparameters and add them to our combined data list before fitting. 
+
+```{r}
+p_m_g <- mutate_pars(p,
+                     model = "model3")
+
+p_m_g 
+
+# Add in hyperparameters to data list
+standata_size_growth_mod3 <- standata_size_growth_mod3 %>% add_pars(p_m_g)
+str(standata_size_growth_mod3)
+```
+
+```{r, eval = FALSE}
+m_g_fit <- fit_sizedist(standata_size_growth_mod3)
+```
+
+
 
 ### TBC for visualing fits and getting coefficients and posteriors etc
