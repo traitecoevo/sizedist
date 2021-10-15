@@ -16,7 +16,7 @@ plot_size_dist <- function(data, pars, binwidth, fitted = NULL) {
     stat_function(fun = function(x) size_dist_model(x, pars) * binwidth)
 
   if (!is.null(fitted))
-    p1 <- p1 + stat_function(fun = size_dist_model(x, fitted)*fitted$binwidth, col = "red")
+    p1 <- p1 + stat_function(fun = function(x) size_dist_model(x, fitted)*fitted$binwidth, col = "red")
 
   p1
 }
