@@ -174,3 +174,5 @@ m_g_fit <- fit_sizedist(standata_size_growth_mod3)
 
 
 ### TBC for visualing fits and getting coefficients and posteriors etc- Charlie to do
+
+## Charlie Test 
