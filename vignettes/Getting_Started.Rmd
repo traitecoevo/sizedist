@@ -56,7 +56,7 @@ In order to estimate a distribution for size/age in our models, we need  to crea
 ```{r age counts}
 # Compute bins for age 
 age_data <- data %>% summarise_bin_counts(bin_var = age, 
-                                          bin_width = 0.1)
+                                          bin_width = 1)
 
 age_data
 ```
@@ -85,6 +85,8 @@ str(standata_age_mod1) #Model name is added to the end of the data list
 
 ```{r, eval = FALSE, results = "hide"}
 age_fit <- fit_sizedist(standata_age_mod1)
+
+print(age_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
 ### Other models that are supported in sizedist
@@ -112,7 +114,7 @@ p  <- default_pars("model1")
 
 p_cm_kg <- mutate_pars(p,
                        model = "model2",
-                       known_g = 0.9)
+                       known_g = 0.21)
 
 p_cm_kg
 ```
@@ -127,6 +129,8 @@ str(standata_size_mod2)
 
 ```{r, eval = FALSE, results = "hide"}
 knowng_fit <- fit_sizedist(standata_size_mod2)
+
+print(knowng_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
 #### Estimating mortality and growth simultaneously
@@ -175,4 +179,139 @@ m_g_fit <- fit_sizedist(standata_size_growth_mod3)
 
 ### TBC for visualing fits and getting coefficients and posteriors etc- Charlie to do
 
-## Charlie Test 
+Packages for diagnostic plots
+
+```{r}
+source("R/plot_size_dist.R") #reload because changes made to function
+library(ggplot2) #required for plot_size_dist()
+library(rstan) # loading for traceplot()
+library(bayesplot) # for mcmc_areas()
+```
+
+
+Once the models have been fit, we can extract posteriors and run diagnostics to assess model fitting. Here, we focus on output from the model estimating growth and mortality simultaneously  (`model3`), but the process is the same for each of the three models. 
+
+First, we observe the mean estimate for each coefficient. Note the Gelman–Rubin statistic (Rhat) to assess convergence. Is it > or = 1?
+```{r, eval = FALSE}
+print(m_g_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+Next, plot trace chains - have they converged? Are they getting stuck?
+```{r}
+p_trace <- traceplot(m_g_fit, pars = c("Z", "g", "R"), 
+          inc_warmup = TRUE) +
+  xlab("Iteration") +
+  ylab("Parameter estimate") 
+  
+p_trace
+```
+
+No-U-Turn-Sampler (NUTS) energy diagnostics
+```{r}
+color_scheme_set("red")
+np <- nuts_params(m_g_fit)
+mcmc_nuts_energy(np) + ggtitle("NUTS Energy Diagnostic")
+
+
+color_scheme_set("darkgray")
+mcmc_scatter(
+  as.matrix(m_g_fit),
+  pars = c("g", "Z"), 
+  np = nuts_params(m_g_fit), 
+  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
+)
+
+mcmc_scatter(
+  as.matrix(m_g_fit),
+  pars = c("Z", "R"), 
+  np = nuts_params(m_g_fit), 
+  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
+)
+
+
+mcmc_scatter(
+  as.matrix(m_g_fit),
+  pars = c("R", "g"), 
+  np = nuts_params(m_g_fit), 
+  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
+)
+```
+
+Plot distribution of posteriors
+```{r}
+posterior <- as.matrix(m_g_fit)
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 89% intervals")
+mcmc_areas(posterior, 
+           pars = c("Z"),
+           prob = 0.89) + plot_title
+
+mcmc_areas(posterior, 
+           pars = c("g"),
+           prob = 0.89) + plot_title
+
+mcmc_areas(posterior, 
+           pars = c("R"),
+           prob = 0.89) + plot_title
+```
+
+
+Then we can plot the fitted estimates to data. plot_size_dist() allows you to add a fitted line based on new model estimates to the previous size-frequency histogram  
+```{r, eval = FALSE}
+#extract mean estimates
+fit_Z_size <- mean(rstan::extract(m_g_fit, pars="Z")[["Z"]])
+fit_R_size <- mean(rstan::extract(m_g_fit, pars="R")[["R"]])
+fit_g_size <- mean(rstan::extract(m_g_fit, pars="g")[["g"]])
+
+# fitted values for plotting
+fitted <- list(
+              R = fit_R_size,
+              s0_av = pars$s0_av,
+              z_av = fit_Z_size,
+              g_av = fit_g_size,
+              binwidth = 0.1,
+              model = "model1"
+)
+
+#plot fitted values on data
+plot_size_dist(data, p, binwidth = 0.1, fitted)
+```
+
+We can also fit the growth model estimates to data, including posterior draws. Note, we did not add variance to g so each draw will have the same estimate. 
+```{r}
+# extract posterior draws
+dat <- m_g_fit %>% extract() %>%
+  as.data.frame()
+
+dat2 <- dat %>%
+ dplyr::slice(which(dplyr::row_number() %% 3 == 1)) #thin data
+
+
+draw_g <- dat2$g
+
+#select data for plotting
+growth_data <- data.frame(age = standata_growth$age,
+                 size_ind = standata_growth$size_ind)
+
+s0 = 3
+
+#plot
+p <- ggplot(growth_data, aes(x= age, y = size_ind)) + 
+  geom_point(size = 5, alpha = 0.8) +
+  theme_bw() + 
+  xlab("age (days)") +
+  ylab("length (mm)")
+  
+  
+for(i in seq_len(nrow(dat2))) {
+  p <- p + geom_abline(intercept = s0, slope = draw_g[i], col = "blue", alpha = 0.1) #fit posterior draws
+  }
+
+p <- p +
+  geom_abline(intercept = s0, slope = fit_g_size, col = "red") #mean fit 
+p
+```
+
+
+
