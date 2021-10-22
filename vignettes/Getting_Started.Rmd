@@ -143,7 +143,11 @@ standata_size <- size_data %>%
   compose_count_data()
 
 # Growth data
-standata_growth <- data %>% compose_growth_data(age_var = age, 
+standata_growth <- 
+  data %>% 
+  dplyr::sample_n(size=20) %>%
+  dplyr::mutate(size= size + rnorm(length(size), 0, 0.1)) %>%
+  compose_growth_data(age_var = age, 
                                                 size_var = size)
 
 str(standata_growth)
