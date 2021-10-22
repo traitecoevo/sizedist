@@ -44,13 +44,23 @@ summarise_bin_counts <- function(data, bin_var, bin_width) {
     bin_lower = binned_var - 0.5 * bin_width,
     bin_upper = binned_var + 0.5 * bin_width)
 
+  # convert binned_var to character to ensure successful join
+  # Small difference in precision mean join doesn't always identify a match when it should
+  # tibble(x=bin_counts$binned_var[1:5], y=tmp$binned_var[1:5]) %>% mutate(x==y)
+  tmp$binned_var <- as.character(tmp$binned_var)
+  bin_counts$binned_var <- as.character(bin_counts$binned_var)
+
   #Get the bin counts and then joining to data
   out <- tmp %>% dplyr::left_join(by = "binned_var", bin_counts) %>%
     tidyr::replace_na(list(counts = 0))
 
+  # convert binned var back to numeric
+  out$binned_var = as.numeric(out$binned_var)
+
   #Correct the lower bounds of the first and last bins
   out[1,2] <- out[1,1]
   out[nrow(out),2] <- out[nrow(out), 1]
+
 
   out
 }
