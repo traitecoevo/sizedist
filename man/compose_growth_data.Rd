@@ -13,9 +13,6 @@ compose_growth_data(data, age_var, size_var)
 
 \item{size_var}{Name of size variable}
 }
-\value{
-
-}
 \description{
 Compile age-size data into Stan friendly format for growth models
 }

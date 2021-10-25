@@ -15,9 +15,6 @@ mutate_pars(pars, ...)
 \item Values that are character strings need to be in quotes e.g. name of the model
 }}
 }
-\value{
-
-}
 \description{
 Create, modify and remove model parameters
 }

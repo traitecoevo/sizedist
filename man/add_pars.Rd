@@ -15,9 +15,6 @@ add_pars(data, pars = NULL, type = NULL, prune = TRUE)
 
 \item{prune}{If TRUE, hyperparams used for simulate_population() will be dropped}
 }
-\value{
-
-}
 \description{
 Add_pars Join_pars superseder
 }

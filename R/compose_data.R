@@ -34,8 +34,6 @@ compose_count_data <- function(data,...){
 #' @param data A data frame containing age and/or size bins counts created using `summarise_bin_counts`
 #' @param age_var Name of age variable
 #' @param size_var Name of size variable
-#'
-#' @return
 #' @export
 #'
 #' @examples
