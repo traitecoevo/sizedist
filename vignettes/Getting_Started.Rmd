@@ -129,7 +129,6 @@ str(standata_size_mod2)
 knowng_fit <- fit_sizedist(standata_size_mod2)
 ```
 
-#### Estimating mortality and growth simultaneously
 
 The final model that `sizedist` currently supports (`model3`) can estimate mortality and growth using size and age data. In our simulated dataset, we have information on individual's sizes at particular ages as well as the overall distribution of sizes across the population. We first need to put the growth data in the correct Stan friendly format using `compose_growth_data()`.
 

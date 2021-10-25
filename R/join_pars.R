@@ -7,8 +7,6 @@
 #' @return List with variables from pars appended
 #' @export
 
-
-
 join_pars <- function(data,
                       pars,
                       var){
@@ -31,9 +29,8 @@ join_pars <- function(data,
 #' @param pars pars object
 #' @param type Character string of model
 #' @param prune If TRUE, hyperparams used for simulate_population() will be dropped
-#'
-#' @return
 #' @export
+#'
 add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
   if(is.null(pars) & is.null(type)){
     rlang::abort("Hyperparameters or type of model must be supplied")
@@ -68,9 +65,8 @@ add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
 #'
 #' @param counts_list Stan-friendly count data created using `summarise_by_counts`
 #' @param growth_list Stan-friendly growth data created using `compose_growth_data`
-#'
-#' @return
 #' @export
+
 join_stan_data <- function(counts_list,
                            growth_list){
   c(counts_list,

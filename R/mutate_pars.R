@@ -4,7 +4,6 @@
 #' @param ... Name and value pair:
 #' * Set value to NULL to delete parameter
 #' * Values that are character strings need to be in quotes e.g. name of the model
-#' @return
 #' @export
 
 mutate_pars <- function(pars, ...){

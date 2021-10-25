@@ -11,9 +11,6 @@ join_stan_data(counts_list, growth_list)
 
 \item{growth_list}{Stan-friendly growth data created using \code{compose_growth_data}}
 }
-\value{
-
-}
 \description{
 Merge bin counts and growth data for model3
 }
