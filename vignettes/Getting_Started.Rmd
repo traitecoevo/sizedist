@@ -200,7 +200,7 @@ print(m_g_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
 Next, we can plot the trace chains to see if they converged or not. Are some chains getting stuck? What you want to see here is all four chains to overlap each other across most of the iterations
-```{r, fig.align='center'}
+```{r, fig.align='center', fig.width=7, fig.height=4}
 p_trace <- rstan::traceplot(m_g_fit, pars = c("Z", "g", "R"), 
                             inc_warmup = TRUE) +
   xlab("Iteration") +
@@ -213,7 +213,7 @@ p_trace
 
 No-U-Turn-Sampler (NUTS) energy diagnostics
 These plots are lovely, an explainer of what nuts plots do would be awesome!
-```{r, message=FALSE, fig.align='center', fig.height=3, fig.width=6}
+```{r, message=FALSE, fig.align='center', fig.height=7, fig.width=8}
 color_scheme_set("red")
 np <- nuts_params(m_g_fit)
 
@@ -248,7 +248,7 @@ nuts_1 / (nuts_2 + nuts_3 + nuts_4)
 
 What are the things we should look out for? 
 
-```{r, fig.align='center', fig.height=3, fig.width=6}
+```{r, fig.align='center', fig.height=5, fig.width=9}
 posterior <- as.matrix(m_g_fit)
 
 plot_title <- ggtitle("Posterior distributions",
