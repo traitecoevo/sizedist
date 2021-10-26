@@ -4,6 +4,8 @@
 # sizedist <img src="inst/figures/sizedist_2.png" align="right" alt="" width="150" />
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/traitecoevo/sizedist/workflows/R-CMD-check/badge.svg)](https://github.com/traitecoevo/sizedist/actions)
 <!-- badges: end -->
 
 `sizedist` allow users to estimate growth and mortality in populations
