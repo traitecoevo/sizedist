@@ -21,7 +21,7 @@ library(sizedist)
 
 `sizedist`  is an R interface for Stan and provides functions to simulate and fit size and age-structured populations models to data. In this *Getting Started* vignette, we will cover the simplest model that is implemented in the package. `model1` assumes mortality and growth are constants. See the Theory vignette for more details on the various models in `sizedist`
 
-### Simulating age structureded data
+### Simulating age structured data
 
 To begin, let's first start by simulating some data of a hypothetical population. We first need to set some **hyper-parameters** that are used to inform the simulation. See the XXX vignette on the definitions for each hyperparameter. `sizedist` has default hyper-parameters that you can access using the `default_pars()` function. Note that these hyper-parameters are organised as a **list** object and will also be used during model fitting. Learn more about [lists](https://www.tutorialspoint.com/r/r_lists.html)
 ```{r hyperparams}
@@ -49,7 +49,7 @@ We created two plotting functions to visualise the distribution of size and age 
 plot_age_dist(data, pars, binwidth = 1)
 ```
 
-### Creating binned data for and size
+### Creating binned data for size
 
 In order to estimate a distribution for size/age in our models, we need  to create bins or 'class intervals' for these variables and tally up the number of observations that fall into each of these bins. The `summarise_bin_counts()` function will do the trick!
 
@@ -147,8 +147,8 @@ standata_growth <-
   data %>% 
   dplyr::sample_n(size=20) %>%
   dplyr::mutate(size= size + rnorm(length(size), 0, 0.1)) %>%
-  compose_growth_data(age_var = age, 
-                                                size_var = size)
+  compose_growth_data(age_var = age,
+                      size_var = size)
 
 str(standata_growth)
 ```
@@ -175,95 +175,103 @@ standata_size_growth_mod3 <- standata_size_growth_mod3 %>% add_pars(p_m_g)
 str(standata_size_growth_mod3)
 ```
 
-```{r, eval = FALSE}
+```{r, eval = TRUE, results="hide"}
 m_g_fit <- fit_sizedist(standata_size_growth_mod3)
 ```
 
-
-
-### TBC for visualing fits and getting coefficients and posteriors etc- Charlie to do
-
-Packages for diagnostic plots
-
-```{r}
-source("R/plot_size_dist.R") #reload because changes made to function
-library(ggplot2) #required for plot_size_dist()
-library(rstan) # loading for traceplot()
-library(bayesplot) # for mcmc_areas()
-```
-
+### Model fit diagnostics
 
 Once the models have been fit, we can extract posteriors and run diagnostics to assess model fitting. Here, we focus on output from the model estimating growth and mortality simultaneously  (`model3`), but the process is the same for each of the three models. 
 
+We recommend are several CRAN packages that are wonderful for interacting with Stan model fit objects and visualising model diagnostics
+
+```{r}
+library(ggplot2) 
+library(rstan)
+library(bayesplot)
+library(patchwork)
+```
+
+#### Model convergence 
 First, we observe the mean estimate for each coefficient. Note the Gelman–Rubin statistic (Rhat) to assess convergence. Is it > or = 1?
+
 ```{r, eval = FALSE}
 print(m_g_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
-Next, plot trace chains - have they converged? Are they getting stuck?
-```{r}
-p_trace <- traceplot(m_g_fit, pars = c("Z", "g", "R"), 
-          inc_warmup = TRUE) +
+Next, we can plot the trace chains to see if they converged or not. Are some chains getting stuck? What you want to see here is all four chains to overlap each other across most of the iterations
+```{r, fig.align='center'}
+p_trace <- rstan::traceplot(m_g_fit, pars = c("Z", "g", "R"), 
+                            inc_warmup = TRUE) +
   xlab("Iteration") +
   ylab("Parameter estimate") 
   
 p_trace
 ```
 
+#### What does NUTS tell us? 
+
 No-U-Turn-Sampler (NUTS) energy diagnostics
-```{r}
+These plots are lovely, an explainer of what nuts plots do would be awesome!
+```{r, message=FALSE, fig.align='center', fig.height=3, fig.width=6}
 color_scheme_set("red")
 np <- nuts_params(m_g_fit)
-mcmc_nuts_energy(np) + ggtitle("NUTS Energy Diagnostic")
 
+nuts_1 <- mcmc_nuts_energy(np) + ggtitle("NUTS Energy Diagnostic")
 
 color_scheme_set("darkgray")
-mcmc_scatter(
+nuts_2 <- mcmc_scatter(
   as.matrix(m_g_fit),
   pars = c("g", "Z"), 
   np = nuts_params(m_g_fit), 
   np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
 )
 
-mcmc_scatter(
+nuts_3 <- mcmc_scatter(
   as.matrix(m_g_fit),
   pars = c("Z", "R"), 
   np = nuts_params(m_g_fit), 
   np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
 )
 
-
-mcmc_scatter(
+nuts_4 <- mcmc_scatter(
   as.matrix(m_g_fit),
   pars = c("R", "g"), 
   np = nuts_params(m_g_fit), 
   np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
 )
+
+nuts_1 / (nuts_2 + nuts_3 + nuts_4)
 ```
 
-Plot distribution of posteriors
-```{r}
+#### Distribution of posteriors of each parameter estimate
+
+What are the things we should look out for? 
+
+```{r, fig.align='center', fig.height=3, fig.width=6}
 posterior <- as.matrix(m_g_fit)
 
 plot_title <- ggtitle("Posterior distributions",
                       "with medians and 89% intervals")
-mcmc_areas(posterior, 
-           pars = c("Z"),
-           prob = 0.89) + plot_title
+post_1 <- mcmc_areas(posterior, 
+              pars = c("Z"),
+              prob = 0.89) + plot_title
 
-mcmc_areas(posterior, 
+post_2 <-mcmc_areas(posterior, 
            pars = c("g"),
            prob = 0.89) + plot_title
 
-mcmc_areas(posterior, 
+post_3 <- mcmc_areas(posterior, 
            pars = c("R"),
            prob = 0.89) + plot_title
+
+post_1 + post_2 + post_3
 ```
 
-
-Then we can plot the fitted estimates to data. plot_size_dist() allows you to add a fitted line based on new model estimates to the previous size-frequency histogram  
-```{r, eval = FALSE}
-#extract mean estimates
+Then we can plot the fitted estimates to simulated data. 
+`plot_size_dist()` allows you to add a fitted line based on new model estimates to the previous size-frequency histogram  
+```{r, eval = TRUE, fig.align='center'}
+# extract posterior mean estimates
 fit_Z_size <- mean(rstan::extract(m_g_fit, pars="Z")[["Z"]])
 fit_R_size <- mean(rstan::extract(m_g_fit, pars="R")[["R"]])
 fit_g_size <- mean(rstan::extract(m_g_fit, pars="g")[["g"]])
@@ -283,22 +291,25 @@ plot_size_dist(data, p, binwidth = 0.1, fitted)
 ```
 
 We can also fit the growth model estimates to data, including posterior draws. Note, we did not add variance to g so each draw will have the same estimate. 
-```{r}
+```{r, fig.align='center'}
 # extract posterior draws
-dat <- m_g_fit %>% extract() %>%
-  as.data.frame()
+dat <- m_g_fit %>% 
+  extract() %>%
+  as.data.frame() 
 
 dat2 <- dat %>%
- dplyr::slice(which(dplyr::row_number() %% 3 == 1)) #thin data
+ dplyr::slice(which(dplyr::row_number() %% 3 == 1)) #thin data 
 
+# Can we just use samp_frac for the above?
+# dat_2 <- dat %>% sample_frac(0.30)
 
 draw_g <- dat2$g
 
 #select data for plotting
-growth_data <- data.frame(age = standata_growth$age,
-                 size_ind = standata_growth$size_ind)
+growth_data <- data.frame(age = standata_size_growth_mod3$age,
+                          size_ind = standata_size_growth_mod3$size_ind)
 
-s0 = 3
+s0 = standata_size_growth_mod3$s0_av
 
 #plot
 p <- ggplot(growth_data, aes(x= age, y = size_ind)) + 
