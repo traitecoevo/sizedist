@@ -246,6 +246,8 @@ nuts_1 / (nuts_2 + nuts_3 + nuts_4)
 #### Distribution of posteriors of each parameter estimate
 
 What are the things we should look out for? 
+- Sensibly behaved - biomodal or multimodel will need careful assessment - Expect unimodal unless a priori expectation?
+- Are range of values on X axis expected?
 
 ```{r, fig.align='center', fig.height=5, fig.width=9}
 posterior <- as.matrix(m_g_fit)
@@ -268,7 +270,9 @@ post_1 + post_2 + post_3
 ```
 
 Then we can plot the fitted estimates to simulated data. 
-`plot_size_dist()` allows you to add a fitted line based on new model estimates to the previous size-frequency histogram  
+`plot_size_dist()` allows you to add a fitted line based on new model estimates to the previous size-frequency histogram.
+
+
 ```{r, eval = TRUE, fig.align='center'}
 # extract posterior mean estimates
 fit_Z_size <- mean(rstan::extract(m_g_fit, pars="Z")[["Z"]])

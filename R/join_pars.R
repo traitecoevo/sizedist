@@ -42,8 +42,10 @@ add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
 
   if(prune){
   prune_pars <- function(pars, vars){
+   ### switch(pars$model,)
+
     sim_vars <- c("R", "log10s0_sd", "g_av", "log10g_sd", "z_av", "log10z_sd")
-    purrr::discard(pars, names(pars) %in% sim_vars)
+    purrr::discard(pars, names(pars) %in% sim_vars) #Keep the ones we want, rather than discard the ones we don't want
   }
 
   pars <- prune_pars(pars)
@@ -60,6 +62,8 @@ add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
 
 }
 
+
+#Function to return pars that are used to fit the model, switch based on pars$model (model prefix e.g model1)
 
 #' Merge bin counts and growth data for model3
 #'

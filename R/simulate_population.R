@@ -151,3 +151,24 @@ size_dist_model <- function(x, pars) {
           model1 = size_dist_model1(x, pars))
 }
 
+#' Simulate noise for any variable
+#' @param data simulated dataframe or own data
+#' @param var variable you wish to add noise to
+#' @return dataframe where variable w
+#' @export
+
+add_sampling_noise <- function(data, var, sd = 0.1, overwrite = TRUE){
+
+  ret <- data %>%
+    dplyr::mutate({{var}} := {{var}} + rnorm(length({{var}}), 0, 0.1))
+
+  if(!overwrite){
+    suffix <- "_noise"
+
+    ret <- data %>%
+      dplyr::mutate("{{var}}{suffix}" := {{var}} + rnorm(length({{var}}), 0, 0.1))
+  }
+
+  ret
+}
+

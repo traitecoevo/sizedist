@@ -26,7 +26,6 @@ model {
 
   // Model estimated countss
   for(i in 1:N_counts) {
-    //counts_est[i] = 0.5*(R/g * (exp(-Z/g*(sizes[i+1] - s0_av)) + exp(-Z/g*(sizes[i] - s0_av))));
     counts_est[i] =
         - R/Z * (exp(-Z/g*(bin_upper[i] - s0_av)) - exp(-Z/g*(bin_lower[i] - s0_av)));
   }

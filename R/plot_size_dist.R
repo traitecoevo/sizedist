@@ -19,4 +19,27 @@ plot_size_dist <- function(data, pars, binwidth, fitted = NULL) {
     p1 <- p1 + stat_function(fun = function(x) size_dist_model(x, fitted)*fitted$binwidth, col = "red")
 
   p1
+
+}
+
+
+extract_fitted <- function(){
+  # extract posterior mean estimates
+  fit_Z_size <- mean(rstan::extract(m_g_fit, pars="Z")[["Z"]])
+  fit_R_size <- mean(rstan::extract(m_g_fit, pars="R")[["R"]])
+  fit_g_size <- mean(rstan::extract(m_g_fit, pars="g")[["g"]])
+
+  # fitted values for plotting
+  fitted <- list(
+    R = fit_R_size,
+    s0_av = pars$s0_av,
+    z_av = fit_Z_size,
+    g_av = fit_g_size,
+    binwidth = 0.1,
+    model = "model1"
+  )
+}
+
+
+add_fitted <- function(plot, fitted, binwidth){ #A geom to add fitted values to plot_size_dist()
 }
