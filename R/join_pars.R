@@ -41,14 +41,9 @@ add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
    }
 
   if(prune){
-  prune_pars <- function(pars, vars){
-   ### switch(pars$model,)
 
-    sim_vars <- c("R", "log10s0_sd", "g_av", "log10g_sd", "z_av", "log10z_sd")
-    purrr::discard(pars, names(pars) %in% sim_vars) #Keep the ones we want, rather than discard the ones we don't want
-  }
+    pars <- keep_fit_pars_model(pars)
 
-  pars <- prune_pars(pars)
   }
 
   out  <- c(data,
@@ -60,6 +55,19 @@ add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
 
   out
 
+}
+
+#' Function to prune down hyper-pars
+#'
+#' @param pars list object containing model$
+#'
+keep_fit_pars_model <- function(pars){
+  pars <- switch(pars$model,
+                 model1_a = purrr::keep(pars, names(pars) %in% "model"),
+                 model1_b = purrr::keep(pars, names(pars) %in% c("model", "known_g", "s0_av")),
+                 model1_c = purrr::keep(pars, names(pars) %in% c("model", "s0_av"))
+  )
+  pars
 }
 
 

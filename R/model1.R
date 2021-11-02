@@ -52,3 +52,4 @@ size_dist_model1 <- function(x, pars) {
        R / g_av * exp(-z_av/g_av*(x-s0_av))
        )
 }
+
