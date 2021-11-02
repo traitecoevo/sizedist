@@ -33,7 +33,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_mortality_size_known_g");
-    reader.add_event(38, 36, "end", "model_mortality_size_known_g");
+    reader.add_event(37, 35, "end", "model_mortality_size_known_g");
     return reader;
 }
 #include <stan_meta_header.hpp>
@@ -42,7 +42,7 @@ class model_mortality_size_known_g
 private:
         int N_counts;
         double s0_av;
-        double known_g;
+        double g_av;
         std::vector<double> bin_lower;
         std::vector<double> bin_upper;
         std::vector<int> counts;
@@ -89,11 +89,11 @@ public:
             pos__ = 0;
             s0_av = vals_r__[pos__++];
             current_statement_begin__ = 6;
-            context__.validate_dims("data initialization", "known_g", "double", context__.to_vec());
-            known_g = double(0);
-            vals_r__ = context__.vals_r("known_g");
+            context__.validate_dims("data initialization", "g_av", "double", context__.to_vec());
+            g_av = double(0);
+            vals_r__ = context__.vals_r("g_av");
             pos__ = 0;
-            known_g = vals_r__[pos__++];
+            g_av = vals_r__[pos__++];
             current_statement_begin__ = 7;
             validate_non_negative_index("bin_lower", "N_counts", N_counts);
             context__.validate_dims("data initialization", "bin_lower", "double", context__.to_vec(N_counts));
@@ -248,18 +248,18 @@ public:
             current_statement_begin__ = 23;
             lp_accum__.add(cauchy_log<propto__>(Z, 0, 10));
             current_statement_begin__ = 24;
-            lp_accum__.add(normal_log<propto__>(g, known_g, 0.0001));
+            lp_accum__.add(normal_log<propto__>(g, g_av, 0.0001));
             current_statement_begin__ = 25;
             lp_accum__.add(cauchy_log<propto__>(R, 0, 100));
             current_statement_begin__ = 28;
             for (int i = 1; i <= N_counts; ++i) {
-                current_statement_begin__ = 30;
+                current_statement_begin__ = 29;
                 stan::model::assign(counts_est, 
                             stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                             ((-(R) / Z) * (stan::math::exp(((-(Z) / g) * (get_base1(bin_upper, i, "bin_upper", 1) - s0_av))) - stan::math::exp(((-(Z) / g) * (get_base1(bin_lower, i, "bin_lower", 1) - s0_av))))), 
                             "assigning variable counts_est");
             }
-            current_statement_begin__ = 35;
+            current_statement_begin__ = 34;
             lp_accum__.add(poisson_log<propto__>(counts, counts_est));
             }
         } catch (const std::exception& e) {

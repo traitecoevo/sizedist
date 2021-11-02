@@ -3,7 +3,7 @@
 data {
   int N_counts;
   real s0_av;
-  real known_g;
+  real g_av;
   real bin_lower[N_counts];
   real bin_upper[N_counts];
   int counts[N_counts];
@@ -21,7 +21,7 @@ model {
 
   // Priors
   Z ~ cauchy(0, 10);
-  g ~  normal(known_g, 0.0001); //cauchy(0, 10);
+  g ~  normal(g_av, 0.0001); //cauchy(0, 10);
   R ~ cauchy(0, 100);
 
   // Model estimated countss

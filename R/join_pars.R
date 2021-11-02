@@ -64,7 +64,7 @@ add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
 keep_fit_pars_model <- function(pars){
   pars <- switch(pars$model,
                  model1_a = purrr::keep(pars, names(pars) %in% "model"),
-                 model1_b = purrr::keep(pars, names(pars) %in% c("model", "known_g", "s0_av")),
+                 model1_b = purrr::keep(pars, names(pars) %in% c("model", "g_av", "s0_av")),
                  model1_c = purrr::keep(pars, names(pars) %in% c("model", "s0_av"))
   )
   pars
