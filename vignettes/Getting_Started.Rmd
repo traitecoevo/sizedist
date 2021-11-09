@@ -146,7 +146,7 @@ print(knowng_fit, probs=c(0.025, 0.5, 0.975))
 
 The final model that `sizedist` currently supports (`model1_c`) can estimate mortality and growth simultaneously using size and age data. In our simulated dataset, we have information on individual's sizes at particular ages as well as the overall distribution of sizes across the population. These data were simulated with no sampling error. 
 
-```{r}
+```{r, fig.align='center'}
 library(ggplot2)
 
 ggplot(data, aes(size, age)) + 
@@ -155,7 +155,7 @@ ggplot(data, aes(size, age)) +
 
 We need to first add some sampling noise to the size observations before we can fit the model using the `add_sampling_noise()` function. Otherwise, the model will have a hard time running! This step is not needed if you are using your own data! See XXX case study. 
 
-```{r}
+```{r, fig.align='center'}
 growth_data <- simulate_population(pars) %>% 
   add_sampling_noise(size, sd = 0.5)
 
@@ -240,7 +240,7 @@ p_trace
 
 What does NUTS tell us? 
 These plots are lovely, an explainer of what nuts plots do would be awesome!
-```{r, message=FALSE, fig.align='center', fig.height=7, fig.width=8}
+```{r, message=FALSE, fig.align='center', fig.height=6, fig.width=7}
 color_scheme_set("red")
 np <- nuts_params(m_g_fit)
 
@@ -277,7 +277,7 @@ What are the things we should look out for?
 - Sensibly behaved - biomodal or multimodel will need careful assessment - Expect unimodal unless a priori expectation?
 - Are range of values on X axis expected?
 
-```{r, fig.align='center', fig.height=5, fig.width=9}
+```{r, fig.align='center', fig.height=5, fig.width=7}
 posterior <- as.matrix(m_g_fit)
 
 plot_title <- ggtitle("Posterior distributions",
