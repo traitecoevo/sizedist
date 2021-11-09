@@ -122,7 +122,7 @@ pars  <- default_pars("model1")
 
 pars_cm_kg <- mutate_pars(pars,
                           model = "model1_b",
-                          g_av = 0.16,
+                          g_av = 0.21,
                           s0_av = 6)
 
 pars_cm_kg
@@ -192,8 +192,7 @@ To fit this final model (`model1_c`), we will again need to update our hyperpara
 
 ```{r}
 pars_m_g <- mutate_pars(pars,
-                        model = "model1_c",
-                        s0_av = 3.5)
+                        model = "model1_c")
 
 pars_m_g 
 
@@ -204,6 +203,10 @@ str(standata_size_growth_mod3)
 
 ```{r, eval = TRUE, results="hide"}
 m_g_fit <- fit_sizedist(standata_size_growth_mod3)
+
+print(m_g_fit, probs=c(0.025, 0.5, 0.975))
+```
+
 ```
 
 ### Model fit diagnostics
@@ -325,7 +328,7 @@ We can also fit the growth model estimates to data, including posterior draws.
 ```{r, fig.align='center'}
 # extract posterior draws
 dat <- m_g_fit %>% 
-  extract() %>%
+  rstan::extract() %>%
   as.data.frame() 
 
 dat2 <- dat %>%
