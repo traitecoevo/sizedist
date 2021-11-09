@@ -3,6 +3,7 @@
 export("%>%")
 export(add_bins)
 export(add_pars)
+export(add_sampling_noise)
 export(age_dist_model)
 export(compose_count_data)
 export(compose_growth_data)

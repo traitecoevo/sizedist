@@ -73,12 +73,19 @@ str(standata_age) # Ta da! Your binned data is now a list!
 
 ### Fitting your model 
 
-`sizedist` currently suports three types of models.We will fit `model1` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some hyper-parameters into our data list. Any relevant hyper-parameters such as the name of the model is added automatically using the `add_pars()` function. 
+`sizedist` currently suports three types of models.We will fit `model1_a` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some hyper-parameters into our data list. Any relevant hyper-parameters such as the name of the model is added automatically using the `add_pars()` function. 
 
 #### Constant Mortality and Growth model
 
+`sizedist` currently supports three types of models (`model1_a`, `model1_b`, `model1_c`). Models with the prefix `model1_` all have XXX in common. `model1_a` assumes **constant** mortality and growth. In order to fit these different variants of models, you will need to specify the name using the `mutate_pars` function. 
+
+```{r}
+(pars <- pars %>% mutate_pars(model = "model1_a"))
+```
+
+Once the name of the model has been updated, the `pars` object will need to be joined to the data list created above. 
 ```{r fit}
-standata_age_mod1 <- standata_age %>% add_pars(pars = default_pars("model1")) 
+standata_age_mod1 <- standata_age %>% add_pars(pars = pars) 
 
 str(standata_age_mod1) #Model name is added to the end of the data list
 ```
@@ -96,7 +103,7 @@ print(age_fit, probs=c(0.025, 0.5, 0.975))
 In some instances, a known growth rate found in the literature or other studies can be used to inform the model that is estimating XXX. In this example, we will use the simulated size data.
 
 ```{r, fig.align='center'}
-plot_size_dist(data, pars, binwidth = 0.1)
+plot_size_dist(data, default_pars("model1"), binwidth = 0.1)
 ```
 
 ```{r size counts}

@@ -41,5 +41,5 @@ extract_fitted <- function(){
 }
 
 
-add_fitted <- function(plot, fitted, binwidth){ #A geom to add fitted values to plot_size_dist()
-}
+# add_fitted <- function(plot, fitted, binwidth){ #A geom to add fitted values to plot_size_dist()
+# }
