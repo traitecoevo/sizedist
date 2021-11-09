@@ -21,9 +21,10 @@ library(sizedist)
 
 `sizedist`  is an R interface for Stan and provides functions to simulate and fit size and age-structured populations models to data. In this *Getting Started* vignette, we will cover the simplest model that is implemented in the package. `model1` assumes mortality and growth are constants. See the Theory vignette for more details on the various models in `sizedist`
 
-### Simulating age structured data
+### Simulating age- and size- structured data
 
 To begin, let's first start by simulating some data of a hypothetical population. We first need to set some **hyper-parameters** that are used to inform the simulation. See the XXX vignette on the definitions for each hyperparameter. `sizedist` has default hyper-parameters that you can access using the `default_pars()` function. Note that these hyper-parameters are organised as a **list** object and will also be used during model fitting. Learn more about [lists](https://www.tutorialspoint.com/r/r_lists.html)
+
 ```{r hyperparams}
 library(sizedist)
 
@@ -80,12 +81,12 @@ str(standata_age) # Ta da! Your binned data is now a list!
 `sizedist` currently supports three types of models (`model1_a`, `model1_b`, `model1_c`). Models with the prefix `model1_` all have XXX in common. `model1_a` assumes **constant** mortality and growth. In order to fit these different variants of models, you will need to specify the name using the `mutate_pars` function. 
 
 ```{r}
-(pars <- pars %>% mutate_pars(model = "model1_a"))
+(age_pars <- pars %>% mutate_pars(model = "model1_a"))
 ```
 
-Once the name of the model has been updated, the `pars` object will need to be joined to the data list created above. 
+Once the name of the model has been updated, the `pars` object will need to be joined to the data list created above. Note that `add_pars()` will by default, prune the `pars` list to the hyperparamaters that are used in model fitting. 
 ```{r fit}
-standata_age_mod1 <- standata_age %>% add_pars(pars = pars) 
+standata_age_mod1 <- standata_age %>% add_pars(pars = age_pars) 
 
 str(standata_age_mod1) #Model name is added to the end of the data list
 ```
@@ -100,10 +101,10 @@ print(age_fit, probs=c(0.025, 0.5, 0.975))
 
 #### Constant Mortality, known Growth model
 
-In some instances, a known growth rate found in the literature or other studies can be used to inform the model that is estimating XXX. In this example, we will use the simulated size data.
+In some instances, a known growth rate found in the literature or other studies can be used to inform the model that is estimating the size distribution. In this example, we will use the simulated size data.
 
 ```{r, fig.align='center'}
-plot_size_dist(data, default_pars("model1"), binwidth = 0.1)
+plot_size_dist(data, pars, binwidth = 0.1)
 ```
 
 ```{r size counts}
@@ -114,22 +115,23 @@ size_data <- data %>% summarise_bin_counts(bin_var = size,
 standata_size <- size_data %>% compose_count_data()
 ```
 
-In order to fit the *Constant Mortality, known Growth model*, we will need to edit the model name and add in our `known_g` value using `mutate_pars()`.
+In order to fit the *Constant Mortality, known Growth model* (`model1_b`), we will need to edit the model name and if you want, edit the values  for `g_av` which represents the average growth rate and `s0_av` which represents the average size at hatching/birth.
 ```{r}
 # Assign default parameters into an object
-p  <- default_pars("model1")
+pars  <- default_pars("model1")
 
-p_cm_kg <- mutate_pars(p,
-                       model = "model2",
-                       known_g = 0.21)
+pars_cm_kg <- mutate_pars(pars,
+                          model = "model1_b",
+                          g_av = 0.16,
+                          s0_av = 6)
 
-p_cm_kg
+pars_cm_kg
 ```
 
-Similar to the first example, we will know need to add these hyperparameters to our data list in order to run our model with `add_pars()` 
+Similar to the first example, we will know need to add these hyperparameters to our data list in order to run our model with `add_pars()`.
 
 ```{r}
-standata_size_mod2 <- standata_size %>% add_pars(p_cm_kg)
+standata_size_mod2 <- standata_size %>% add_pars(pars_cm_kg)
 
 str(standata_size_mod2)
 ```
@@ -140,8 +142,28 @@ knowng_fit <- fit_sizedist(standata_size_mod2)
 print(knowng_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
+#### Estimating Growth and Mortality 
 
-The final model that `sizedist` currently supports (`model3`) can estimate mortality and growth using size and age data. In our simulated dataset, we have information on individual's sizes at particular ages as well as the overall distribution of sizes across the population. We first need to put the growth data in the correct Stan friendly format using `compose_growth_data()`.
+The final model that `sizedist` currently supports (`model1_c`) can estimate mortality and growth simultaneously using size and age data. In our simulated dataset, we have information on individual's sizes at particular ages as well as the overall distribution of sizes across the population. These data were simulated with no sampling error. 
+
+```{r}
+library(ggplot2)
+
+ggplot(data, aes(size, age)) + 
+  geom_point()
+```
+
+We need to first add some sampling noise to the size observations before we can fit the model using the `add_sampling_noise()` function. Otherwise, the model will have a hard time running! This step is not needed if you are using your own data! See XXX case study. 
+
+```{r}
+growth_data <- simulate_population(pars) %>% 
+  add_sampling_noise(size, sd = 0.5)
+
+ggplot(growth_data, aes(size, age)) + 
+  geom_point()
+```
+
+Then we can put the growth data in the correct Stan friendly format using `compose_growth_data()`.
 
 ```{r}
 # Counts data
@@ -150,9 +172,7 @@ standata_size <- size_data %>%
 
 # Growth data
 standata_growth <- 
-  data %>% 
-  dplyr::sample_n(size=20) %>%
-  dplyr::mutate(size= size + rnorm(length(size), 0, 0.1)) %>%
+  growth_data %>% 
   compose_growth_data(age_var = age,
                       size_var = size)
 
@@ -168,16 +188,17 @@ standata_size_growth_mod3 <- join_stan_data(standata_size, standata_growth)
 str(standata_size_growth_mod3)
 ```
 
-To fit this final model (`model3`), we will again need to update our hyperparameters and add them to our combined data list before fitting. 
+To fit this final model (`model1_c`), we will again need to update our hyperparameters and add them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `mutate_pars()`
 
 ```{r}
-p_m_g <- mutate_pars(p,
-                     model = "model3")
+pars_m_g <- mutate_pars(pars,
+                        model = "model1_c",
+                        s0_av = 3.5)
 
-p_m_g 
+pars_m_g 
 
 # Add in hyperparameters to data list
-standata_size_growth_mod3 <- standata_size_growth_mod3 %>% add_pars(p_m_g)
+standata_size_growth_mod3 <- standata_size_growth_mod3 %>% add_pars(pars_m_g)
 str(standata_size_growth_mod3)
 ```
 
@@ -205,7 +226,7 @@ First, we observe the mean estimate for each coefficient. Note the Gelman–Rubi
 print(m_g_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
-Next, we can plot the trace chains to see if they converged or not. Are some chains getting stuck? What you want to see here is all four chains to overlap each other across most of the iterations
+Next, we can plot the trace chains to see if they converged or not. Are some chains getting stuck? What you want to see here is all four chains to eventually overlap each other across most of the iterations
 ```{r, fig.align='center', fig.width=7, fig.height=4}
 p_trace <- rstan::traceplot(m_g_fit, pars = c("Z", "g", "R"), 
                             inc_warmup = TRUE) +
@@ -215,9 +236,9 @@ p_trace <- rstan::traceplot(m_g_fit, pars = c("Z", "g", "R"),
 p_trace
 ```
 
-#### What does NUTS tell us? 
+#### No-U-Turn-Sampler (NUTS) energy diagnostics
 
-No-U-Turn-Sampler (NUTS) energy diagnostics
+What does NUTS tell us? 
 These plots are lovely, an explainer of what nuts plots do would be awesome!
 ```{r, message=FALSE, fig.align='center', fig.height=7, fig.width=8}
 color_scheme_set("red")
@@ -289,18 +310,18 @@ fit_g_size <- mean(rstan::extract(m_g_fit, pars="g")[["g"]])
 # fitted values for plotting
 fitted <- list(
               R = fit_R_size,
-              s0_av = pars$s0_av,
+              s0_av = pars_m_g$s0_av,
               z_av = fit_Z_size,
               g_av = fit_g_size,
               binwidth = 0.1,
-              model = "model1"
+              model = "model1_c"
 )
 
-#plot fitted values on data
-plot_size_dist(data, p, binwidth = 0.1, fitted)
+# Plot fitted values on data
+plot_size_dist(growth_data, pars_m_g, binwidth = 0.1, fitted)
 ```
 
-We can also fit the growth model estimates to data, including posterior draws. Note, we did not add variance to g so each draw will have the same estimate. 
+We can also fit the growth model estimates to data, including posterior draws. 
 ```{r, fig.align='center'}
 # extract posterior draws
 dat <- m_g_fit %>% 
@@ -316,18 +337,15 @@ dat2 <- dat %>%
 draw_g <- dat2$g
 
 #select data for plotting
-growth_data <- data.frame(age = standata_size_growth_mod3$age,
-                          size_ind = standata_size_growth_mod3$size_ind)
-
-s0 = standata_size_growth_mod3$s0_av
+s0 = pars_m_g$s0_av #size at hatching
 
 #plot
-p <- ggplot(growth_data, aes(x= age, y = size_ind)) + 
-  geom_point(size = 5, alpha = 0.8) +
+p <- ggplot(growth_data, aes(x= age, y = size)) + 
+  geom_point(size = 2, alpha = 0.8) +
   theme_bw() + 
-  xlab("age (days)") +
-  ylab("length (mm)")
-  
+  xlab("Age") +
+  ylab("Size")
+
   
 for(i in seq_len(nrow(dat2))) {
   p <- p + geom_abline(intercept = s0, slope = draw_g[i], col = "blue", alpha = 0.1) #fit posterior draws
