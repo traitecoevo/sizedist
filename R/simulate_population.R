@@ -152,9 +152,10 @@ size_dist_model <- function(x, pars) {
           model1 = size_dist_model1(x, pars))
 }
 
-#' Simulate noise for any variable
+#' Simulate noise for any variable from a distribution with mean = 0
 #' @param data simulated dataframe or own data
 #' @param var variable you wish to add noise to
+#' @param sd standard deviation
 #' @return dataframe where variable w
 #' @export
 
