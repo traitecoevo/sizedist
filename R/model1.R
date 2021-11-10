@@ -1,7 +1,7 @@
 
 #' @rdname default_pars
 default_pars_model1 <- function() {
-  list(
+  pars <- list(
     R= 100,
     s0_av = 3,
     log10s0_sd = 0,
@@ -11,6 +11,8 @@ default_pars_model1 <- function() {
     log10z_sd = 0.0,
     model = "model1"
   )
+
+  list(pars = pars)
 }
 
 
