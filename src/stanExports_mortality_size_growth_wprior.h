@@ -33,7 +33,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_mortality_size_growth_wprior");
-    reader.add_event(53, 51, "end", "model_mortality_size_growth_wprior");
+    reader.add_event(54, 52, "end", "model_mortality_size_growth_wprior");
     return reader;
 }
 #include <stan_meta_header.hpp>
@@ -42,6 +42,7 @@ class model_mortality_size_growth_wprior
 private:
         int N_counts;
         double s0_av;
+        double Z_sd;
         std::vector<double> bin_lower;
         std::vector<double> bin_upper;
         std::vector<int> counts;
@@ -91,6 +92,12 @@ public:
             pos__ = 0;
             s0_av = vals_r__[pos__++];
             current_statement_begin__ = 8;
+            context__.validate_dims("data initialization", "Z_sd", "double", context__.to_vec());
+            Z_sd = double(0);
+            vals_r__ = context__.vals_r("Z_sd");
+            pos__ = 0;
+            Z_sd = vals_r__[pos__++];
+            current_statement_begin__ = 9;
             validate_non_negative_index("bin_lower", "N_counts", N_counts);
             context__.validate_dims("data initialization", "bin_lower", "double", context__.to_vec(N_counts));
             bin_lower = std::vector<double>(N_counts, double(0));
@@ -100,7 +107,7 @@ public:
             for (size_t k_0__ = 0; k_0__ < bin_lower_k_0_max__; ++k_0__) {
                 bin_lower[k_0__] = vals_r__[pos__++];
             }
-            current_statement_begin__ = 9;
+            current_statement_begin__ = 10;
             validate_non_negative_index("bin_upper", "N_counts", N_counts);
             context__.validate_dims("data initialization", "bin_upper", "double", context__.to_vec(N_counts));
             bin_upper = std::vector<double>(N_counts, double(0));
@@ -110,7 +117,7 @@ public:
             for (size_t k_0__ = 0; k_0__ < bin_upper_k_0_max__; ++k_0__) {
                 bin_upper[k_0__] = vals_r__[pos__++];
             }
-            current_statement_begin__ = 10;
+            current_statement_begin__ = 11;
             validate_non_negative_index("counts", "N_counts", N_counts);
             context__.validate_dims("data initialization", "counts", "int", context__.to_vec(N_counts));
             counts = std::vector<int>(N_counts, int(0));
@@ -120,14 +127,14 @@ public:
             for (size_t k_0__ = 0; k_0__ < counts_k_0_max__; ++k_0__) {
                 counts[k_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 14;
+            current_statement_begin__ = 15;
             context__.validate_dims("data initialization", "N_growth", "int", context__.to_vec());
             N_growth = int(0);
             vals_i__ = context__.vals_i("N_growth");
             pos__ = 0;
             N_growth = vals_i__[pos__++];
             check_greater_or_equal(function__, "N_growth", N_growth, 0);
-            current_statement_begin__ = 15;
+            current_statement_begin__ = 16;
             validate_non_negative_index("age", "N_growth", N_growth);
             context__.validate_dims("data initialization", "age", "vector_d", context__.to_vec(N_growth));
             age = Eigen::Matrix<double, Eigen::Dynamic, 1>(N_growth);
@@ -137,7 +144,7 @@ public:
             for (size_t j_1__ = 0; j_1__ < age_j_1_max__; ++j_1__) {
                 age(j_1__) = vals_r__[pos__++];
             }
-            current_statement_begin__ = 16;
+            current_statement_begin__ = 17;
             validate_non_negative_index("size_ind", "N_growth", N_growth);
             context__.validate_dims("data initialization", "size_ind", "vector_d", context__.to_vec(N_growth));
             size_ind = Eigen::Matrix<double, Eigen::Dynamic, 1>(N_growth);
@@ -153,13 +160,13 @@ public:
             // validate, set parameter ranges
             num_params_r__ = 0U;
             param_ranges_i__.clear();
-            current_statement_begin__ = 20;
-            num_params_r__ += 1;
             current_statement_begin__ = 21;
             num_params_r__ += 1;
             current_statement_begin__ = 22;
             num_params_r__ += 1;
             current_statement_begin__ = 23;
+            num_params_r__ += 1;
+            current_statement_begin__ = 24;
             num_params_r__ += 1;
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
@@ -178,7 +185,7 @@ public:
         (void) pos__; // dummy call to supress warning
         std::vector<double> vals_r__;
         std::vector<int> vals_i__;
-        current_statement_begin__ = 20;
+        current_statement_begin__ = 21;
         if (!(context__.contains_r("Z")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable Z missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("Z");
@@ -191,7 +198,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable Z: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 21;
+        current_statement_begin__ = 22;
         if (!(context__.contains_r("R")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable R missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("R");
@@ -204,7 +211,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable R: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 22;
+        current_statement_begin__ = 23;
         if (!(context__.contains_r("g")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable g missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("g");
@@ -217,7 +224,7 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable g: ") + e.what()), current_statement_begin__, prog_reader__());
         }
-        current_statement_begin__ = 23;
+        current_statement_begin__ = 24;
         if (!(context__.contains_r("sigma_size")))
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable sigma_size missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("sigma_size");
@@ -255,28 +262,28 @@ public:
         try {
             stan::io::reader<local_scalar_t__> in__(params_r__, params_i__);
             // model parameters
-            current_statement_begin__ = 20;
+            current_statement_begin__ = 21;
             local_scalar_t__ Z;
             (void) Z;  // dummy to suppress unused var warning
             if (jacobian__)
                 Z = in__.scalar_lb_constrain(0, lp__);
             else
                 Z = in__.scalar_lb_constrain(0);
-            current_statement_begin__ = 21;
+            current_statement_begin__ = 22;
             local_scalar_t__ R;
             (void) R;  // dummy to suppress unused var warning
             if (jacobian__)
                 R = in__.scalar_lb_constrain(0, lp__);
             else
                 R = in__.scalar_lb_constrain(0);
-            current_statement_begin__ = 22;
+            current_statement_begin__ = 23;
             local_scalar_t__ g;
             (void) g;  // dummy to suppress unused var warning
             if (jacobian__)
                 g = in__.scalar_lb_constrain(0, lp__);
             else
                 g = in__.scalar_lb_constrain(0);
-            current_statement_begin__ = 23;
+            current_statement_begin__ = 24;
             local_scalar_t__ sigma_size;
             (void) sigma_size;  // dummy to suppress unused var warning
             if (jacobian__)
@@ -285,43 +292,43 @@ public:
                 sigma_size = in__.scalar_lb_constrain(0);
             // model body
             {
-            current_statement_begin__ = 28;
+            current_statement_begin__ = 29;
             validate_non_negative_index("counts_est", "N_counts", N_counts);
             std::vector<local_scalar_t__  > counts_est(N_counts, local_scalar_t__(DUMMY_VAR__));
             stan::math::initialize(counts_est, DUMMY_VAR__);
             stan::math::fill(counts_est, DUMMY_VAR__);
-            current_statement_begin__ = 29;
+            current_statement_begin__ = 30;
             validate_non_negative_index("size_est", "N_growth", N_growth);
             std::vector<local_scalar_t__  > size_est(N_growth, local_scalar_t__(DUMMY_VAR__));
             stan::math::initialize(size_est, DUMMY_VAR__);
             stan::math::fill(size_est, DUMMY_VAR__);
-            current_statement_begin__ = 32;
-            lp_accum__.add(cauchy_log<propto__>(Z, 0, 10));
             current_statement_begin__ = 33;
-            lp_accum__.add(cauchy_log<propto__>(g, 0, 10));
+            lp_accum__.add(cauchy_log<propto__>(Z, 0, Z_sd));
             current_statement_begin__ = 34;
-            lp_accum__.add(cauchy_log<propto__>(R, 0, 100));
+            lp_accum__.add(cauchy_log<propto__>(g, 0, 10));
             current_statement_begin__ = 35;
+            lp_accum__.add(cauchy_log<propto__>(R, 0, 100));
+            current_statement_begin__ = 36;
             lp_accum__.add(cauchy_log<propto__>(sigma_size, 0, 2.5));
-            current_statement_begin__ = 38;
+            current_statement_begin__ = 39;
             for (int i = 1; i <= N_counts; ++i) {
-                current_statement_begin__ = 39;
+                current_statement_begin__ = 40;
                 stan::model::assign(counts_est, 
                             stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                             ((-(R) / Z) * (stan::math::exp(((-(Z) / g) * (get_base1(bin_upper, i, "bin_upper", 1) - s0_av))) - stan::math::exp(((-(Z) / g) * (get_base1(bin_lower, i, "bin_lower", 1) - s0_av))))), 
                             "assigning variable counts_est");
             }
-            current_statement_begin__ = 42;
+            current_statement_begin__ = 43;
             lp_accum__.add(poisson_log<propto__>(counts, counts_est));
-            current_statement_begin__ = 45;
+            current_statement_begin__ = 46;
             for (int i = 1; i <= N_growth; ++i) {
-                current_statement_begin__ = 46;
+                current_statement_begin__ = 47;
                 stan::model::assign(size_est, 
                             stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                             (s0_av + (get_base1(age, i, "age", 1) * g)), 
                             "assigning variable size_est");
             }
-            current_statement_begin__ = 50;
+            current_statement_begin__ = 51;
             lp_accum__.add(normal_log<propto__>(size_ind, size_est, sigma_size));
             }
         } catch (const std::exception& e) {

@@ -40,9 +40,9 @@ stan::io::program_reader prog_reader__() {
 class model_mortality_age_wprior
   : public stan::model::model_base_crtp<model_mortality_age_wprior> {
 private:
-        int n;
-        std::vector<double> age_lower;
-        std::vector<double> age_upper;
+        int N_counts;
+        std::vector<double> bin_lower;
+        std::vector<double> bin_upper;
         std::vector<int> counts;
         double Z_sd;
 public:
@@ -76,38 +76,38 @@ public:
         try {
             // initialize data block variables from context__
             current_statement_begin__ = 4;
-            context__.validate_dims("data initialization", "n", "int", context__.to_vec());
-            n = int(0);
-            vals_i__ = context__.vals_i("n");
+            context__.validate_dims("data initialization", "N_counts", "int", context__.to_vec());
+            N_counts = int(0);
+            vals_i__ = context__.vals_i("N_counts");
             pos__ = 0;
-            n = vals_i__[pos__++];
+            N_counts = vals_i__[pos__++];
             current_statement_begin__ = 5;
-            validate_non_negative_index("age_lower", "n", n);
-            context__.validate_dims("data initialization", "age_lower", "double", context__.to_vec(n));
-            age_lower = std::vector<double>(n, double(0));
-            vals_r__ = context__.vals_r("age_lower");
+            validate_non_negative_index("bin_lower", "N_counts", N_counts);
+            context__.validate_dims("data initialization", "bin_lower", "double", context__.to_vec(N_counts));
+            bin_lower = std::vector<double>(N_counts, double(0));
+            vals_r__ = context__.vals_r("bin_lower");
             pos__ = 0;
-            size_t age_lower_k_0_max__ = n;
-            for (size_t k_0__ = 0; k_0__ < age_lower_k_0_max__; ++k_0__) {
-                age_lower[k_0__] = vals_r__[pos__++];
+            size_t bin_lower_k_0_max__ = N_counts;
+            for (size_t k_0__ = 0; k_0__ < bin_lower_k_0_max__; ++k_0__) {
+                bin_lower[k_0__] = vals_r__[pos__++];
             }
             current_statement_begin__ = 6;
-            validate_non_negative_index("age_upper", "n", n);
-            context__.validate_dims("data initialization", "age_upper", "double", context__.to_vec(n));
-            age_upper = std::vector<double>(n, double(0));
-            vals_r__ = context__.vals_r("age_upper");
+            validate_non_negative_index("bin_upper", "N_counts", N_counts);
+            context__.validate_dims("data initialization", "bin_upper", "double", context__.to_vec(N_counts));
+            bin_upper = std::vector<double>(N_counts, double(0));
+            vals_r__ = context__.vals_r("bin_upper");
             pos__ = 0;
-            size_t age_upper_k_0_max__ = n;
-            for (size_t k_0__ = 0; k_0__ < age_upper_k_0_max__; ++k_0__) {
-                age_upper[k_0__] = vals_r__[pos__++];
+            size_t bin_upper_k_0_max__ = N_counts;
+            for (size_t k_0__ = 0; k_0__ < bin_upper_k_0_max__; ++k_0__) {
+                bin_upper[k_0__] = vals_r__[pos__++];
             }
             current_statement_begin__ = 7;
-            validate_non_negative_index("counts", "n", n);
-            context__.validate_dims("data initialization", "counts", "int", context__.to_vec(n));
-            counts = std::vector<int>(n, int(0));
+            validate_non_negative_index("counts", "N_counts", N_counts);
+            context__.validate_dims("data initialization", "counts", "int", context__.to_vec(N_counts));
+            counts = std::vector<int>(N_counts, int(0));
             vals_i__ = context__.vals_i("counts");
             pos__ = 0;
-            size_t counts_k_0_max__ = n;
+            size_t counts_k_0_max__ = N_counts;
             for (size_t k_0__ = 0; k_0__ < counts_k_0_max__; ++k_0__) {
                 counts[k_0__] = vals_i__[pos__++];
             }
@@ -212,18 +212,18 @@ public:
             // model body
             {
             current_statement_begin__ = 18;
-            validate_non_negative_index("counts_est", "n", n);
-            std::vector<local_scalar_t__  > counts_est(n, local_scalar_t__(DUMMY_VAR__));
+            validate_non_negative_index("counts_est", "N_counts", N_counts);
+            std::vector<local_scalar_t__  > counts_est(N_counts, local_scalar_t__(DUMMY_VAR__));
             stan::math::initialize(counts_est, DUMMY_VAR__);
             stan::math::fill(counts_est, DUMMY_VAR__);
             current_statement_begin__ = 21;
             lp_accum__.add(cauchy_log<propto__>(Z, 0, Z_sd));
             current_statement_begin__ = 24;
-            for (int i = 1; i <= n; ++i) {
+            for (int i = 1; i <= N_counts; ++i) {
                 current_statement_begin__ = 25;
                 stan::model::assign(counts_est, 
                             stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
-                            ((-(R) / Z) * (stan::math::exp((-(Z) * get_base1(age_upper, i, "age_upper", 1))) - stan::math::exp((-(Z) * get_base1(age_lower, i, "age_lower", 1))))), 
+                            ((-(R) / Z) * (stan::math::exp((-(Z) * get_base1(bin_upper, i, "bin_upper", 1))) - stan::math::exp((-(Z) * get_base1(bin_lower, i, "bin_lower", 1))))), 
                             "assigning variable counts_est");
             }
             current_statement_begin__ = 29;

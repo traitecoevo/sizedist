@@ -3,7 +3,7 @@
 #' @param pars pars object
 #' @param Z_sd standard deviation for Z
 #'
-#' @return
+#' @return list of priors appended to pars list
 #' @export
 #'
 #' @examples

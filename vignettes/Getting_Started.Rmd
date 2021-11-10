@@ -84,6 +84,14 @@ str(standata_age) # Ta da! Your binned data is now a list!
 (age_pars <- pars$pars %>% mutate_pars(model = "model1_a"))
 ```
 
+#### Priors in sizedist models
+
+Currently, the default priors used for all sizedist models are XXX (uninformative? uniform?). The `add_priors()` function allows one to supply their own standard deviation values for `Z`, `g`, `R`. For more details see `?add_priors()`. Lets tweak the `Z_sd` prior for `model1_a`. Please note that set of priors available for adjustment depends on the model you would like to run. 
+
+```{r}
+age_pars <- age_pars %>% add_priors(Z_sd = 15)
+```
+
 Once the name of the model has been updated, the `pars` object will need to be joined to the data list created above. Note that `add_pars()` will by default, prune the `pars` list to the hyperparamaters that are used in model fitting. 
 ```{r fit}
 standata_age_mod1 <- standata_age %>% add_pars(pars = age_pars) 
