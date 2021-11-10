@@ -115,7 +115,7 @@ size_data <- data %>% summarise_bin_counts(bin_var = size,
 standata_size <- size_data %>% compose_count_data()
 ```
 
-In order to fit the *Constant Mortality, known Growth model* (`model1_b`), we will need to edit the model name and if you want, edit the values  for `g_av` which represents the average growth rate and `s0_av` which represents the average size at hatching/birth.
+In order to fit the *Constant Mortality, known Growth model* (`model1_b`), we will need to edit the model name using `mutate_pars()`. Similarly,you can edit the values  for `g_av` which represents the average growth rate and `s0_av` which represents the average size at hatching/birth within the same function. 
 ```{r}
 # Assign default parameters into an object
 pars  <- default_pars("model1")
@@ -207,15 +207,13 @@ m_g_fit <- fit_sizedist(standata_size_growth_mod3)
 print(m_g_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
-```
-
 ### Model fit diagnostics
 
 Once the models have been fit, we can extract posteriors and run diagnostics to assess model fitting. Here, we focus on output from the model estimating growth and mortality simultaneously  (`model3`), but the process is the same for each of the three models. 
 
 We recommend are several CRAN packages that are wonderful for interacting with Stan model fit objects and visualising model diagnostics
 
-```{r}
+```{r, message=FALSE}
 library(ggplot2) 
 library(rstan)
 library(bayesplot)
