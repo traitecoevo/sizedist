@@ -81,7 +81,7 @@ str(standata_age) # Ta da! Your binned data is now a list!
 `sizedist` currently supports three types of models (`model1_a`, `model1_b`, `model1_c`). Models with the prefix `model1_` all have XXX in common. `model1_a` assumes **constant** mortality and growth. In order to fit these different variants of models, you will need to specify the name using the `mutate_pars` function. 
 
 ```{r}
-(age_pars <- pars %>% mutate_pars(model = "model1_a"))
+(age_pars <- pars$pars %>% mutate_pars(model = "model1_a"))
 ```
 
 Once the name of the model has been updated, the `pars` object will need to be joined to the data list created above. Note that `add_pars()` will by default, prune the `pars` list to the hyperparamaters that are used in model fitting. 
@@ -120,7 +120,7 @@ In order to fit the *Constant Mortality, known Growth model* (`model1_b`), we wi
 # Assign default parameters into an object
 pars  <- default_pars("model1")
 
-pars_cm_kg <- mutate_pars(pars,
+pars_cm_kg <- mutate_pars(pars$pars,
                           model = "model1_b",
                           g_av = 0.21,
                           s0_av = 6)
@@ -146,7 +146,7 @@ print(knowng_fit, probs=c(0.025, 0.5, 0.975))
 
 The final model that `sizedist` currently supports (`model1_c`) can estimate mortality and growth simultaneously using size and age data. In our simulated dataset, we have information on individual's sizes at particular ages as well as the overall distribution of sizes across the population. These data were simulated with no sampling error. 
 
-```{r, fig.align='center'}
+```{r, fig.align='center', message=FALSE}
 library(ggplot2)
 
 ggplot(data, aes(size, age)) + 
@@ -156,7 +156,7 @@ ggplot(data, aes(size, age)) +
 We need to first add some sampling noise to the size observations before we can fit the model using the `add_sampling_noise()` function. Otherwise, the model will have a hard time running! This step is not needed if you are using your own data! See XXX case study. 
 
 ```{r, fig.align='center'}
-growth_data <- simulate_population(pars) %>% 
+growth_data <- simulate_population(default_pars("model1")) %>% 
   add_sampling_noise(size, sd = 0.5)
 
 ggplot(growth_data, aes(size, age)) + 
@@ -191,7 +191,7 @@ str(standata_size_growth_mod3)
 To fit this final model (`model1_c`), we will again need to update our hyperparameters and add them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `mutate_pars()`
 
 ```{r}
-pars_m_g <- mutate_pars(pars,
+pars_m_g <- mutate_pars(pars$pars,
                         model = "model1_c")
 
 pars_m_g 
