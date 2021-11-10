@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/traitecoevo/sizedist/workflows/R-CMD-check/badge.svg)](https://github.com/traitecoevo/sizedist/actions)
+[![Codecov test
+coverage](https://codecov.io/gh/traitecoevo/sizedist/branch/develop/graph/badge.svg)](https://codecov.io/gh/traitecoevo/sizedist?branch=master)
 <!-- badges: end -->
 
 `sizedist` allow users to estimate growth and mortality in populations
