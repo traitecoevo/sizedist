@@ -43,14 +43,14 @@ simulate_cumulative_mortality_model1 <- function(individual_data) {
 
 #' @rdname age_dist_model
 age_dist_model1 <- function(x, pars) {
-  with(pars,
+  with(pars$pars,
        R * exp(-z_av*x)
        )
 }
 
 #' @rdname size_dist_model
 size_dist_model1 <- function(x, pars) {
-  with(pars,
+  with(pars$pars,
        R / g_av * exp(-z_av/g_av*(x-s0_av))
        )
 }

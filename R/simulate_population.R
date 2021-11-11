@@ -133,8 +133,8 @@ simulate_population <-  function(pars = default_pars("model1"),
 #' @export
 #' @rdname age_dist_model
 age_dist_model <- function(x, pars) {
-  # Switch for different models
-  switch (pars$model,
+  prefix <- unlist(stringr::str_split(pars$pars$model, "_"))[1]
+  switch (prefix,
           model1 = age_dist_model1(x, pars))
 }
 
@@ -148,7 +148,7 @@ age_dist_model <- function(x, pars) {
 #' @rdname size_dist_model
 size_dist_model <- function(x, pars) {
   # Switch for different models
-  prefix <- unlist(stringr::str_split(pars$model, "_"))[1]
+  prefix <- unlist(stringr::str_split(pars$pars$model, "_"))[1]
   switch (prefix,
           model1 = size_dist_model1(x, pars))
 }
