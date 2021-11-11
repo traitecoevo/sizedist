@@ -74,19 +74,19 @@ str(standata_age) # Ta da! Your binned data is now a list!
 
 ### Fitting your model 
 
-`sizedist` currently suports three types of models.We will fit `model1_a` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some hyper-parameters into our data list. Any relevant hyper-parameters such as the name of the model is added automatically using the `add_pars()` function. 
+`sizedist` currently suports three types of models.We will fit `model1a` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some hyper-parameters into our data list. Any relevant hyper-parameters such as the name of the model is added automatically using the `add_pars()` function. 
 
 #### Constant Mortality and Growth model
 
-`sizedist` currently supports three types of models (`model1_a`, `model1_b`, `model1_c`). Models with the prefix `model1_` all have XXX in common. `model1_a` assumes **constant** mortality and growth. In order to fit these different variants of models, you will need to specify the name using the `mutate_pars` function. 
+`sizedist` currently supports three types of models (`model1a`, `model1b`, `model1c`). Models with the prefix `model1_` all have XXX in common. `model1a` assumes **constant** mortality and growth. In order to fit these different variants of models, you will need to specify the name using the `mutate_pars` function. 
 
 ```{r}
-(age_pars <- pars$pars %>% mutate_pars(model = "model1_a"))
+(age_pars <- pars$pars %>% mutate_pars(model = "model1a"))
 ```
 
 #### Priors in sizedist models
 
-Currently, the default priors used for all sizedist models are XXX (uninformative? uniform?). The `add_priors()` function allows one to supply their own standard deviation values for `Z`, `g`, `R`. For more details see `?add_priors()`. Lets tweak the `Z_sd` prior for `model1_a`. Please note that set of priors available for adjustment depends on the model you would like to run. 
+Currently, the default priors used for all sizedist models are XXX (uninformative? uniform?). The `add_priors()` function allows one to supply their own standard deviation values for `Z`, `g`, `R`. For more details see `?add_priors()`. Lets tweak the `Z_sd` prior for `model1a`. Please note that set of priors available for adjustment depends on the model you would like to run. 
 
 ```{r}
 age_pars <- age_pars %>% add_priors(Z_sd = 15)
@@ -123,13 +123,13 @@ size_data <- data %>% summarise_bin_counts(bin_var = size,
 standata_size <- size_data %>% compose_count_data()
 ```
 
-In order to fit the *Constant Mortality, known Growth model* (`model1_b`), we will need to edit the model name using `mutate_pars()`. Similarly,you can edit the values  for `g_av` which represents the average growth rate and `s0_av` which represents the average size at hatching/birth within the same function. 
+In order to fit the *Constant Mortality, known Growth model* (`model1b`), we will need to edit the model name using `mutate_pars()`. Similarly,you can edit the values  for `g_av` which represents the average growth rate and `s0_av` which represents the average size at hatching/birth within the same function. 
 ```{r}
 # Assign default parameters into an object
 pars  <- default_pars("model1")
 
 pars_cm_kg <- mutate_pars(pars$pars,
-                          model = "model1_b",
+                          model = "model1b",
                           g_av = 0.21,
                           s0_av = 6)
 
@@ -152,7 +152,7 @@ print(knowng_fit, probs=c(0.025, 0.5, 0.975))
 
 #### Estimating Growth and Mortality 
 
-The final model that `sizedist` currently supports (`model1_c`) can estimate mortality and growth simultaneously using size and age data. In our simulated dataset, we have information on individual's sizes at particular ages as well as the overall distribution of sizes across the population. These data were simulated with no sampling error. 
+The final model that `sizedist` currently supports (`model1c`) can estimate mortality and growth simultaneously using size and age data. In our simulated dataset, we have information on individual's sizes at particular ages as well as the overall distribution of sizes across the population. These data were simulated with no sampling error. 
 
 ```{r, fig.align='center', message=FALSE}
 library(ggplot2)
@@ -196,11 +196,11 @@ standata_size_growth_mod3 <- join_stan_data(standata_size, standata_growth)
 str(standata_size_growth_mod3)
 ```
 
-To fit this final model (`model1_c`), we will again need to update our hyperparameters and add them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `mutate_pars()`
+To fit this final model (`model1c`), we will again need to update our hyperparameters and add them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `mutate_pars()`
 
 ```{r}
 pars_m_g <- mutate_pars(pars$pars,
-                        model = "model1_c")
+                        model = "model1c")
 
 pars_m_g 
 
@@ -323,7 +323,7 @@ fitted <- list(
               z_av = fit_Z_size,
               g_av = fit_g_size,
               binwidth = 0.1,
-              model = "model1_c"
+              model = "model1c"
 )
 
 # Plot fitted values on data

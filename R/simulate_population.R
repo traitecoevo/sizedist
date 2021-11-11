@@ -139,6 +139,8 @@ age_dist_model <- function(x, pars) {
 }
 
 
+str_sub(pars$pars$model, 1,6) 
+
 #' Predicted density distribution of individual sizes under a particular size-distribution model
 #'
 #' @param x Size of individuals
