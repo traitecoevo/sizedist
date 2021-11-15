@@ -128,12 +128,17 @@ In order to fit the *Constant Mortality, known Growth model* (`model1b`), we wil
 # Assign default parameters into an object
 pars  <- default_pars("model1")
 
-pars_cm_kg <- mutate_pars(pars$pars,
-                          model = "model1b",
-                          g_av = 0.21,
-                          s0_av = 6)
+#pars_cm_kg <-
+mutate_pars(pars, 
+            model = "model1b",
+            pars = list(g_av = 0.5)) # WHY IS THIS NOT WORKING
 
-pars_cm_kg
+#but 
+
+pars_cm_kg <- list_modify(pars,
+            model = "model1b",
+            pars = list(g_av = 0.5)) #WORKS?!
+
 ```
 
 Similar to the first example, we will know need to add these hyperparameters to our data list in order to run our model with `add_pars()`.

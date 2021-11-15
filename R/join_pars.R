@@ -50,9 +50,6 @@ add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
             pars)
 
   #Order the list with model at the end I don't know if this is important but it looks nice
-  out <- c(purrr::keep(out, is.character),
-           purrr::discard(out, is.character))
-
   out
 
 }

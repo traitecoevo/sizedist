@@ -7,15 +7,15 @@
 #' @export
 
 mutate_pars <- function(pars, ...){
+
   ls <- purrr::list_modify(.x = pars,...)
 
   #Set the order of the list
   #Which one is character filter out, sort it alphabetically and then add it back on?
-  ls <- c(purrr::keep(ls, is.character),
-          purrr::discard(ls, is.character))
-
+  # ls <- c(purrr::keep(ls, is.character),
+  #         purrr::discard(ls, is.character))
+  #
   ls
 }
-
 
 
