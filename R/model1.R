@@ -8,11 +8,11 @@ default_pars_model1 <- function() {
     g_av = 0.21,
     log10g_sd = 0.0,
     z_av = 0.25,
-    log10z_sd = 0.0,
-    model = "model1"
+    log10z_sd = 0.0
   )
 
-  list(pars = pars)
+  list(model = "model1",
+       pars = pars)
 }
 
 
