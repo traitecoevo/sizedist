@@ -81,7 +81,7 @@ str(standata_age) # Ta da! Your binned data is now a list!
 `sizedist` currently supports three types of models (`model1a`, `model1b`, `model1c`). Models with the prefix `model1_` all have XXX in common. `model1a` assumes **constant** mortality and growth. In order to fit these different variants of models, you will need to specify the name using the `mutate_pars` function. 
 
 ```{r}
-(age_pars <- pars$pars %>% mutate_pars(model = "model1a"))
+(age_pars <- pars %>% mutate_pars(model = "model1a"))
 ```
 
 #### Priors in sizedist models
@@ -89,7 +89,7 @@ str(standata_age) # Ta da! Your binned data is now a list!
 Currently, the default priors used for all sizedist models are XXX (uninformative? uniform?). The `add_priors()` function allows one to supply their own standard deviation values for `Z`, `g`, `R`. For more details see `?add_priors()`. Lets tweak the `Z_sd` prior for `model1a`. Please note that set of priors available for adjustment depends on the model you would like to run. 
 
 ```{r}
-age_pars <- age_pars %>% add_priors(Z_sd = 15)
+( age_pars <- age_pars %>% add_priors(Z_sd = 15) )
 ```
 
 Once the name of the model has been updated, the `pars` object will need to be joined to the data list created above. Note that `add_pars()` will by default, prune the `pars` list to the hyperparamaters that are used in model fitting. 
