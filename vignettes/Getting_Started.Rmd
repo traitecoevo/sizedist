@@ -167,7 +167,7 @@ We need to first add some sampling noise to the size observations before we can 
 growth_data <- simulate_population(default_pars("model1")) %>% 
   add_sampling_noise(size, sd = 0.5)
 
-ggplot(growth_data, aes(size, age)) + 
+ggplot(growth_data, aes(age, size)) + 
   geom_point()
 ```
 
