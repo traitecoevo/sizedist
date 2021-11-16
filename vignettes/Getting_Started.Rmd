@@ -78,10 +78,12 @@ str(standata_age) # Ta da! Your binned data is now a list!
 
 #### Constant Mortality and Growth model
 
-`sizedist` currently supports three types of models (`model1a`, `model1b`, `model1c`). Models with the prefix `model1_` all have XXX in common. `model1a` assumes **constant** mortality and growth. In order to fit these different variants of models, you will need to specify the name using the `mutate_pars` function. 
+`sizedist` currently supports three types of models (`model1a`, `model1b`, `model1c`). Models with the prefix `model1_` all have XXX in common. `model1a` assumes **constant** mortality and growth. In order to fit these different variants of models, you will need to specify the name using the `list_modify()` from the `purrr` package, 
 
 ```{r}
-(age_pars <- pars %>% mutate_pars(model = "model1a"))
+# install.packages("purrr")
+
+(age_pars <- pars %>% purrr:::list_modify(model = "model1a"))
 ```
 
 #### Priors in sizedist models
@@ -123,15 +125,15 @@ size_data <- data %>% summarise_bin_counts(bin_var = size,
 standata_size <- size_data %>% compose_count_data()
 ```
 
-In order to fit the *Constant Mortality, known Growth model* (`model1b`), we will need to edit the model name using `mutate_pars()`. Similarly,you can edit the values  for `g_av` which represents the average growth rate and `s0_av` which represents the average size at hatching/birth within the same function. 
+In order to fit the *Constant Mortality, known Growth model* (`model1b`), we will need to edit the model name using `list_modify()`. Similarly,you can edit the values  for `g_av` which represents the average growth rate and `s0_av` which represents the average size at hatching/birth within the same function. Note that the parameters `g_av ` and `s0_av` are within a nested list of `pars` so you will need to use some special syntax to update those numbers.
+
 ```{r}
 # Assign default parameters into an object
 pars  <- default_pars("model1")
 
-pars_cm_kg <- list_modify(pars,
-            model = "model1b",
-            pars = list(g_av = 0.5)) 
-
+pars_cm_kg <- purrr:::list_modify(pars,
+                                  model = "model1b",
+                                  pars = list(g_av = 0.5)) 
 ```
 
 Similar to the first example, we will know need to add these hyperparameters to our data list in order to run our model with `add_pars()`.
@@ -194,10 +196,10 @@ standata_size_growth_mod3 <- join_stan_data(standata_size, standata_growth)
 str(standata_size_growth_mod3)
 ```
 
-To fit this final model (`model1c`), we will again need to update our hyperparameters and add them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `mutate_pars()`
+To fit this final model (`model1c`), we will again need to update our hyperparameters and add them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
 
 ```{r}
-pars_m_g <- mutate_pars(pars$pars,
+pars_m_g <- list_modify(pars,
                         model = "model1c")
 
 pars_m_g 
