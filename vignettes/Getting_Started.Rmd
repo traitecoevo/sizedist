@@ -23,19 +23,19 @@ library(sizedist)
 
 ### Simulating age- and size- structured data
 
-To begin, let's first start by simulating some data of a hypothetical population. We first need to set some **hyper-parameters** that are used to inform the simulation. See the XXX vignette on the definitions for each hyperparameter. `sizedist` has default hyper-parameters that you can access using the `default_pars()` function. Note that these hyper-parameters are organised as a **list** object and will also be used during model fitting. Learn more about [lists](https://www.tutorialspoint.com/r/r_lists.html)
+To begin, let's first start by simulating some data of a hypothetical population. We first need to set some **-parameters** that are used to inform the simulation. See the XXX vignette on the definitions for each parameter. `sizedist` has default parameters that you can access using the `default_pars()` function. Note that these parameters are organised as a **list** object and will also be used during model fitting. Learn more about [lists](https://www.tutorialspoint.com/r/r_lists.html)
 
-```{r hyperparams}
+```{r params}
 library(sizedist)
 
-#Calling this function will return a list of hyperparameters
+#Calling this function will return a list of parameters
 #Tip: Assign this function into an object for later use
 pars <- default_pars("model1")
 
 pars
 ```
 
-We can now use these hyperparameters to simulate some data using the `simulate_population()` function.
+We can now use these parameters to simulate some data using the `simulate_population()` function.
 
 ```{r simulate}
 #Tip: Assign this function to an object so you have access to the data
@@ -74,7 +74,7 @@ str(standata_age) # Ta da! Your binned data is now a list!
 
 ### Fitting your model 
 
-`sizedist` currently suports three types of models.We will fit `model1a` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some hyper-parameters into our data list. Any relevant hyper-parameters such as the name of the model is added automatically using the `add_pars()` function. 
+`sizedist` currently suports three types of models.We will fit `model1a` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some parameters into our data list. Any relevant parameters such as the name of the model is added automatically using the `add_pars()` function. 
 
 #### Constant Mortality and Growth model
 
@@ -94,7 +94,7 @@ Currently, the default priors used for all sizedist models are XXX (uninformativ
 ( age_pars <- age_pars %>% add_priors(Z_sd = 15) )
 ```
 
-Once the name of the model has been updated, the `pars` object will need to be joined to the data list created above. Note that `add_pars()` will by default, prune the `pars` list to the hyperparamaters that are used in model fitting. 
+Once the name of the model has been updated, the `pars` object will need to be joined to the data list created above. Note that `add_pars()` will by default, prune the `pars` list to the parameters that are used in model fitting. 
 ```{r fit}
 standata_age_mod1 <- standata_age %>% add_pars(pars = age_pars) 
 
@@ -136,7 +136,7 @@ pars_cm_kg <- purrr:::list_modify(pars,
                                   pars = list(g_av = 0.5)) 
 ```
 
-Similar to the first example, we will know need to add these hyperparameters to our data list in order to run our model with `add_pars()`.
+Similar to the first example, we will know need to add these parameters to our data list in order to run our model with `add_pars()`.
 
 ```{r}
 standata_size_mod2 <- standata_size %>% add_pars(pars_cm_kg)
@@ -196,7 +196,7 @@ standata_size_growth_mod3 <- join_stan_data(standata_size, standata_growth)
 str(standata_size_growth_mod3)
 ```
 
-To fit this final model (`model1c`), we will again need to update our hyperparameters and add them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
+To fit this final model (`model1c`), we will again need to update our parameters and add them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
 
 ```{r}
 pars_m_g <- list_modify(pars,
@@ -204,7 +204,7 @@ pars_m_g <- list_modify(pars,
 
 pars_m_g 
 
-# Add in hyperparameters to data list
+# Add in parameters to data list
 standata_size_growth_mod3 <- standata_size_growth_mod3 %>% add_pars(pars_m_g)
 str(standata_size_growth_mod3)
 ```
