@@ -36,7 +36,7 @@ extract_fitted <- function(fit, pars){
 
   # fitted values for plotting
   fitted <- list(model = pars$model,
-                 par = list(R = fit_R_size,
+                 pars = list(R = fit_R_size,
                             s0_av = pars$pars$s0_av,
                             z_av = fit_Z_size,
                             g_av = fit_g_size))
