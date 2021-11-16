@@ -9,7 +9,7 @@ extract_fitted(fit, pars)
 \arguments{
 \item{fit}{model fit for growth model}
 
-\item{pars}{pars list object containing hyperparameters}
+\item{pars}{pars list used for model fitting}
 }
 \value{
 

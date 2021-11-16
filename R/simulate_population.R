@@ -156,6 +156,7 @@ size_dist_model <- function(x, pars) {
 #' @param data simulated dataframe or own data
 #' @param var variable you wish to add noise to
 #' @param sd standard deviation
+#' @param overwrite logical, if TRUE the original variable will be overwritten
 #' @return dataframe where variable w
 #' @export
 

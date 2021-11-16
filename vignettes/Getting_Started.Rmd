@@ -83,7 +83,7 @@ str(standata_age) # Ta da! Your binned data is now a list!
 ```{r}
 # install.packages("purrr")
 
-(age_pars <- pars %>% purrr:::list_modify(model = "model1a"))
+(age_pars <- pars %>% purrr::list_modify(model = "model1a"))
 ```
 
 #### Priors in sizedist models
@@ -131,7 +131,7 @@ In order to fit the *Constant Mortality, known Growth model* (`model1b`), we wil
 # Assign default parameters into an object
 pars  <- default_pars("model1")
 
-pars_cm_kg <- purrr:::list_modify(pars,
+pars_cm_kg <- purrr::list_modify(pars,
                                   model = "model1b",
                                   pars = list(g_av = 0.5)) 
 ```
@@ -199,7 +199,7 @@ str(standata_size_growth_mod3)
 To fit this final model (`model1c`), we will again need to update our parameters and add them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
 
 ```{r}
-pars_m_g <- list_modify(pars,
+pars_m_g <- purrr::list_modify(pars,
                         model = "model1c")
 
 pars_m_g 
@@ -346,7 +346,7 @@ dat2 <- dat %>%
 draw_g <- dat2$g
 
 #select data for plotting
-s0 = pars_m_g$s0_av #size at hatching
+s0 = pars_m_g$pars$s0_av #size at hatching
 
 #plot
 p <- ggplot(growth_data, aes(x= age, y = size)) + 

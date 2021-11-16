@@ -5,8 +5,6 @@
 #'
 #' @return list of priors appended to pars list
 #' @export
-#'
-#' @examples
 add_priors <- function(pars,
                        Z_sd = 10){
   pars$priors$Z_sd <- Z_sd

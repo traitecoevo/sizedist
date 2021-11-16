@@ -7,8 +7,7 @@
 #'
 fit_sizedist <- function(data, ...) {
 
-
-  data <- c(discard(data, names(data) %in% "par"),
+  data <- c(purrr::discard(data, names(data) %in% "par"),
     data$par)
 
   out <-
