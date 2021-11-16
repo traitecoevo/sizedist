@@ -26,6 +26,7 @@ plot_size_dist <- function(data, pars, binwidth, fitted = NULL) {
 #'
 #' @param fit model fit for growth model
 #' @param pars pars list used for model fitting
+#' @export
 #' @return
 
 extract_fitted <- function(fit, pars){
