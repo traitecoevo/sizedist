@@ -347,7 +347,7 @@ for(i in seq_len(nrow(dat2))) {
   }
 
 p <- p +
-  geom_abline(intercept = s0, slope = fit_g_size, col = "red") #mean fit 
+  geom_abline(intercept = s0, slope = fitted$pars$g_av, col = "red") #mean fit 
 p
 ```
 
