@@ -132,12 +132,12 @@ simulate_population <-  function(pars = default_pars("model1"),
 #' @export
 #' @rdname age_dist_model
 age_dist_model <- function(x, pars) {
-  switch (pars$model,
+  prefix <- stringr::str_sub(pars$model, 1, 6)
+
+  switch (prefix,
           model1 = age_dist_model1(x, pars))
 }
 
-
-# str_sub(pars$pars$model, 1,6)
 
 #' Predicted density distribution of individual sizes under a particular size-distribution model
 #'
@@ -148,7 +148,9 @@ age_dist_model <- function(x, pars) {
 #' @rdname size_dist_model
 size_dist_model <- function(x, pars) {
   # Switch for different models
-  switch (pars$model,
+  prefix <- stringr::str_sub(pars$model, 1, 6)
+
+  switch (prefix,
           model1 = size_dist_model1(x, pars))
 }
 

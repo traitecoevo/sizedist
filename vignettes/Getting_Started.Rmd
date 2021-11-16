@@ -306,25 +306,11 @@ post_3 <- mcmc_areas(posterior,
 post_1 + post_2 + post_3
 ```
 
-Then we can plot the fitted estimates to simulated data. 
-`plot_size_dist()` allows you to add a fitted line based on new model estimates to the previous size-frequency histogram.
-
+Then we can plot the fitted estimates to simulated data. First, we have to extract the fitted values using `extract_fitted()` and assigned it into a object. After, we can add this fitted object into `plot_size_dist()` so you can add a fitted line based on new model estimates to the previous size-frequency histogram.
 
 ```{r, eval = TRUE, fig.align='center'}
 # extract posterior mean estimates
-fit_Z_size <- mean(rstan::extract(m_g_fit, pars="Z")[["Z"]])
-fit_R_size <- mean(rstan::extract(m_g_fit, pars="R")[["R"]])
-fit_g_size <- mean(rstan::extract(m_g_fit, pars="g")[["g"]])
-
-# fitted values for plotting
-fitted <- list(
-              R = fit_R_size,
-              s0_av = pars_m_g$s0_av,
-              z_av = fit_Z_size,
-              g_av = fit_g_size,
-              binwidth = 0.1,
-              model = "model1c"
-)
+fitted <- extract_fitted(m_g_fit, pars = pars_m_g)
 
 # Plot fitted values on data
 plot_size_dist(growth_data, pars_m_g, binwidth = 0.1, fitted)
