@@ -74,7 +74,7 @@ str(standata_age) # Ta da! Your binned data is now a list!
 
 ### Fitting your model 
 
-`sizedist` currently suports three types of models.We will fit `model1a` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some parameters into our data list. Any relevant parameters such as the name of the model is added automatically using the `add_pars()` function. 
+`sizedist` currently suports three types of models. We will fit `model1a` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some parameters into our data list. Any relevant parameters such as the name of the model is added automatically using the `add_pars()` function. 
 
 #### Constant Mortality and Growth model
 
@@ -205,6 +205,7 @@ str(standata_size_growth_mod3)
 To fit this final model (`model1c`), we will again need to update our parameters and add them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
 
 ```{r}
+
 pars_m_g <- purrr::list_modify(pars,
                         model = "model1c")
 
@@ -220,6 +221,7 @@ m_g_fit <- fit_sizedist(standata_size_growth_mod3)
 
 print(m_g_fit, probs=c(0.025, 0.5, 0.975))
 ```
+
 
 ### Model fit diagnostics
 
@@ -253,8 +255,12 @@ p_trace
 
 #### No-U-Turn-Sampler (NUTS) energy diagnostics
 
-What does NUTS tell us? 
-These plots are lovely, an explainer of what nuts plots do would be awesome!
+- The first histogram uses the function `mcmc_nuts_energy()`
+Produces overlaid histograms showing energy__ πE (i.e., the value of the Hamiltonian (up to an additive constant) at each sample) vers the change in energy__ πΔE (See Betancourt (2016) for details.) In the figure, we want to *see if the histograms for πE and πΔE are approximately equal*. If the distribution of πΔE has deviated from πE (e.g., wider tails) then autocorrelation of the chains will be large. For more details check out this [paper](https://arxiv.org/abs/1604.00695).
+
+The remaining histograms uses the function`mcmc_scatter()`
+This function produces bivariate scatterplots of the MCMC draws, with the divergent chains highlighted. Here we are checking to *see if the divergent chains are clustered in parameter space*. If the divergent chains are spread out, then they are most probably false positive results and can be discounted. If the divergences are clustered, it is indicative that sampling has not computed a reliable answer. More details on why the scatter plot with divergences is a useful diagnostic tool can be found in [Gabry et al. (2019)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssa.12378).
+
 ```{r, message=FALSE, fig.align='center', fig.height=6, fig.width=7}
 color_scheme_set("red")
 np <- nuts_params(m_g_fit)
@@ -286,6 +292,16 @@ nuts_4 <- mcmc_scatter(
 nuts_1 / (nuts_2 + nuts_3 + nuts_4)
 ```
 
+Further methods, examples and discussion of MCMC diagnostics is provided by Gabry and Modrák (2021) in <https://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html>
+
+#### ShinysStan
+A GUI is available for the diagnostic analysis and visualisation for MCMC from stan. Using ShinyStan allows for the exploration of stan output through your web browser. See <https://mc-stan.org/users/interfaces/shinystan>
+```{r}
+library(shinystan)
+
+launch_shinystan(m_g_fit)
+```
+
 #### Distribution of posteriors of each parameter estimate
 
 What are the things we should look out for? 
@@ -312,7 +328,13 @@ post_3 <- mcmc_areas(posterior,
 post_1 + post_2 + post_3
 ```
 
+
+
+#### Plot Fitted estimates with data.
+
 Then we can plot the fitted estimates to simulated data. First, we have to extract the fitted values using `extract_fitted()` and assigned it into a object. After, we can add this fitted object into `plot_size_dist()` so you can add a fitted line based on new model estimates to the previous size-frequency histogram.
+
+How well does the fitted line match the data?
 
 ```{r, eval = TRUE, fig.align='center'}
 # extract posterior mean estimates
