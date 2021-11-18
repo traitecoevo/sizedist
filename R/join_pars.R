@@ -50,9 +50,6 @@ add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
             pars)
 
   #Order the list with model at the end I don't know if this is important but it looks nice
-  out <- c(purrr::discard(out, is.character),
-           purrr::keep(out, is.character))
-
   out
 
 }
@@ -63,15 +60,15 @@ add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
 #'
 keep_fit_pars_model <- function(pars){
   pars <- switch(pars$model,
-                 model1_a = purrr::keep(pars, names(pars) %in% c("model", "priors")),
-                 model1_b = purrr::keep(pars, names(pars) %in% c("model", "g_av", "s0_av")),
-                 model1_c = purrr::keep(pars, names(pars) %in% c("model", "s0_av"))
+                 model1a = purrr::keep(pars, names(pars) %in% c("model", "priors")),
+                 model1b = c(purrr::keep(pars, names(pars) %in% c("model", "priors")),
+                             list(par = purrr::keep(pars$pars, names(pars$pars) %in% c("g_av", "s0_av")))),
+                 model1c = c(purrr::keep(pars, names(pars) %in% c("model", "priors")),
+                             list(par = purrr::keep(pars$pars, names(pars$pars) %in% "s0_av")))
   )
   pars
 
-  c(pars[1], pars[[2]]) #squashing priors down
 }
-
 
 #Function to return pars that are used to fit the model, switch based on pars$model (model prefix e.g model1)
 

@@ -12,6 +12,8 @@ add_sampling_noise(data, var, sd = 0.1, overwrite = TRUE)
 \item{var}{variable you wish to add noise to}
 
 \item{sd}{standard deviation}
+
+\item{overwrite}{logical, if TRUE the original variable will be overwritten}
 }
 \value{
 dataframe where variable w

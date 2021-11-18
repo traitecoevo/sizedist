@@ -8,17 +8,17 @@ default_pars_model1 <- function() {
     g_av = 0.21,
     log10g_sd = 0.0,
     z_av = 0.25,
-    log10z_sd = 0.0,
-    model = "model1"
+    log10z_sd = 0.0
   )
 
-  list(pars = pars)
+  list(model = "model1",
+       pars = pars)
 }
 
 
 sample_individual_variation_model1 <- function(n, pars) {
   with(
-    pars,
+    pars$pars,
     dplyr::tibble(
       size_birth = 10 ^ rnorm(n, log10(s0_av), log10s0_sd),
       growth_rate = 10 ^ rnorm(n, log10(g_av), log10g_sd),

@@ -25,7 +25,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Biarch: true
 Depends: 
     R (>= 3.4.0)
@@ -48,7 +48,8 @@ Imports:
     tidyselect,
     bayesplot, 
     patchwork,
-    janitor
+    janitor,
+    stats
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
@@ -60,7 +61,6 @@ SystemRequirements: GNU make
 Suggests: 
     rmarkdown,
     knitr,
-    testthat (>= 3.0.0),
-    covr
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3

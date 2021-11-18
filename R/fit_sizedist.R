@@ -6,14 +6,18 @@
 #' @return An object of class `stanfit` returned by `rstan::sampling`
 #'
 fit_sizedist <- function(data, ...) {
+
+  data <- c(purrr::discard(data, names(data) %in% "par"),
+    data$par)
+
   out <-
     switch(data$model,
-           model1_a = rstan::sampling(stanmodels$mortality_age_wprior, data = data, ...),
-           model1_b = rstan::sampling(stanmodels$mortality_size_known_g_wprior, data = data, ...),
-           model1_c = rstan::sampling(stanmodels$mortality_size_growth_wprior, data = data, ...)
+           model1a = rstan::sampling(stanmodels$mortality_age_wprior, data = data, ...),
+           model1b = rstan::sampling(stanmodels$mortality_size_known_g, data = data, ...),
+           model1c = rstan::sampling(stanmodels$mortality_size_growth, data = data, ...)
   )
 
   return(out)
 }
 
-
+#Flattening out the data list

@@ -16,22 +16,19 @@ plot_size_dist <- function(data, pars, binwidth, fitted = NULL) {
     stat_function(fun = function(x) size_dist_model(x, pars) * binwidth)
 
   if (!is.null(fitted))
-    p1 <- p1 + stat_function(fun = function(x) size_dist_model(x, fitted)*fitted$binwidth, col = "red")
+    p1 <- p1 + stat_function(fun = function(x) size_dist_model(x, fitted)*binwidth, col = "red")
 
   p1
 
 }
 
-
 #' Extract fitted values for Z, R, g
 #'
 #' @param fit model fit for growth model
-#' @param pars pars list object containing hyperparameters
-#'
-#' @return
+#' @param pars pars list used for model fitting
 #' @export
-#'
-#' @examples
+#' @return
+
 extract_fitted <- function(fit, pars){
   # extract posterior mean estimates
   fit_Z_size <- mean(rstan::extract(fit, pars="Z")[["Z"]])
@@ -39,16 +36,12 @@ extract_fitted <- function(fit, pars){
   fit_g_size <- mean(rstan::extract(fit, pars="g")[["g"]])
 
   # fitted values for plotting
-  fitted <- list(
-    R = fit_R_size,
-    s0_av = pars$pars$s0_av,
-    z_av = fit_Z_size,
-    g_av = fit_g_size,
-    binwidth = 0.1,
-    model = "model1"
-  )
+  fitted <- list(model = pars$model,
+                 pars = list(R = fit_R_size,
+                            s0_av = pars$pars$s0_av,
+                            z_av = fit_Z_size,
+                            g_av = fit_g_size))
+
+  fitted
 }
 
-
-# add_fitted <- function(plot, fitted, binwidth){ #A geom to add fitted values to plot_size_dist()
-# }
