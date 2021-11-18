@@ -8,9 +8,9 @@
 fit_sizedist <- function(data, ...) {
 
   #Flattening out the pars list
-  data <- c(purrr::discard(data, names(data) %in% "pars"),
+  data <- c(purrr::discard(data, names(data) %in% "par"),
             purrr::discard(data, names(data) %in% "priors"),
-            data$pars,
+            data$par,
             data$priors)
 
   out <-
