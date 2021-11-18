@@ -2,7 +2,7 @@
 % Please edit documentation in R/join_pars.R
 \name{add_pars}
 \alias{add_pars}
-\title{Add_pars Join_pars superseder}
+\title{Join parameters object to Stan-composed data}
 \usage{
 add_pars(data, pars = NULL, type = NULL, prune = TRUE)
 }
@@ -16,5 +16,5 @@ add_pars(data, pars = NULL, type = NULL, prune = TRUE)
 \item{prune}{If TRUE, hyperparams used for simulate_population() will be dropped}
 }
 \description{
-Add_pars Join_pars superseder
+Join parameters object to Stan-composed data
 }

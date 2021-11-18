@@ -1,7 +1,7 @@
 #' Load default priors for a specific model
 #'
-#' @param model name of model
 #' @param pars pars list object you want to join priors to
+#' @param model name of the model, takes value in pars$model
 #'
 #' @return list object with original pars with priors joined at the end
 #' @export
@@ -10,7 +10,7 @@
 #' pars <- default_pars("model1")
 #' pars_new <- default_priors("model1a", pars)
 
-default_priors <- function(model = "model1a", pars){
+default_priors <- function(pars, model = pars$model){
   #Switch for different models
   priors <- switch(model,
                    model1a = default_priors_model1a(),

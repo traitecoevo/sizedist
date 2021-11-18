@@ -88,13 +88,19 @@ str(standata_age) # Ta da! Your binned data is now a list!
 
 #### Priors in sizedist models
 
-Currently, the default priors used for all sizedist models are XXX (uninformative? uniform?). The `add_priors()` function allows one to supply their own standard deviation values for `Z`, `g`, `R`. For more details see `?add_priors()`. Lets tweak the `Z_sd` prior for `model1a`. Please note that set of priors available for adjustment depends on the model you would like to run. 
+The default priors used for all sizedist models are XXX (uninformative? uniform?). We can add default priors for our model, by calling the `default_priors()` function. This function will join the priors in your pars list. Note that set of priors available depends on the model specified in `pars$model`.
 
 ```{r}
-( age_pars <- age_pars %>% add_priors(Z_sd = 15) )
+( age_pars <- age_pars %>% default_priors())
 ```
 
-Once the name of the model has been updated, the `pars` object will need to be joined to the data list created above. Note that `add_pars()` will by default, prune the `pars` list to the parameters that are used in model fitting. 
+Use the `list_modify()` function if you would like to set your own prior values. Note that the priors are nested within a the main list of `pars` so you will need to use the syntax below to update those numbers.
+
+```{r}
+(age_pars <- age_pars %>% purrr::list_modify(priors = list(Z_sd = 15)))
+```
+
+Once the `pars` pbject has been updated, it  will need to be joined to the data list created above. Note that `add_pars()` will by default, prune the `pars` list to the parameters that are only used in model fitting. 
 ```{r fit}
 standata_age_mod1 <- standata_age %>% add_pars(pars = age_pars) 
 
@@ -125,7 +131,7 @@ size_data <- data %>% summarise_bin_counts(bin_var = size,
 standata_size <- size_data %>% compose_count_data()
 ```
 
-In order to fit the *Constant Mortality, known Growth model* (`model1b`), we will need to edit the model name using `list_modify()`. Similarly,you can edit the values  for `g_av` which represents the average growth rate and `s0_av` which represents the average size at hatching/birth within the same function. Note that the parameters `g_av ` and `s0_av` are within a nested list of `pars` so you will need to use some special syntax to update those numbers.
+In order to fit the *Constant Mortality, known Growth model* (`model1b`), we will need to edit the model name using `list_modify()`. Similarly, you can edit the values  for `g_av` which represents the average growth rate and `s0_av` which represents the average size at hatching/birth within the same function. Note that the parameters `g_av ` and `s0_av` are within a nested list of `pars` so you will need to use some special syntax to update those numbers.
 
 ```{r}
 # Assign default parameters into an object

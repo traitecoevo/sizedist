@@ -7,8 +7,11 @@
 #'
 fit_sizedist <- function(data, ...) {
 
-  data <- c(purrr::discard(data, names(data) %in% "par"),
-    data$par)
+  #Flattening out the pars list
+  data <- c(purrr::discard(data, names(data) %in% "pars"),
+            purrr::discard(data, names(data) %in% "priors"),
+            data$pars,
+            data$priors)
 
   out <-
     switch(data$model,
@@ -20,4 +23,5 @@ fit_sizedist <- function(data, ...) {
   return(out)
 }
 
-#Flattening out the data list
+
+
