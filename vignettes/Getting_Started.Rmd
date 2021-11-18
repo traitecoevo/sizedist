@@ -225,7 +225,7 @@ print(m_g_fit, probs=c(0.025, 0.5, 0.975))
 
 ### Model fit diagnostics
 
-Once the models have been fit, we can extract posteriors and run diagnostics to assess model fitting. Here, we focus on output from the model estimating growth and mortality simultaneously  (`model3`), but the process is the same for each of the three models. 
+Once the models have been fit, we can extract posteriors and run diagnostics to assess model fitting. Here, we focus on output from the model estimating growth and mortality simultaneously  (`model3`), but the process is the same for each of the three models. Further methods, examples and discussion of MCMC diagnostics is provided by Gabry and Modrák (2021) in <https://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html>
 
 We recommend are several CRAN packages that are wonderful for interacting with Stan model fit objects and visualising model diagnostics
 
@@ -258,7 +258,7 @@ p_trace
 - The first histogram uses the function `mcmc_nuts_energy()`
 Produces overlaid histograms showing energy__ πE (i.e., the value of the Hamiltonian (up to an additive constant) at each sample) vers the change in energy__ πΔE (See Betancourt (2016) for details.) In the figure, we want to *see if the histograms for πE and πΔE are approximately equal*. If the distribution of πΔE has deviated from πE (e.g., wider tails) then autocorrelation of the chains will be large. For more details check out this [paper](https://arxiv.org/abs/1604.00695).
 
-The remaining histograms uses the function`mcmc_scatter()`
+- The remaining histograms uses the function`mcmc_scatter()`
 This function produces bivariate scatterplots of the MCMC draws, with the divergent chains highlighted. Here we are checking to *see if the divergent chains are clustered in parameter space*. If the divergent chains are spread out, then they are most probably false positive results and can be discounted. If the divergences are clustered, it is indicative that sampling has not computed a reliable answer. More details on why the scatter plot with divergences is a useful diagnostic tool can be found in [Gabry et al. (2019)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssa.12378).
 
 ```{r, message=FALSE, fig.align='center', fig.height=6, fig.width=7}
@@ -292,11 +292,9 @@ nuts_4 <- mcmc_scatter(
 nuts_1 / (nuts_2 + nuts_3 + nuts_4)
 ```
 
-Further methods, examples and discussion of MCMC diagnostics is provided by Gabry and Modrák (2021) in <https://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html>
-
-#### ShinysStan
+#### ShinyStan
 A GUI is available for the diagnostic analysis and visualisation for MCMC from stan. Using ShinyStan allows for the exploration of stan output through your web browser. See <https://mc-stan.org/users/interfaces/shinystan>
-```{r}
+```{r, message=FALSE}
 library(shinystan)
 
 launch_shinystan(m_g_fit)
