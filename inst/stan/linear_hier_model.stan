@@ -1,4 +1,4 @@
-// model1c_h? - Hierachical model for growth and mortality as power functions
+// model1c_h? - Hierachical model for growth and mortality as linear functions
 // This stan model estimates R, z, g and s0, at the sample and global level.
 //
 data {
