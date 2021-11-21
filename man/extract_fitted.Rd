@@ -12,7 +12,7 @@ extract_fitted(fit, pars)
 \item{pars}{pars list used for model fitting}
 }
 \value{
-
+list containing fitted values predicted by the model
 }
 \description{
 Extract fitted values for Z, R, g
