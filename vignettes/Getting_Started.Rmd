@@ -142,7 +142,13 @@ pars_cm_kg <- purrr::list_modify(pars,
                                   pars = list(g_av = 0.5)) 
 ```
 
-Similar to the first example, we will know need to add these parameters to our data list in order to run our model with `add_pars()`.
+Now lets add our default priors again 
+
+```{r}
+pars_cm_kg <- pars_cm_kg %>% default_priors()
+```
+
+Similar to the first example, we will know need to add our `pars` list to our data list in order to run our model with `add_pars()`.
 
 ```{r}
 standata_size_mod2 <- standata_size %>% add_pars(pars_cm_kg)
@@ -202,7 +208,7 @@ standata_size_growth_mod3 <- join_stan_data(standata_size, standata_growth)
 str(standata_size_growth_mod3)
 ```
 
-To fit this final model (`model1c`), we will again need to update our parameters and add them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
+To fit this final model (`model1c`), we will again need to update our parameters if desired, add our priors and then and join them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
 
 ```{r}
 
@@ -210,6 +216,8 @@ pars_m_g <- purrr::list_modify(pars,
                         model = "model1c")
 
 pars_m_g 
+
+# 
 
 # Add in parameters to data list
 standata_size_growth_mod3 <- standata_size_growth_mod3 %>% add_pars(pars_m_g)
@@ -294,7 +302,7 @@ nuts_1 / (nuts_2 + nuts_3 + nuts_4)
 
 #### ShinyStan
 A GUI is available for the diagnostic analysis and visualisation for MCMC from stan. Using ShinyStan allows for the exploration of stan output through your web browser. See <https://mc-stan.org/users/interfaces/shinystan>
-```{r, message=FALSE}
+```{r, message=FALSE, eval = FALSE}
 library(shinystan)
 
 launch_shinystan(m_g_fit)

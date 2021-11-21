@@ -8,6 +8,7 @@
 #'
 #' @examples
 #' pars <- default_pars("model1")
+#' pars <- pars %>% purrr::list_modify(model = "model1a")
 #' pars_new <- default_priors("model1a", pars)
 
 default_priors <- function(pars, model = pars$model){
