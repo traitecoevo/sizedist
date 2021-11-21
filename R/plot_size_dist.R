@@ -6,12 +6,13 @@
 #' @param binwidth The bin width for size, usually the smallest resolution of measurement e.g 0.1 mm
 #' @param fitted is a list containing estimated parameters from a stan mortality_size model.
 #' @importFrom ggplot2 ggplot aes geom_histogram stat_function
+#' @importFrom rlang .data
 #' @return a ggplot of size-frequency histogram with fitted function line
 #' @export
 
 plot_size_dist <- function(data, pars, binwidth, fitted = NULL) {
   p1 <- data %>%
-    ggplot(aes(size)) +
+    ggplot(aes(.data$size)) +
     geom_histogram(binwidth = binwidth) +
     stat_function(fun = function(x) size_dist_model(x, pars) * binwidth)
 

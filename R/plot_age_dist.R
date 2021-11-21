@@ -7,12 +7,13 @@
 #' @param binwidth The bin width for age, usually the smallest resolution of resampling e.g. 1 day
 #' @param fitted is a list containing estimated parameters from mortality_age.stan model
 #' @importFrom ggplot2 ggplot aes geom_histogram stat_function
+#' @importFrom rlang .data
 #' @return a ggplot of age-frequency histogram with fitted function line
 #' @export
 
 plot_age_dist <- function(data, pars, binwidth, fitted = NULL) {
   p1 <- data %>%
-    ggplot(aes(age)) +
+    ggplot(aes(.data$age)) +
     geom_histogram(binwidth = binwidth) +
     stat_function(fun = function(x) age_dist_model(x, pars)*binwidth)
 
