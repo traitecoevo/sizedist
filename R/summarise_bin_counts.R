@@ -3,7 +3,7 @@
 #' @param data A data frame or tibble
 #' @param bin_var Numeric variable that bin intervals and counts are computed
 #' @param bin_width The bin width for `age`bin_var`, usually the smallest resolution of re-sampling
-#' @importFrom rlang enquo abort .data
+#' @importFrom rlang enquo abort
 #' @return A tibble containing `bin_var`, lower and upper bounds and counts for each bin
 #' @export
 #'
@@ -11,6 +11,9 @@
 #' Loblolly %>% summarise_bin_counts(height, bin_width = 0.5)
 #'
 summarise_bin_counts <- function(data, bin_var, bin_width) {
+
+  # R CMD check by pass
+  binned_var = NULL
 
   bin_var <- enquo(bin_var)
 
@@ -31,9 +34,9 @@ summarise_bin_counts <- function(data, bin_var, bin_width) {
 
   #Creating new df with all bins
   tmp <- dplyr::tibble(
-    binned_var = data %>% dplyr::pull(.data$binned_var) %>% create_all_bins(bin_width),
-    bin_lower = .data$binned_var - 0.5 * bin_width,
-    bin_upper = .data$binned_var + 0.5 * bin_width)
+    binned_var = data %>% dplyr::pull(binned_var) %>% create_all_bins(bin_width),
+    bin_lower = binned_var - 0.5 * bin_width,
+    bin_upper = binned_var + 0.5 * bin_width)
 
   # convert binned_var to character to ensure successful join
   # Small difference in precision mean join doesn't always identify a match when it should

@@ -95,6 +95,10 @@ simulate_population <-  function(pars = default_pars("model1"),
                                  time_end = 25,
                                  keep_dead = FALSE) {
 
+  # R CMD check by pass
+  time_birth = NULL
+  is_dead = NULL
+
   df <-
     dplyr::tibble(
       # total number of individuals sampled from birth process and time of birth
