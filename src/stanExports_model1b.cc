@@ -2,12 +2,12 @@
 
 #include <Rcpp.h>
 using namespace Rcpp ;
-#include "stanExports_mortality_size_known_g_wprior.h"
+#include "stanExports_model1b.h"
 
-RCPP_MODULE(stan_fit4mortality_size_known_g_wprior_mod) {
+RCPP_MODULE(stan_fit4model1b_mod) {
 
 
-    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("model_mortality_size_known_g_wprior")
+    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("model_model1b")
 
     .constructor<SEXP,SEXP,SEXP>()
 

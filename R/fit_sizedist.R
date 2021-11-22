@@ -15,9 +15,9 @@ fit_sizedist <- function(data, ...) {
 
   out <-
     switch(data$model,
-           model1a = rstan::sampling(stanmodels$mortality_age_wprior, data = data, ...),
-           model1b = rstan::sampling(stanmodels$mortality_size_known_g_wprior, data = data, ...),
-           model1c = rstan::sampling(stanmodels$mortality_size_growth_wprior, data = data, ...)
+           model1a = rstan::sampling(stanmodels$model1a, data = data, ...),
+           model1b = rstan::sampling(stanmodels$model1b, data = data, ...),
+           model1c = rstan::sampling(stanmodels$model1c, data = data, ...)
   )
 
   return(out)
