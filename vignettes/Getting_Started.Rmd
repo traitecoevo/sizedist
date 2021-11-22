@@ -211,18 +211,19 @@ str(standata_size_growth_mod3)
 To fit this final model (`model1c`), we will again need to update our parameters if desired, add our priors and then and join them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
 
 ```{r}
+pars  <- default_pars("model1")
 
 pars_m_g <- purrr::list_modify(pars,
                         model = "model1c")
 
-pars_m_g 
-
-# 
+# Add in default priors
+pars_m_g <- pars_m_g %>% default_priors()
 
 # Add in parameters to data list
 standata_size_growth_mod3 <- standata_size_growth_mod3 %>% add_pars(pars_m_g)
 str(standata_size_growth_mod3)
 ```
+
 
 ```{r, eval = TRUE, results="hide"}
 m_g_fit <- fit_sizedist(standata_size_growth_mod3)
