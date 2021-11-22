@@ -2,9 +2,18 @@
 % Please edit documentation in R/plot_size_dist.R
 \name{extract_fitted}
 \alias{extract_fitted}
+\alias{extract_fitted_model1a}
+\alias{extract_fitted_model1b}
+\alias{extract_fitted_model1c}
 \title{Extract fitted values for Z, R, g}
 \usage{
 extract_fitted(fit, pars)
+
+extract_fitted_model1a(fit, pars)
+
+extract_fitted_model1b(fit, pars)
+
+extract_fitted_model1c(fit, pars)
 }
 \arguments{
 \item{fit}{model fit for growth model}

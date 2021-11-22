@@ -31,18 +31,62 @@ plot_size_dist <- function(data, pars, binwidth, fitted = NULL) {
 #' @return list containing fitted values predicted by the model
 
 extract_fitted <- function(fit, pars){
-  # extract posterior mean estimates
-  fit_Z_size <- mean(rstan::extract(fit, pars="Z")[["Z"]])
-  fit_R_size <- mean(rstan::extract(fit, pars="R")[["R"]])
-  fit_g_size <- mean(rstan::extract(fit, pars="g")[["g"]])
+  switch(pars$model,
+         model1a = extract_fitted_model1a(fit, pars),
+         model1b = extract_fitted_model1b(fit, pars),
+         model1c = extract_fitted_model1c(fit, pars)
+  )
+}
+
+#' @rdname extract_fitted
+
+extract_fitted_model1a <- function(fit, pars){
+  fit_Z <- mean(rstan::extract(fit, pars="Z")[["Z"]])
+  fit_R <- mean(rstan::extract(fit, pars="R")[["R"]])
 
   # fitted values for plotting
   fitted <- list(model = pars$model,
-                 pars = list(R = fit_R_size,
-                            s0_av = pars$pars$s0_av,
-                            z_av = fit_Z_size,
-                            g_av = fit_g_size))
+                 pars = list(R = fit_R,
+                             z_av = fit_Z)
+  )
 
   fitted
 }
+
+#' @rdname extract_fitted
+
+extract_fitted_model1b <- function(fit, pars){
+  fit_Z <- mean(rstan::extract(fit, pars="Z")[["Z"]])
+  fit_R <- mean(rstan::extract(fit, pars="R")[["R"]])
+  fit_g <- mean(rstan::extract(fit, pars="g")[["g"]])
+
+  # fitted values for plotting
+  fitted <- list(model = pars$model,
+                 pars = list(R = fit_R,
+                             s0_av = pars$pars$s0_av,
+                             z_av = fit_Z,
+                             g_av = fit_g))
+
+
+  fitted
+}
+
+#' @rdname extract_fitted
+
+extract_fitted_model1c <- function(fit, pars){
+  fit_Z <- mean(rstan::extract(fit, pars="Z")[["Z"]])
+  fit_R <- mean(rstan::extract(fit, pars="R")[["R"]])
+  fit_g <- mean(rstan::extract(fit, pars="g")[["g"]])
+
+  # fitted values for plotting
+  fitted <- list(model = pars$model,
+                 pars = list(R = fit_R,
+                             s0_av = pars$pars$s0_av,
+                             z_av = fit_Z,
+                             g_av = fit_g))
+
+
+  fitted
+}
+
 

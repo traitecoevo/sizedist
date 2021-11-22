@@ -107,10 +107,20 @@ standata_age_mod1 <- standata_age %>% add_pars(pars = age_pars)
 str(standata_age_mod1) #Model name is added to the end of the data list
 ```
 
-```{r, eval = FALSE, results = "hide"}
+Use run the model with the `fit_sizedist()` function
+
+```{r, results = "hide"}
 age_fit <- fit_sizedist(standata_age_mod1)
 
 print(age_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+then you can extract the fitted values for Z and R and plot that against the data
+
+```{r, fig.align='center'}
+age_fitted <- extract_fitted(age_fit, age_pars)
+
+plot_age_dist(data, pars, binwidth = 1, age_fitted)
 ```
 
 ### Other models that are supported in sizedist
@@ -156,10 +166,21 @@ standata_size_mod2 <- standata_size %>% add_pars(pars_cm_kg)
 str(standata_size_mod2)
 ```
 
-```{r, eval = FALSE, results = "hide"}
+Again, lets fit the model
+
+```{r, results = 'hide'}
 knowng_fit <- fit_sizedist(standata_size_mod2)
 
 print(knowng_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+and plot the fitted values onto the data 
+
+```{r, fig.align='center'}
+
+knowng_fitted <- extract_fitted(knowng_fit, pars_cm_kg)
+
+plot_size_dist(data, pars, binwidth = 0.1, knowng_fitted)
 ```
 
 #### Estimating Growth and Mortality 
@@ -337,7 +358,7 @@ post_1 + post_2 + post_3
 
 
 
-#### Plot Fitted estimates with data.
+#### Plot fitted estimates with data.
 
 Then we can plot the fitted estimates to simulated data. First, we have to extract the fitted values using `extract_fitted()` and assigned it into a object. After, we can add this fitted object into `plot_size_dist()` so you can add a fitted line based on new model estimates to the previous size-frequency histogram.
 
