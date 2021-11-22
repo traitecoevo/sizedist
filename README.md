@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/traitecoevo/sizedist/workflows/R-CMD-check/badge.svg)](https://github.com/traitecoevo/sizedist/actions)
+[![R-CMD-check-standard](https://github.com/traitecoevo/sizedist/actions/workflows/check-standard.yaml/badge.svg)](https://github.com/traitecoevo/sizedist/actions/workflows/check-standard.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/traitecoevo/sizedist/branch/develop/graph/badge.svg)](https://codecov.io/gh/traitecoevo/sizedist?branch=master)
 [![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
