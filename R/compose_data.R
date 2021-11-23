@@ -9,9 +9,11 @@
 
 compose_count_data <- function(data,...){
 
-  if(! names(data) %in% "binned_var"){
-    abort("Data must be binned first! - see ?summarise_bin_counts()")
-  }
+  suppressWarnings(
+    if(! names(data) %in% c("binned_var", "counts")){
+      rlang::abort("Data must be binned first! - see ?summarise_bin_counts()")
+    }
+  )
 
   ret <- tidybayes::compose_data(data, ...)
 

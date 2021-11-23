@@ -15,7 +15,8 @@ test_that("Output is correct format", {
 })
 
 test_that("The right errors are tripped", {
-  expect_error()
+  expect_error(data %>% compose_count_data())
+
 })
 
-data %>% compose_count_data()
+
