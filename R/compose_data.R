@@ -51,8 +51,9 @@ compose_count_data <- function(data,...){
 compose_growth_data <- function(data,
                                 age_var,
                                 size_var){
-  if(is.null(age_var) | is.null(size_var)){
-    abort("Age or size variable must be supplied!")
+
+  if(missing(age_var) | missing(size_var)){
+    abort("Both age and size variables must be supplied!")
   }
 
   #Filter out the relevant cols

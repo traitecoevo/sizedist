@@ -49,8 +49,11 @@ test_that("Output is correct format", {
 
 test_that("The right errors are tripped", {
   expect_error(data %>% compose_count_data())
+  expect_error(growth_data %>%
+                 compose_growth_data())
 
 })
+
 
 
 
