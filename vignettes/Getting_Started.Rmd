@@ -50,9 +50,9 @@ We created two plotting functions to visualise the distribution of size and age 
 plot_age_dist(data, pars, binwidth = 1)
 ```
 
-### Creating binned data for size
+### Creating binned data
 
-In order to estimate a distribution for size/age in our models, we need  to create bins or 'class intervals' for these variables and tally up the number of observations that fall into each of these bins. The `summarise_bin_counts()` function will do the trick!
+In order to estimate a distribution for size/age in our models, we need  to create bins or 'class intervals' for these variables and tally up the number of observations that fall into each of these bins. The `summarise_bin_counts()` function will do the trick! Note that `bin_width` must be supplied and is usually the smallest resolution of measurement for your variable.
 
 ```{r age counts}
 # Compute bins for age 

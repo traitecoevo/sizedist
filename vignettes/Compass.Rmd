@@ -25,8 +25,7 @@ library(sizedist)
 ### .Stan files 
 
 Place all `.stan` files under inst/stan.
-I grabbed the files Charlie added on the `hier` branch and placed them in here already
-
+Charlie has added several hierarchical models in the folder already! 
 
 Now you have to compile the models so they are ready to go!
 ```{r}
