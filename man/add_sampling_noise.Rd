@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulate_population.R
 \name{add_sampling_noise}
 \alias{add_sampling_noise}
-\title{Simulate noise for any variable}
+\title{Simulate noise for any variable from a distribution with mean = 0}
 \usage{
 add_sampling_noise(data, var, sd = 0.1, overwrite = TRUE)
 }
@@ -10,10 +10,14 @@ add_sampling_noise(data, var, sd = 0.1, overwrite = TRUE)
 \item{data}{simulated dataframe or own data}
 
 \item{var}{variable you wish to add noise to}
+
+\item{sd}{standard deviation}
+
+\item{overwrite}{logical, if TRUE the original variable will be overwritten}
 }
 \value{
 dataframe where variable w
 }
 \description{
-Simulate noise for any variable
+Simulate noise for any variable from a distribution with mean = 0
 }

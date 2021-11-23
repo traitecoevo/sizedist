@@ -25,7 +25,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Biarch: true
 Depends: 
     R (>= 3.4.0)
@@ -37,18 +37,19 @@ Imports:
     rstan (>= 2.18.1),
     rstantools (>= 2.1.1),
     dplyr,
-    tidybayes,
-    tidyr,
-    stats,
     ggplot2,
     glue,
     purrr,
     rlang,
     stringr,
+    tidybayes,
     tidyselect,
-    bayesplot, 
+    tidyr,
     patchwork,
-    janitor
+    janitor,
+    stats,
+    shinystan,
+    bayesplot
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),

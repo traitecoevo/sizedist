@@ -12,16 +12,14 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 
-RcppExport SEXP _rcpp_module_boot_stan_fit4mortality_age_mod();
-RcppExport SEXP _rcpp_module_boot_stan_fit4mortality_age_wprior_mod();
-RcppExport SEXP _rcpp_module_boot_stan_fit4mortality_size_growth_mod();
-RcppExport SEXP _rcpp_module_boot_stan_fit4mortality_size_known_g_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4model1a_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4model1b_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4model1c_mod();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_rcpp_module_boot_stan_fit4mortality_age_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4mortality_age_mod, 0},
-    {"_rcpp_module_boot_stan_fit4mortality_age_wprior_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4mortality_age_wprior_mod, 0},
-    {"_rcpp_module_boot_stan_fit4mortality_size_growth_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4mortality_size_growth_mod, 0},
-    {"_rcpp_module_boot_stan_fit4mortality_size_known_g_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4mortality_size_known_g_mod, 0},
+    {"_rcpp_module_boot_stan_fit4model1a_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4model1a_mod, 0},
+    {"_rcpp_module_boot_stan_fit4model1b_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4model1b_mod, 0},
+    {"_rcpp_module_boot_stan_fit4model1c_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4model1c_mod, 0},
     {NULL, NULL, 0}
 };
 

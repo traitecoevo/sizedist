@@ -8,8 +8,7 @@
 default_pars <- function(model) {
   # Switch for different models
   switch (model,
-          model1 = default_pars_model1(),
-          model2 = default_pars_model2())
+          model1 = default_pars_model1())
 }
 
 #' Samples time of birth from a homogeneous Poisson process.
@@ -95,10 +94,15 @@ simulate_cumulative_mortality <- function(individual_data, model) {
 simulate_population <-  function(pars = default_pars("model1"),
                                  time_end = 25,
                                  keep_dead = FALSE) {
+
+  # R CMD check by pass
+  time_birth = NULL
+  is_dead = NULL
+
   df <-
     dplyr::tibble(
       # total number of individuals sampled from birth process and time of birth
-      time_birth = sample_birth_times(pars$R, time_end),
+      time_birth = sample_birth_times(pars$pars$R, time_end),
       time_end = time_end,
       age = time_end - time_birth
     ) %>%
@@ -132,8 +136,9 @@ simulate_population <-  function(pars = default_pars("model1"),
 #' @export
 #' @rdname age_dist_model
 age_dist_model <- function(x, pars) {
-  # Switch for different models
-  switch (pars$model,
+  prefix <- stringr::str_sub(pars$model, 1, 6)
+
+  switch (prefix,
           model1 = age_dist_model1(x, pars))
 }
 
@@ -147,27 +152,31 @@ age_dist_model <- function(x, pars) {
 #' @rdname size_dist_model
 size_dist_model <- function(x, pars) {
   # Switch for different models
-  prefix <- unlist(stringr::str_split(pars$model, "_"))[1]
+  prefix <- stringr::str_sub(pars$model, 1, 6)
+
   switch (prefix,
           model1 = size_dist_model1(x, pars))
 }
 
-#' Simulate noise for any variable
+#' Simulate noise for any variable from a distribution with mean = 0
 #' @param data simulated dataframe or own data
 #' @param var variable you wish to add noise to
+#' @param sd standard deviation
+#' @param overwrite logical, if TRUE the original variable will be overwritten
 #' @return dataframe where variable w
+#' @importFrom rlang :=
 #' @export
 
 add_sampling_noise <- function(data, var, sd = 0.1, overwrite = TRUE){
 
   ret <- data %>%
-    dplyr::mutate({{var}} := {{var}} + rnorm(length({{var}}), 0, 0.1))
+    dplyr::mutate({{var}} := {{var}} + stats::rnorm(length({{var}}), 0, 0.1))
 
   if(!overwrite){
     suffix <- "_noise"
 
     ret <- data %>%
-      dplyr::mutate("{{var}}{suffix}" := {{var}} + rnorm(length({{var}}), 0, 0.1))
+      dplyr::mutate("{{var}}{suffix}" := {{var}} + stats::rnorm(length({{var}}), 0, 0.1))
   }
 
   ret
