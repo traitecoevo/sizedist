@@ -51,6 +51,10 @@ compose_count_data <- function(data,...){
 compose_growth_data <- function(data,
                                 age_var,
                                 size_var){
+  if(is.null(age_var) | is.null(size_var)){
+    abort("Age or size variable must be supplied!")
+  }
+
   #Filter out the relevant cols
   tmp <- data %>% dplyr::select({{age_var}}, {{size_var}})
 
