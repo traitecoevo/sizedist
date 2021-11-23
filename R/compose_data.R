@@ -8,6 +8,11 @@
 #' @return A data list where each list element is a column from the original data frame
 
 compose_count_data <- function(data,...){
+
+  if(! names(data) %in% "binned_var"){
+    abort("Data must be binned first! - see ?summarise_bin_counts()")
+  }
+
   ret <- tidybayes::compose_data(data, ...)
 
   #rename list name for $n
