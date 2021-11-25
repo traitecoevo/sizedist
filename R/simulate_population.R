@@ -6,6 +6,19 @@
 #' @export
 
 default_pars <- function(model) {
+
+  if(missing(model)){
+    abort("Model name must be supplied! Try `model1`")
+  }
+
+  if(! is.character(model)){
+    abort("Character string of model name must be supplied! Try `model1`")
+  }
+
+  if( ! stringr::str_sub(model, 1, 5) == "model" ){
+    abort("This model does not exist! Try model1")
+  }
+
   # Switch for different models
   switch (model,
           model1 = default_pars_model1())
