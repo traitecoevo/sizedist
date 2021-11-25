@@ -10,7 +10,7 @@
 compose_count_data <- function(data,...){
 
   suppressWarnings(
-    if(! names(data) %in% c("binned_var", "counts")){
+    if(! any(names(data) %in% c("binned_var", "counts"))) {
       rlang::abort("Data must be binned first! - see ?summarise_bin_counts()")
     }
   )

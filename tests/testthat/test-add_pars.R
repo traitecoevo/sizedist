@@ -18,8 +18,6 @@ pars_cm_kg <- pars_cm_kg %>% default_priors()
 
 standata_size_mod2 <- standata_size %>% add_pars(pars_cm_kg)
 
-str(standata_size_mod2)
-
 test_that("Output in correct format", {
   expect_visible(standata_size %>% add_pars(pars_cm_kg))
   expect_length(standata_size_mod2, 8)

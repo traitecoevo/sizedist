@@ -15,8 +15,8 @@ default_pars <- function(model) {
     abort("Character string of model name must be supplied! Try `model1`")
   }
 
-  if( ! stringr::str_sub(model, 1, 5) == "model" ){
-    abort("This model does not exist! Try model1")
+  if( is.character(model) & ! stringr::str_sub(model, 1, 5) == "model" ){
+    abort("This model is not supported! Try `model1`")
   }
 
   # Switch for different models
