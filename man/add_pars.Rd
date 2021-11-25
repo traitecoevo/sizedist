@@ -7,11 +7,11 @@
 add_pars(data, pars = NULL, type = NULL, prune = TRUE)
 }
 \arguments{
-\item{data}{Binned data created by summarise_bin_counts}
+\item{data}{Binned data created by compose_count_data()}
 
 \item{pars}{pars object}
 
-\item{type}{Character string of model}
+\item{type}{Character string of model e.g. "model1"}
 
 \item{prune}{If TRUE, parameters used for simulate_population() will be dropped}
 }

@@ -1,14 +1,21 @@
 #' Join parameters object to Stan-composed data
 #'
-#' @param data Binned data created by summarise_bin_counts
+#' @param data Binned data created by compose_count_data()
 #' @param pars pars object
-#' @param type Character string of model
+#' @param type Character string of model e.g. "model1"
 #' @param prune If TRUE, parameters used for simulate_population() will be dropped
 #' @export
 
 add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
+  # What if pars have already been added, don't want to do it again
+  suppressWarnings(
+    if( any(names(data) %in% "par") ){
+      rlang::abort("`par` have already been added")
+    }
+  )
+
   if(is.null(pars) & is.null(type)){
-    rlang::abort("Hyperparameters or type of model must be supplied")
+    abort("Hyperparameters or type of model must be supplied")
   }
 
    if(is.null(pars) & ! is.null(type) & is.character(type)){
@@ -16,9 +23,7 @@ add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
    }
 
   if(prune){
-
     pars <- keep_fit_pars_model(pars)
-
   }
 
   out  <- c(data,
