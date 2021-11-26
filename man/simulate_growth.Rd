@@ -12,7 +12,7 @@ simulate_growth(individual_data, pars)
 \arguments{
 \item{individual_data}{A dataframe of individual data. Must include columns age and parameters of the size-distribution model.}
 
-\item{model}{name of size-distribution model being modeled}
+\item{pars}{pars list from which $model can be taken from}
 }
 \value{
 A vector of sizes for each individual. Length is the same as number of rows in the input data

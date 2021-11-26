@@ -74,7 +74,7 @@ sample_individual_variation <- function(n, pars) {
 #' Simulated integrated growth from time_birth to time_end for each individual under a particular size-distribution model
 #'
 #' @param individual_data A dataframe of individual data. Must include columns age and parameters of the size-distribution model.
-#' @param model name of size-distribution model being modeled
+#' @param pars pars list from which $model can be taken from
 #' @return A vector of sizes for each individual. Length is the same as number of rows in the input data
 #' @export
 #' @rdname simulate_growth
@@ -89,7 +89,7 @@ simulate_growth <- function(individual_data, pars) {
 #' Simulated integrated mortality rate (= cumulative hazard) from age birth to end for each individual under a particular size-distribution model
 #'
 #' @param individual_data A dataframe of individual data. Must include columns size_birth, size, age and paramaters of the size-distribution model.
-#' @param model name of size-distribution model being modeled
+#' @param pars pars list from which $model can be taken from
 #' @return A vector of integrated mortality rates for each individual. Lenght is the same as number of rows in the input data
 #' @export
 #' @rdname simulate_cumulative_mortality
