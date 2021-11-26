@@ -5,10 +5,14 @@
 #' @param ... Arguments passed to `rstan::sampling` (e.g. iter, chains).
 #' @return An object of class `stanfit` returned by `rstan::sampling`
 #'
-fit_sizedist <- function(data, ...) {
+fit_sizedist <- function(data, ...){
+
+  suppressWarnings(if(! any(names(data) %in% "pars") & ! data$model == "model1a"){
+    abort("`pars` have not been added to data! - try add_pars()")
+  })
 
   #Flattening out the pars list
-  data <- c(purrr::discard(data, names(data) %in% "par"),
+  data <- c(purrr::discard(data, names(data) %in% "pars"),
             purrr::discard(data, names(data) %in% "priors"),
             data$par,
             data$priors)

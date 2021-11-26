@@ -9,9 +9,14 @@
 add_pars <- function(data, pars = NULL, type = NULL, prune = TRUE){
   # What if pars have already been added, don't want to do it again
   suppressWarnings(
-    if( any(names(data) %in% "par") ){
-      rlang::abort("`par` have already been added")
+    if( any(names(data) %in% "pars") ){
+      rlang::abort("`pars` have already been added")
     }
+  )
+  suppressWarnings(
+  if(! any(names(pars) %in% "priors")){
+    abort("Priors must be added before using add_pars! - Try default_priors()")
+  }
   )
 
   if(is.null(pars) & is.null(type)){
@@ -42,9 +47,9 @@ keep_fit_pars_model <- function(pars){
   pars <- switch(pars$model,
                  model1a = purrr::keep(pars, names(pars) %in% c("model", "priors")),
                  model1b = c(purrr::keep(pars, names(pars) %in% c("model", "priors")),
-                             list(par = purrr::keep(pars$pars, names(pars$pars) %in% c("g_av", "s0_av")))),
+                             list(pars = purrr::keep(pars$pars, names(pars$pars) %in% c("g_av", "s0_av")))),
                  model1c = c(purrr::keep(pars, names(pars) %in% c("model", "priors")),
-                             list(par = purrr::keep(pars$pars, names(pars$pars) %in% "s0_av")))
+                             list(pars = purrr::keep(pars$pars, names(pars$pars) %in% "s0_av")))
   )
   pars
 
