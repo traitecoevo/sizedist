@@ -24,5 +24,7 @@ test_that("The right errors are tripped", {
   expect_error(default_pars())
   expect_error(default_pars(5))
   expect_error(default_pars("apple"))
+  expect_error(default_priors())
+  expect_error(default_priors(model = "model1c"))
 })
 
