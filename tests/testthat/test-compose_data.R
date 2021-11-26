@@ -25,6 +25,9 @@ standata_growth <-
   compose_growth_data(age_var = age,
                       size_var = size)
 
+# Join size and growth data together
+join_stan_data(standata_size,standata_growth)
+
 ###################################
 
 test_that("Output is correct format", {
@@ -45,13 +48,20 @@ test_that("Output is correct format", {
   expect_named(standata_growth)
   expect_type(standata_growth, "list")
 
+  expect_visible(join_stan_data(standata_size,standata_growth))
+  expect_length(join_stan_data(standata_size,standata_growth), 8)
+  expect_named(join_stan_data(standata_size,standata_growth))
+  expect_type(join_stan_data(standata_size,standata_growth), "list")
+
 })
 
 test_that("The right errors are tripped", {
   expect_error(data %>% compose_count_data())
   expect_error(growth_data %>%
                  compose_growth_data())
-
+  expect_error(join_stan_data(standata_size))
+  expect_error(join_stan_data(standata_growth))
+  expect_error(join_stan_data())
 })
 
 
