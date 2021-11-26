@@ -13,7 +13,7 @@ create_all_bins <- function(vec, bin_width){
 
 ### Data and bin width set up
 set.seed(19)
-data <- simulate_population(default_pars(model = 1))
+data <- simulate_population(default_pars("model1"))
 data(Loblolly)
 
 binwidth = 1

@@ -8,6 +8,13 @@
 #' @return A data list where each list element is a column from the original data frame
 
 compose_count_data <- function(data,...){
+
+  suppressWarnings(
+    if(! any(names(data) %in% c("binned_var", "counts"))) {
+      rlang::abort("Data must be binned first! - see ?summarise_bin_counts()")
+    }
+  )
+
   ret <- tidybayes::compose_data(data, ...)
 
   #rename list name for $n
@@ -44,6 +51,11 @@ compose_count_data <- function(data,...){
 compose_growth_data <- function(data,
                                 age_var,
                                 size_var){
+
+  if(missing(age_var) | missing(size_var)){
+    abort("Both age and size variables must be supplied!")
+  }
+
   #Filter out the relevant cols
   tmp <- data %>% dplyr::select({{age_var}}, {{size_var}})
 

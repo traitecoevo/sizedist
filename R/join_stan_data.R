@@ -6,6 +6,11 @@
 
 join_stan_data <- function(counts_list,
                            growth_list){
+
+  if(missing(counts_list) | missing(growth_list)){
+    abort("Count/size-at-age list data must be supplied!")
+  }
+
   c(counts_list,
     growth_list)
 }

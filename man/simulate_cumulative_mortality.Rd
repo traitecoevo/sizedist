@@ -7,12 +7,12 @@
 \usage{
 simulate_cumulative_mortality_model1(individual_data)
 
-simulate_cumulative_mortality(individual_data, model)
+simulate_cumulative_mortality(individual_data, pars)
 }
 \arguments{
 \item{individual_data}{A dataframe of individual data. Must include columns size_birth, size, age and paramaters of the size-distribution model.}
 
-\item{model}{name of size-distribution model being modeled}
+\item{pars}{pars list from which $model can be taken from}
 }
 \value{
 A vector of integrated mortality rates for each individual. Lenght is the same as number of rows in the input data

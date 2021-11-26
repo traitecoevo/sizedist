@@ -6,6 +6,19 @@
 #' @export
 
 default_pars <- function(model) {
+
+  if(missing(model)){
+    abort("Model name must be supplied! Try `model1`")
+  }
+
+  if(! is.character(model)){
+    abort("Character string of model name must be supplied! Try `model1`")
+  }
+
+  if( is.character(model) & ! stringr::str_sub(model, 1, 5) == "model" ){
+    abort("This model is not supported! Try `model1`")
+  }
+
   # Switch for different models
   switch (model,
           model1 = default_pars_model1())
@@ -49,8 +62,11 @@ sample_birth_times <- function(R, time_end) {
 
 sample_individual_variation <- function(n, pars) {
   # Switch for different models
-  # ........
-  switch (pars$model,
+
+  # Model prefix
+  prefix <- stringr::str_sub(pars$model, 1,6)
+
+  switch (prefix,
           model1 = sample_individual_variation_model1(n, pars))
 }
 
@@ -58,28 +74,31 @@ sample_individual_variation <- function(n, pars) {
 #' Simulated integrated growth from time_birth to time_end for each individual under a particular size-distribution model
 #'
 #' @param individual_data A dataframe of individual data. Must include columns age and parameters of the size-distribution model.
-#' @param model name of size-distribution model being modeled
+#' @param pars pars list from which $model can be taken from
 #' @return A vector of sizes for each individual. Length is the same as number of rows in the input data
 #' @export
 #' @rdname simulate_growth
-simulate_growth <- function(individual_data, model) {
+simulate_growth <- function(individual_data, pars) {
   # Switch for different models
-  switch (model,
+  prefix <- stringr::str_sub(pars$model, 1,6)
+
+  switch (prefix,
           model1 = simulate_growth_model1(individual_data))
 }
 
 #' Simulated integrated mortality rate (= cumulative hazard) from age birth to end for each individual under a particular size-distribution model
 #'
 #' @param individual_data A dataframe of individual data. Must include columns size_birth, size, age and paramaters of the size-distribution model.
-#' @param model name of size-distribution model being modeled
+#' @param pars pars list from which $model can be taken from
 #' @return A vector of integrated mortality rates for each individual. Lenght is the same as number of rows in the input data
 #' @export
 #' @rdname simulate_cumulative_mortality
 
-simulate_cumulative_mortality <- function(individual_data, model) {
+simulate_cumulative_mortality <- function(individual_data, pars) {
   # Switch for different models
-  # ........
-  switch (model,
+  prefix <- stringr::str_sub(pars$model, 1,6)
+
+  switch (prefix,
           model1 = simulate_cumulative_mortality_model1(individual_data))
 }
 
@@ -95,7 +114,7 @@ simulate_population <-  function(pars = default_pars("model1"),
                                  time_end = 25,
                                  keep_dead = FALSE) {
 
-  # R CMD check by pass
+  # R CMD check by-pass
   time_birth = NULL
   is_dead = NULL
 
@@ -106,15 +125,15 @@ simulate_population <-  function(pars = default_pars("model1"),
       time_end = time_end,
       age = time_end - time_birth
     ) %>%
-    # sample individual variation in rates
+    # sample individual variation in rate
     dplyr::bind_cols(.,
               sample_individual_variation(nrow(.), pars))
   # simulate growth and survival
   # could be converted to mutate with pipe
   # need to pass all columns into functions, but without knowing names
 
-  df$size<- simulate_growth(df, pars$model)
-  df$cumulative_hazard <- simulate_cumulative_mortality(df, pars$model)
+  df$size<- simulate_growth(df, pars)
+  df$cumulative_hazard <- simulate_cumulative_mortality(df, pars)
 
   # common across all models
   df$survival <- exp(-df$cumulative_hazard)
