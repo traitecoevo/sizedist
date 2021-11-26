@@ -7,7 +7,7 @@
 \usage{
 simulate_cumulative_mortality_model1(individual_data)
 
-simulate_cumulative_mortality(individual_data, model)
+simulate_cumulative_mortality(individual_data, pars)
 }
 \arguments{
 \item{individual_data}{A dataframe of individual data. Must include columns size_birth, size, age and paramaters of the size-distribution model.}

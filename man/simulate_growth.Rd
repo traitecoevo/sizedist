@@ -7,7 +7,7 @@
 \usage{
 simulate_growth_model1(individual_data)
 
-simulate_growth(individual_data, model)
+simulate_growth(individual_data, pars)
 }
 \arguments{
 \item{individual_data}{A dataframe of individual data. Must include columns age and parameters of the size-distribution model.}

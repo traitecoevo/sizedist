@@ -16,5 +16,6 @@ test_that("Output in correct format", {
 test_that("The right errors are tripped", {
   expect_error(standata_size %>% add_pars())
   expect_error(standata_size_mod2 %>% add_pars(pars_cm_kg))
+  expect_error(simulate_population(mtcars))
 
 })

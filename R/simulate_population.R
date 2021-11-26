@@ -78,7 +78,7 @@ sample_individual_variation <- function(n, pars) {
 #' @return A vector of sizes for each individual. Length is the same as number of rows in the input data
 #' @export
 #' @rdname simulate_growth
-simulate_growth <- function(individual_data, model) {
+simulate_growth <- function(individual_data, pars) {
   # Switch for different models
   prefix <- stringr::str_sub(pars$model, 1,6)
 
@@ -94,7 +94,7 @@ simulate_growth <- function(individual_data, model) {
 #' @export
 #' @rdname simulate_cumulative_mortality
 
-simulate_cumulative_mortality <- function(individual_data, model) {
+simulate_cumulative_mortality <- function(individual_data, pars) {
   # Switch for different models
   prefix <- stringr::str_sub(pars$model, 1,6)
 
