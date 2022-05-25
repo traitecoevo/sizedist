@@ -57,7 +57,8 @@ LinkingTo:
     RcppParallel (>= 5.0.1),
     rstan (>= 2.18.1),
     StanHeaders (>= 2.18.0)
-SystemRequirements: GNU make
+SystemRequirements: 
+    GNU make
 Suggests: 
     rmarkdown,
     knitr,
