@@ -7,7 +7,7 @@
 plot_age_dist(data, pars, binwidth, fitted = NULL)
 }
 \arguments{
-\item{data}{a data frame with a simulated sample of larval fish, created using simulate_catch_data function
+\item{data}{a dataframe with a simulated sample of larval fish, created using simulate_catch_data function
 and binned to smallest resolution using round_by_bin function.}
 
 \item{pars}{list of parameter values for the size-distribution model, including model name}
@@ -20,5 +20,5 @@ and binned to smallest resolution using round_by_bin function.}
 a ggplot of age-frequency histogram with fitted function line
 }
 \description{
-This function is for plotting the age distribution of simulated populations.
+This function is for plotting the age distribution of simulated fish populations.
 }

@@ -11,7 +11,7 @@ plot_size_dist(data, pars, binwidth, fitted = NULL)
 
 \item{pars}{list of parameter values for the size-distribution model, including model name}
 
-\item{binwidth}{The bin width for size, usually the smallest resolution of measurement e.g 0.1 mm}
+\item{binwidth}{The bin width for age, usually the smallest resolution of resampling e.g. 1 day}
 
 \item{fitted}{is a list containing estimated parameters from a stan mortality_size model.}
 }

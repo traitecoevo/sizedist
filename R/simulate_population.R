@@ -32,7 +32,7 @@ default_pars <- function(model) {
 #' @export
 
 sample_birth_times <- function(R, time_end) {
-
+  
   # simulate birth times assuming homogeneous Possion process
   # https://transp-or.epfl.ch/courses/OptSim2012/slides/05b-poisson.pdf
   # Could extend to time varying rate via non-homogeneous process
