@@ -2,3 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
+Read-and-delete-me
+inst/doc
+ignore/
+/doc/
+/Meta/
+*.o
+*.tmp
+ignore/

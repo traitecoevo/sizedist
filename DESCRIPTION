@@ -1,0 +1,67 @@
+Package: sizedist
+Title: Fitting size distributions to estimate growth and mortality
+Version: 0.0.0.9000
+Authors@R: 
+    c(person(given = "Daniel",
+             family = "Falster",
+             role =  c("aut", "cre"),
+             email = "daniel.falster@unsw.edu.au",
+             comment = c(ORCID = "0000-0002-9814-092X")),
+      person(given = "Charlie",
+             family = "Hinchliffe",
+             role = "aut",
+             comment = c(ORCID = "0000-0001-9625-4088")),
+      person(given = "Fonti",
+             family = "Kar",
+             role = "aut",
+             email = "f.kar@unsw.edu.au",
+             comment = c(ORCID = "0000-0002-2760-3974")))
+Description: 
+    sizedist is a package that interfaces with Stan. 
+    It contains precompiled models to allow users to
+    estimate growth and mortability for a given
+    size distribution of individuals. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Biarch: true
+Depends: 
+    R (>= 3.4.0)
+Imports: 
+    magrittr,
+    methods,
+    Rcpp (>= 0.12.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    rstantools (>= 2.1.1),
+    dplyr,
+    ggplot2,
+    glue,
+    purrr,
+    rlang,
+    stringr,
+    tidybayes,
+    tidyselect,
+    tidyr,
+    patchwork,
+    janitor,
+    stats,
+    shinystan,
+    bayesplot
+LinkingTo: 
+    BH (>= 1.66.0),
+    Rcpp (>= 0.12.0),
+    RcppEigen (>= 0.3.3.3.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    StanHeaders (>= 2.18.0)
+SystemRequirements: 
+    GNU make
+Suggests: 
+    rmarkdown,
+    knitr,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3

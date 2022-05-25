@@ -1,7 +1,38 @@
-# sizedist: a new package for estimating size distributions 
 
-Forked from [here](https://github.com/charliehinchliffe/models_for_larval_fish_growth_and_mortality), based on following paper 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# sizedist <img src="inst/figures/sizedist_2.png" align="right" alt="" width="150" />
+
+<!-- badges: start -->
+
+[![R-CMD-check-standard](https://github.com/traitecoevo/sizedist/actions/workflows/check-standard.yaml/badge.svg)](https://github.com/traitecoevo/sizedist/actions/workflows/check-standard.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/traitecoevo/sizedist/branch/tests/graph/badge.svg)](https://codecov.io/gh/traitecoevo/sizedist?branch=master)
+[![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![](https://img.shields.io/badge/doi-10.1093/icesjms/fsab161-yellow.svg)](https://doi.org/10.1093/icesjms/fsab161)
+<!-- badges: end -->
+
+`sizedist` allow users to estimate growth and mortality in populations
+as continuous functions using the theory of size-structured populations.
+Read more about how `sizedist` is implemented in: Hinchliffe, C., Pepin,
+P., Suthers, I. M., & Falster, D. S. (2021). [A novel approach for
+estimating growth and mortality of fish
+larvae](https://academic.oup.com/icesjms/advance-article/doi/10.1093/icesjms/fsab161/6364353?login=true)
+*ICES Journal of Marine Science*.
+
+## Installation
+
+`sizedist` is still currently under *active* development. You can
+install the current version of `sizedist` using:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("traitecoevo/sizedist", ref = "develop", build_vignettes = TRUE)
 ```
-Hinchliffe et al (2021) A novel approach for estimating growth and mortality of fish larvae. In review
+
+We recommend users to take a look at the “Getting Started” vignette for
+a brief introduction on some of the functions in `sizedist`
+
+``` r
+browseVignettes("sizedist")
 ```

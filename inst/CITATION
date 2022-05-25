@@ -1,0 +1,17 @@
+citHeader("To cite sizedist in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "A novel approach for estimating growth and mortality of fish larvae",
+  author   = personList(as.person("Charlie Hinchliffe"),
+                        as.person("Pierre Pepin"),
+                        as.person("Ian Suthers"),
+                        as.person("Daniel S. Falster")),
+  journal  = "ICES Journal of Marine Science",
+  year     = "2021",
+  volume   = "in press",
+  number   = " ",
+  pages    = " ",
+  url      = " ",
+  textVersion = paste("Charlie Hinchliffe, Pierre Pepin, Ian Suthers, Daniel S Falster (2021).", "A novel approach for estimating growth and mortality of fish larvae","ICES Journal of Marine Science", "in press")
+  )
