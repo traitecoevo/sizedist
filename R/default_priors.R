@@ -26,7 +26,10 @@ default_priors <- function(pars, model = pars$model){
 #'@rdname default_priors
 
 default_priors_model1a <- function(){
-  list(priors = list(Z_sd = 10)
+  list(priors = list(Z_sd = 10,
+                     Z_mu = 0.1,
+                     R_mu = 100,
+                     R_sd = 10)
   )
   }
 
