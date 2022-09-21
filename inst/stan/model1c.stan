@@ -5,7 +5,6 @@ data {
   // Data on counts
   int N_counts;
   real s0_av;
-  real Z_sd;
   real bin_lower[N_counts];
   real bin_upper[N_counts];
   int counts[N_counts];
@@ -15,6 +14,15 @@ data {
   int<lower=0> N_growth;
   vector[N_growth] age;
   vector[N_growth] size_ind;
+
+  //Priors
+  real Z_mu;
+  real Z_sd;
+  real g_mu;
+  real g_sd;
+  real R_mu;
+  real R_sd;
+  real sigma_size_sd;
 }
 
 parameters {
@@ -30,10 +38,10 @@ model {
   real size_est[N_growth];
 
   // Priors
-  Z ~ cauchy(0, Z_sd);
-  g ~ cauchy(0, 10);
-  R ~ cauchy(0, 100);
-  sigma_size ~ cauchy(0, 2.5);
+  Z ~ cauchy(Z_mu, Z_sd);
+  g ~ cauchy(g_mu, g_sd);
+  R ~ cauchy(R_mu, R_sd);
+  sigma_size ~ cauchy(0, sigma_size_sd);
 
   // Model for counts
   for(i in 1:N_counts) {
