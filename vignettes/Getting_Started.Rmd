@@ -149,7 +149,7 @@ pars  <- default_pars("model1")
 
 pars_cm_kg <- purrr::list_modify(pars,
                                   model = "model1b",
-                                  pars = list(g_av = 0.5)) 
+                                  pars = list(g_av = 0.21)) 
 ```
 
 Now lets add our default priors again 
