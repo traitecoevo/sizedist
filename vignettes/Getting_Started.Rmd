@@ -252,6 +252,22 @@ m_g_fit <- fit_sizedist(standata_size_growth_mod3)
 print(m_g_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
+There is now another model (`model1c`) which also estimates size-at-hatch `s0` from the size-at-age and size data.
+
+```{r}
+pars  <- default_pars("model1")
+
+pars_m_g <- purrr::list_modify(pars,
+                        model = "model1d")
+
+# Add in default priors
+pars_m_g <- pars_m_g %>% default_priors()
+
+# Add in parameters to data list
+standata_size_growth_mod4 <- standata_size_growth_mod3 %>% add_pars(pars_m_g)
+str(standata_size_growth_mod4)
+```
+
 
 ### Model fit diagnostics
 

@@ -16,7 +16,9 @@ default_priors <- function(pars, model = pars$model){
   priors <- switch(model,
                    model1a = default_priors_model1a(),
                    model1b = default_priors_model1b(),
-                   model1c = default_priors_model1c()
+                   model1c = default_priors_model1c(),
+                   model1d = default_priors_model1d(),
+
   )
 
   c(pars,
@@ -56,5 +58,19 @@ default_priors_model1c <- function(){
     )
 }
 
+#'@rdname default_priors
+default_priors_model1d <- function(){
+  list(priors = list(
+    Z_mu = 0.1,
+    Z_sd = 1,
+    g_mu = 0.1,
+    g_sd = 1,
+    R_mu = 100,
+    R_sd = 10,
+    s0_mu = 3,
+    s0_sd = 0.1,
+    sigma_size_sd = 2.5)
+  )
+}
 
 
