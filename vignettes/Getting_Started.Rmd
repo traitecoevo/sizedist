@@ -445,7 +445,7 @@ p <- ggplot(growth_data, aes(x= age, y = size)) +
 dat2 <- dat %>% sample_n(100)
   
 for(i in seq_len(nrow(dat2))) {
-  p <- p + geom_abline(intercept = s0, slope = draw_g[i], col = "blue", alpha = 0.1) #fit posterior draws
+  p <- p + geom_abline(intercept = s0, slope = dat2$g[i], col = "blue", alpha = 0.1) #fit posterior draws
   }
 
 p <- p +
