@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 )
 
 library(sizedist)
+library(dplyr)
 ```
 
 `sizedist`  is an R interface for Stan and provides functions to simulate and fit size and age-structured populations models to data. In this *Getting Started* vignette, we will cover the simplest model that is implemented in the package. `model1` assumes mortality and growth are constants. See the Theory vignette for more details on the various models in `sizedist`
@@ -269,11 +270,11 @@ There is now a versions of model1 (`model1d`) which also estimates size-at-hatch
 ```{r}
 pars  <- default_pars("model1")
 
-pars_m_g <- purrr::list_modify(pars,
+pars_m_g_s0 <- purrr::list_modify(pars,
                         model = "model1d")
 
 # Add in default priors
-pars_m_g <- pars_m_g %>% default_priors()
+pars_m_g_s0 <- pars_m_g_s0 %>% default_priors()
 
 # Recreat sizedata
 standata_size_growth_mod4 <- join_stan_data(standata_size, standata_growth)
@@ -281,7 +282,7 @@ standata_size_growth_mod4 <- join_stan_data(standata_size, standata_growth)
 str(standata_size_growth_mod4)
 
 # Add in parameters to data list
-standata_size_growth_mod4 <- standata_size_growth_mod4 %>% add_pars(pars_m_g)
+standata_size_growth_mod4 <- standata_size_growth_mod4 %>% add_pars(pars_m_g_s0)
 
 str(standata_size_growth_mod4)
 ```
@@ -428,15 +429,8 @@ We can also fit the growth model estimates to data, including posterior draws.
 # extract posterior draws
 dat <- m_g_fit %>% 
   rstan::extract() %>%
-  as.data.frame() 
-
-dat2 <- dat %>%
- dplyr::slice(which(dplyr::row_number() %% 3 == 1)) #thin data 
-
-# Can we just use samp_frac for the above?
-# dat_2 <- dat %>% sample_frac(0.30)
-
-draw_g <- dat2$g
+  as.data.frame() %>% 
+  as_tibble()
 
 #select data for plotting
 s0 = pars_m_g$pars$s0_av #size at hatching
@@ -448,6 +442,7 @@ p <- ggplot(growth_data, aes(x= age, y = size)) +
   xlab("Age") +
   ylab("Size")
 
+dat2 <- dat %>% sample_n(100)
   
 for(i in seq_len(nrow(dat2))) {
   p <- p + geom_abline(intercept = s0, slope = draw_g[i], col = "blue", alpha = 0.1) #fit posterior draws
