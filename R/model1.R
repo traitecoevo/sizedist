@@ -2,7 +2,7 @@
 #' @rdname default_pars
 default_pars_model1 <- function() {
   pars <- list(
-    R= 100,
+    R= 500,
     s0_av = 3,
     log10s0_sd = 0,
     g_av = 0.21,
