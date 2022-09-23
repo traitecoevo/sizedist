@@ -39,11 +39,36 @@ pars_m_g <- purrr::list_modify(pars,
 pars_m_g <- pars_m_g %>% default_priors()
 standata_size_growth_mod3 <- standata_size_growth_mod3 %>% add_pars(pars_m_g)
 
+# model1d
+growth_data <- simulate_population(pars) %>%
+  add_sampling_noise(size, sd = 0.5)
+
+standata_size <- size_data %>%
+  compose_count_data()
+
+standata_growth <-
+  growth_data %>%
+  compose_growth_data(age_var = age,
+                      size_var = size)
+
+standata_size_growth_mod4 <- join_stan_data(standata_size, standata_growth)
+
+pars  <- default_pars("model1")
+
+pars_m_g_s0 <- purrr::list_modify(pars,
+                                  model = "model1d")
+
+pars_m_g_s0 <- pars_m_g_s0 %>% default_priors()
+
+standata_size_growth_mod4 <- standata_size_growth_mod4 %>% add_pars(pars_m_g_s0)
+
+
 test_that("Function runs", {
   # The fits
   fit1 <- suppressWarnings(fit_sizedist(standata_age_mod1, iter = 200))
   fit2 <- suppressWarnings(fit_sizedist(standata_size_mod2, iter = 200))
   fit3 <- suppressWarnings(fit_sizedist(standata_size_growth_mod3, iter = 200))
+  fit4 <- suppressWarnings(fit_sizedist(standata_size_growth_mod4, iter = 200))
 
   expect_visible(fit1)
   expect_named(fit1)
@@ -53,9 +78,13 @@ test_that("Function runs", {
   expect_named(fit2)
   expect_s4_class(fit2, "stanfit")
 
-  expect_visible(fit2)
-  expect_named(fit2)
-  expect_s4_class(fit2, "stanfit")
+  expect_visible(fit3)
+  expect_named(fit3)
+  expect_s4_class(fit3, "stanfit")
+
+  expect_visible(fit4)
+  expect_named(fit4)
+  expect_s4_class(fit4, "stanfit")
 })
 
 test_that("Throws errors when it needs to",{

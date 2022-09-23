@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 )
 
 library(sizedist)
+library(dplyr)
 ```
 
 `sizedist`  is an R interface for Stan and provides functions to simulate and fit size and age-structured populations models to data. In this *Getting Started* vignette, we will cover the simplest model that is implemented in the package. `model1` assumes mortality and growth are constants. See the Theory vignette for more details on the various models in `sizedist`
@@ -91,7 +92,7 @@ str(standata_age) # Ta da! Your binned data is now a list!
 The default priors used for all sizedist models are XXX (uninformative? uniform?). We can add default priors for our model, by calling the `default_priors()` function. This function will join the priors in your pars list. Note that set of priors available depends on the model specified in `pars$model`.
 
 ```{r}
-( age_pars <- age_pars %>% default_priors())
+(age_pars <- age_pars %>% default_priors())
 ```
 
 Use the `list_modify()` function if you would like to set your own prior values. Note that the priors are nested within a the main list of `pars` so you will need to use the syntax below to update those numbers.
@@ -149,7 +150,7 @@ pars  <- default_pars("model1")
 
 pars_cm_kg <- purrr::list_modify(pars,
                                   model = "model1b",
-                                  pars = list(g_av = 0.5)) 
+                                  pars = list(g_av = 0.21)) 
 ```
 
 Now lets add our default priors again 
@@ -185,7 +186,7 @@ plot_size_dist(data, pars, binwidth = 0.1, knowng_fitted)
 
 #### Estimating Growth and Mortality 
 
-The final model that `sizedist` currently supports (`model1c`) can estimate mortality and growth simultaneously using size and age data. In our simulated dataset, we have information on individual's sizes at particular ages as well as the overall distribution of sizes across the population. These data were simulated with no sampling error. 
+The next model that `sizedist` currently supports (`model1c`) can estimate mortality and growth simultaneously using size and age data. In our simulated dataset, we have information on individual's sizes at particular ages as well as the overall distribution of sizes across the population. These data were simulated with no sampling error. 
 
 ```{r, fig.align='center', message=FALSE}
 library(ggplot2)
@@ -229,7 +230,7 @@ standata_size_growth_mod3 <- join_stan_data(standata_size, standata_growth)
 str(standata_size_growth_mod3)
 ```
 
-To fit this final model (`model1c`), we will again need to update our parameters if desired, add our priors and then and join them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
+To fit this model (`model1c`), we will again need to update our parameters if desired, add our priors and then and join them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
 
 ```{r}
 pars  <- default_pars("model1")
@@ -245,11 +246,62 @@ standata_size_growth_mod3 <- standata_size_growth_mod3 %>% add_pars(pars_m_g)
 str(standata_size_growth_mod3)
 ```
 
+Fit model1c
 
 ```{r, eval = TRUE, results="hide"}
 m_g_fit <- fit_sizedist(standata_size_growth_mod3)
 
 print(m_g_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+and plot the fitted values onto the data 
+
+```{r, fig.align='center'}
+
+m_g_fitted <- extract_fitted(m_g_fit, pars_cm_kg)
+
+plot_size_dist(data, pars, binwidth = 0.1, m_g_fitted)
+```
+
+#### Estimating Growth, Mortality and size-at-hatch.
+
+There is now a versions of model1 (`model1d`) which also estimates size-at-hatch `s0` from the size-at-age and size data using a similiar method to `model1c`. 
+
+```{r}
+pars  <- default_pars("model1")
+
+pars_m_g_s0 <- purrr::list_modify(pars,
+                        model = "model1d")
+
+# Add in default priors
+pars_m_g_s0 <- pars_m_g_s0 %>% default_priors()
+
+# Recreat sizedata
+standata_size_growth_mod4 <- join_stan_data(standata_size, standata_growth)
+
+str(standata_size_growth_mod4)
+
+# Add in parameters to data list
+standata_size_growth_mod4 <- standata_size_growth_mod4 %>% add_pars(pars_m_g_s0)
+
+str(standata_size_growth_mod4)
+```
+
+Fit model1d
+
+```{r}
+m_g_s0_fit <- fit_sizedist(standata_size_growth_mod4)
+
+print(m_g_s0_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+and plot the fitted values onto the data 
+
+```{r, fig.align='center'}
+
+m_g_s0_fitted <- extract_fitted(m_g_s0_fit, pars_cm_kg)
+
+plot_size_dist(data, pars, binwidth = 0.1, m_g_s0_fitted)
 ```
 
 
@@ -377,15 +429,8 @@ We can also fit the growth model estimates to data, including posterior draws.
 # extract posterior draws
 dat <- m_g_fit %>% 
   rstan::extract() %>%
-  as.data.frame() 
-
-dat2 <- dat %>%
- dplyr::slice(which(dplyr::row_number() %% 3 == 1)) #thin data 
-
-# Can we just use samp_frac for the above?
-# dat_2 <- dat %>% sample_frac(0.30)
-
-draw_g <- dat2$g
+  as.data.frame() %>% 
+  as_tibble()
 
 #select data for plotting
 s0 = pars_m_g$pars$s0_av #size at hatching
@@ -397,9 +442,10 @@ p <- ggplot(growth_data, aes(x= age, y = size)) +
   xlab("Age") +
   ylab("Size")
 
+dat2 <- dat %>% sample_n(100)
   
 for(i in seq_len(nrow(dat2))) {
-  p <- p + geom_abline(intercept = s0, slope = draw_g[i], col = "blue", alpha = 0.1) #fit posterior draws
+  p <- p + geom_abline(intercept = s0, slope = dat2$g[i], col = "blue", alpha = 0.1) #fit posterior draws
   }
 
 p <- p +
