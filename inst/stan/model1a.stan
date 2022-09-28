@@ -5,7 +5,12 @@ data {
   real bin_lower[N_counts];
   real bin_upper[N_counts];
   int counts[N_counts];
+
+  //priors
+  real Z_mu;
   real Z_sd;
+  real R_mu;
+  real R_sd;
 }
 
 parameters {
@@ -18,7 +23,8 @@ model {
   real counts_est[N_counts];
 
   // Priors
-  Z ~ cauchy(0, Z_sd);
+  Z ~ cauchy(Z_mu, Z_sd);
+  R ~ cauchy(R_mu, R_sd);
 
   // Model estimated counts
   for(i in 1:N_counts){
