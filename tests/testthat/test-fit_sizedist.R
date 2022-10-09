@@ -8,7 +8,8 @@ age_data <- data %>% summarise_bin_counts(bin_var = age,
 standata_age <- age_data %>% compose_count_data()
 age_pars <- pars %>% purrr::list_modify(model = "model1a")
 age_pars <- age_pars %>% default_priors()
-standata_age_mod1 <- standata_age %>% add_pars(pars = age_pars)
+
+standata_model1a <- standata_age %>% add_pars(pars = age_pars)
 
 # model1b
 size_data <- data %>% summarise_bin_counts(bin_var = size,
@@ -19,7 +20,7 @@ pars_cm_kg <- purrr::list_modify(pars,
                                  model = "model1b",
                                  pars = list(g_av = 0.5))
 pars_cm_kg <- pars_cm_kg %>% default_priors()
-standata_size_mod2 <- standata_size %>% add_pars(pars_cm_kg)
+standata_model1b <- standata_size %>% add_pars(pars_cm_kg)
 
 # model1c
 growth_data <- simulate_population(pars) %>%
@@ -37,7 +38,7 @@ standata_size_growth_mod3 <- join_stan_data(standata_size, standata_growth)
 pars_m_g <- purrr::list_modify(pars,
                                model = "model1c")
 pars_m_g <- pars_m_g %>% default_priors()
-standata_size_growth_mod3 <- standata_size_growth_mod3 %>% add_pars(pars_m_g)
+standata_model1c <- standata_size_growth_mod3 %>% add_pars(pars_m_g)
 
 # model1d
 growth_data <- simulate_population(pars) %>%
@@ -60,15 +61,34 @@ pars_m_g_s0 <- purrr::list_modify(pars,
 
 pars_m_g_s0 <- pars_m_g_s0 %>% default_priors()
 
-standata_size_growth_mod4 <- standata_size_growth_mod4 %>% add_pars(pars_m_g_s0)
+standata_model1d <- standata_size_growth_mod4 %>% add_pars(pars_m_g_s0)
 
+#model1e
+
+size_data <- data %>% summarise_bin_counts(bin_var = size,
+                                           bin_width = 0.1)
+
+standata_size <- size_data %>% compose_count_data()
+
+pars  <- default_pars("model1")
+
+pars_abund <- purrr::list_modify(pars,
+                                 model = "model1e")
+
+pars_abund <- pars_abund %>% default_priors()
+
+
+standata_model1e <- standata_size %>% add_pars(pars_abund)
+
+#tests
 
 test_that("Function runs", {
   # The fits
-  fit1 <- suppressWarnings(fit_sizedist(standata_age_mod1, iter = 200))
-  fit2 <- suppressWarnings(fit_sizedist(standata_size_mod2, iter = 200))
-  fit3 <- suppressWarnings(fit_sizedist(standata_size_growth_mod3, iter = 200))
-  fit4 <- suppressWarnings(fit_sizedist(standata_size_growth_mod4, iter = 200))
+  fit1 <- suppressWarnings(fit_sizedist(standata_model1a, iter = 200))
+  fit2 <- suppressWarnings(fit_sizedist(standata_model1b, iter = 200))
+  fit3 <- suppressWarnings(fit_sizedist(standata_model1c, iter = 200))
+  fit4 <- suppressWarnings(fit_sizedist(standata_model1d, iter = 200))
+  fit5 <- suppressWarnings(fit_sizedist(standata_model1e, iter = 200))
 
   expect_visible(fit1)
   expect_named(fit1)
@@ -85,6 +105,10 @@ test_that("Function runs", {
   expect_visible(fit4)
   expect_named(fit4)
   expect_s4_class(fit4, "stanfit")
+
+  expect_visible(fit5)
+  expect_named(fit5)
+  expect_s4_class(fit5, "stanfit")
 })
 
 test_that("Throws errors when it needs to",{
