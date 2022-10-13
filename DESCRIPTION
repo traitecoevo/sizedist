@@ -30,19 +30,21 @@ Biarch: true
 Depends: 
     R (>= 3.4.0)
 Imports: 
-    magrittr,
-    methods,
-    Rcpp (>= 0.12.0),
-    rstan (>= 2.18.1),
     dplyr,
     ggplot2,
+    magrittr,
+    methods,
     purrr,
+    Rcpp (>= 0.12.0),
+    RcppParallel (>= 5.0.1),
     rlang,
+    rstan (>= 2.18.1),
+    rstantools (>= 2.2.0),
+    stats,
     stringr,
     tidybayes,
-    tidyselect,
     tidyr,
-    stats
+    tidyselect
 Suggests:
   bayesplot,
   janitor,
@@ -50,8 +52,7 @@ Suggests:
   shinystan,
   rmarkdown,
   knitr,
-  testthat (>= 3.0.0),
-  rstantools
+  testthat (>= 3.0.0)
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
@@ -59,7 +60,6 @@ LinkingTo:
     RcppParallel (>= 5.0.1),
     rstan (>= 2.18.1),
     StanHeaders (>= 2.18.0)
-SystemRequirements: 
-    GNU make
+SystemRequirements: GNU make
 VignetteBuilder: knitr
 Config/testthat/edition: 3
