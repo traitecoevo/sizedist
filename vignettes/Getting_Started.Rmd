@@ -304,6 +304,42 @@ m_g_s0_fitted <- extract_fitted(m_g_s0_fit, pars_cm_kg)
 plot_size_dist(data, pars, binwidth = 0.1, m_g_s0_fitted)
 ```
 
+#### Estimating Slope of abundance spectra.
+
+The final version of model1 (`model1e`) fits an abundance spectra model (change in abundance as a function of size) assuming constant growth.
+
+```{r}
+# Compute bins for size
+size_data <- data %>% summarise_bin_counts(bin_var = size, 
+                                          bin_width = 0.1)
+# Compose data
+standata_size <- size_data %>% compose_count_data()
+```
+
+Add priors
+```{r}
+pars  <- default_pars("model1")
+
+pars_abund <- purrr::list_modify(pars,
+                        model = "model1e")
+
+# Add in default priors
+pars_abund <- pars_abund %>% default_priors()
+
+# Add in parameters to data list
+standata_size_mod <- standata_size %>% add_pars(pars_abund)
+
+standata_size_mod
+```
+
+Fit model1e
+
+```{r}
+abund_fit <- fit_sizedist(standata_size_mod)
+
+print(abund_fit, probs=c(0.025, 0.5, 0.975))
+```
+
 
 ### Model fit diagnostics
 

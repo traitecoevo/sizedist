@@ -50,7 +50,8 @@ keep_fit_pars_model <- function(pars){
                              list(pars = purrr::keep(pars$pars, names(pars$pars) %in% c("g_av", "s0_av")))),
                  model1c = c(purrr::keep(pars, names(pars) %in% c("model", "priors")),
                              list(pars = purrr::keep(pars$pars, names(pars$pars) %in% "s0_av"))),
-                 model1d = c(purrr::keep(pars, names(pars) %in% c("model", "priors")))
+                 model1d = c(purrr::keep(pars, names(pars) %in% c("model", "priors"))),
+                 model1e = c(purrr::keep(pars, names(pars) %in% c("model", "priors")))
 
   )
   pars

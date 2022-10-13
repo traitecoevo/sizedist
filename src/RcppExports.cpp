@@ -16,12 +16,14 @@ RcppExport SEXP _rcpp_module_boot_stan_fit4model1a_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4model1b_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4model1c_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4model1d_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4model1e_mod();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_stan_fit4model1a_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4model1a_mod, 0},
     {"_rcpp_module_boot_stan_fit4model1b_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4model1b_mod, 0},
     {"_rcpp_module_boot_stan_fit4model1c_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4model1c_mod, 0},
     {"_rcpp_module_boot_stan_fit4model1d_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4model1d_mod, 0},
+    {"_rcpp_module_boot_stan_fit4model1e_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4model1e_mod, 0},
     {NULL, NULL, 0}
 };
 
