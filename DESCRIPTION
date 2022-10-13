@@ -25,7 +25,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Biarch: true
 Depends: 
     R (>= 3.4.0)
@@ -33,23 +33,24 @@ Imports:
     magrittr,
     methods,
     Rcpp (>= 0.12.0),
-    RcppParallel (>= 5.0.1),
     rstan (>= 2.18.1),
-    rstantools (>= 2.1.1),
     dplyr,
     ggplot2,
-    glue,
     purrr,
     rlang,
     stringr,
     tidybayes,
     tidyselect,
     tidyr,
-    patchwork,
-    janitor,
-    stats,
-    shinystan,
-    bayesplot
+    stats
+Suggests:
+  bayesplot,
+  janitor,
+  patchwork,
+  shinystan,
+  rmarkdown,
+  knitr,
+  testthat (>= 3.0.0)
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
@@ -59,9 +60,5 @@ LinkingTo:
     StanHeaders (>= 2.18.0)
 SystemRequirements: 
     GNU make
-Suggests: 
-    rmarkdown,
-    knitr,
-    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3

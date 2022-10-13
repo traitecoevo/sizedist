@@ -32,7 +32,7 @@ default_pars <- function(model) {
 #' @export
 
 sample_birth_times <- function(R, time_end) {
-  
+
   # simulate birth times assuming homogeneous Possion process
   # https://transp-or.epfl.ch/courses/OptSim2012/slides/05b-poisson.pdf
   # Could extend to time varying rate via non-homogeneous process
@@ -57,7 +57,6 @@ sample_birth_times <- function(R, time_end) {
 #' @return list of parameter values for the size-distribution model, including model name
 #' @inheritParams simulate_population
 #' @rdname sample_individual_variation
-#' @return
 #' @export
 
 sample_individual_variation <- function(n, pars) {
