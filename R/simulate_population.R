@@ -21,7 +21,9 @@ default_pars <- function(model) {
 
   # Switch for different models
   switch (model,
-          model1 = default_pars_model1())
+          model1 = default_pars_model1(),
+          model2 = default_pars_model2()
+          )
 }
 
 #' Samples time of birth from a homogeneous Poisson process.
@@ -66,7 +68,9 @@ sample_individual_variation <- function(n, pars) {
   prefix <- stringr::str_sub(pars$model, 1,6)
 
   switch (prefix,
-          model1 = sample_individual_variation_model1(n, pars))
+          model1 = sample_individual_variation_model1(n, pars),
+          model2 = sample_individual_variation_model2(n, pars)
+          )
 }
 
 
@@ -82,7 +86,9 @@ simulate_growth <- function(individual_data, pars) {
   prefix <- stringr::str_sub(pars$model, 1,6)
 
   switch (prefix,
-          model1 = simulate_growth_model1(individual_data))
+          model1 = simulate_growth_model1(individual_data),
+          model2 = simulate_growth_model2(individual_data)
+          )
 }
 
 #' Simulated integrated mortality rate (= cumulative hazard) from age birth to end for each individual under a particular size-distribution model
@@ -98,7 +104,9 @@ simulate_cumulative_mortality <- function(individual_data, pars) {
   prefix <- stringr::str_sub(pars$model, 1,6)
 
   switch (prefix,
-          model1 = simulate_cumulative_mortality_model1(individual_data))
+          model1 = simulate_cumulative_mortality_model1(individual_data),
+          model2 = simulate_cumulative_mortality_model2(individual_data)
+          )
 }
 
 
@@ -157,7 +165,9 @@ age_dist_model <- function(x, pars) {
   prefix <- stringr::str_sub(pars$model, 1, 6)
 
   switch (prefix,
-          model1 = age_dist_model1(x, pars))
+          model1 = age_dist_model1(x, pars),
+          model2 = age_dist_model2(x, pars)
+          )
 }
 
 
@@ -173,7 +183,9 @@ size_dist_model <- function(x, pars) {
   prefix <- stringr::str_sub(pars$model, 1, 6)
 
   switch (prefix,
-          model1 = size_dist_model1(x, pars))
+          model1 = size_dist_model1(x, pars),
+          model2 = size_dist_model2(x, pars)
+          )
 }
 
 #' Simulate noise for any variable from a distribution with mean = 0
