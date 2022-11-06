@@ -128,8 +128,6 @@ age_fitted <- extract_fitted(age_fit, age_pars)
 plot_age_dist(data, pars, binwidth = 1, age_fitted)
 ```
 
-### Other models that are supported in sizedist
-
 #### 1b: Mortality from size, with known growth model
 
 In some instances, a known growth rate found in the literature or other studies can be used to inform the model that is estimating the size distribution. In this example, we will use the simulated size data.
@@ -346,8 +344,16 @@ print(abund_fit, probs=c(0.025, 0.5, 0.975))
 
 ### Model 2: Growth as a power function
 
+Model2 fits a size distribution assuming z and g vary as power functions of size, such that $z(s)=z ̅s^b$  and $g(s)=g ̅s^c$ where scaling components $b$ and $c$ are both = 1. For more details see the "Theory" vignette.
+
+To fit variants of `model2`, the process is the same as fitting `model1` although we need to change the pars & priors to the appropriate model.
+
+
 #### 2a: Slope of abundance spectrum
 
+The `model2a` variant estimates the exponent $b$ and constant $c$ of an abundance spectrum $n(s)= cs^{-b}$
+
+First select default pars for `model2` to simulate a test population
 ```{r}
 pars <- default_pars("model2")
 
@@ -363,6 +369,7 @@ data <- simulate_population(pars)
 data
 ```
 
+Now compile data in counts per size bin
 ```{r}
 # Compute bins for size
 size_data <- data %>% summarise_bin_counts(bin_var = size, 
@@ -371,7 +378,7 @@ size_data <- data %>% summarise_bin_counts(bin_var = size,
 standata_size <- size_data %>% compose_count_data()
 ```
 
-Add priors
+Add priors for `model2a`
 ```{r}
 pars  <- default_pars("model2")
 
@@ -387,16 +394,13 @@ standata_size_mod <- standata_size %>% add_pars(pars_abund)
 standata_size_mod
 ```
 
-Fit model2a
+Fit `model2a` 
 
 ```{r}
 model2a_fit <- fit_sizedist(standata_size_mod)
 
-print(abund_fit, probs=c(0.025, 0.5, 0.975))
+print(model2a_fit, probs=c(0.025, 0.5, 0.975))
 ```
-
-
-
 
 
 ### Model fit diagnostics
