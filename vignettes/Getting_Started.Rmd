@@ -362,8 +362,7 @@ pars
 
 We can now use these parameters to simulate some data using the `simulate_population()` function.
 
-```{r simulate}
-#Tip: Assign this function to an object so you have access to the data
+```{r}
 data <- simulate_population(pars)
 
 data

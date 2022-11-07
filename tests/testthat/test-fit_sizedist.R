@@ -80,6 +80,56 @@ pars_abund <- pars_abund %>% default_priors()
 
 standata_model1e <- standata_size %>% add_pars(pars_abund)
 
+#model2a
+
+pars <- default_pars("model2")
+
+data <- simulate_population(pars)
+
+
+size_data <- data %>% summarise_bin_counts(bin_var = size,
+                                           bin_width = 0.1)
+standata_size <- size_data %>% compose_count_data()
+
+pars  <- default_pars("model2")
+
+pars_abund <- purrr::list_modify(pars,
+                                 model = "model2a")
+
+
+pars_abund <- pars_abund %>% default_priors()
+
+
+standata_model2a <- standata_size %>% add_pars(pars_abund)
+
+#model2b
+
+standata_size <- size_data %>%
+  compose_count_data()
+
+growth_data <- simulate_population(default_pars("model2")) %>%
+  add_sampling_noise(size, sd = 0.01) %>%
+  add_sampling_noise(age, sd = 3)
+
+standata_growth <-
+  growth_data %>%
+  compose_growth_data(age_var = age,
+                      size_var = size)
+
+
+pars  <- default_pars("model2")
+
+pars_model2b <- purrr::list_modify(pars,
+                                   model = "model2b")
+
+pars_model2b <- pars_model2b %>% default_priors()
+
+
+standata_model2b <- join_stan_data(standata_size, standata_growth)
+
+
+standata_model2b <- standata_model2b %>% add_pars(pars_model2b)
+
 #tests
 
 test_that("Function runs", {
@@ -89,6 +139,8 @@ test_that("Function runs", {
   fit3 <- suppressWarnings(fit_sizedist(standata_model1c, iter = 200))
   fit4 <- suppressWarnings(fit_sizedist(standata_model1d, iter = 200))
   fit5 <- suppressWarnings(fit_sizedist(standata_model1e, iter = 200))
+  fit6 <- suppressWarnings(fit_sizedist(standata_model2a, iter = 200))
+  fit7 <- suppressWarnings(fit_sizedist(standata_model2b, iter = 200))
 
   expect_visible(fit1)
   expect_named(fit1)
@@ -109,6 +161,14 @@ test_that("Function runs", {
   expect_visible(fit5)
   expect_named(fit5)
   expect_s4_class(fit5, "stanfit")
+
+  expect_visible(fit6)
+  expect_named(fit6)
+  expect_s4_class(fit6, "stanfit")
+
+  expect_visible(fit7)
+  expect_named(fit7)
+  expect_s4_class(fit7, "stanfit")
 })
 
 test_that("Throws errors when it needs to",{
