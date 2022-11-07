@@ -18,7 +18,9 @@ default_priors <- function(pars, model = pars$model){
                    model1b = default_priors_model1b(),
                    model1c = default_priors_model1c(),
                    model1d = default_priors_model1d(),
-                   model1e = default_priors_model1e()
+                   model1e = default_priors_model1e(),
+                   model2a = default_priors_model2a(),
+                   model2b = default_priors_model2b()
   )
 
   c(pars,
@@ -83,4 +85,28 @@ default_priors_model1e <- function(){
     )
 }
 
+default_priors_model2a <- function(){
+  list(priors = list(
+    c_mu = 5,
+    c_sd = 1,
+    b_mu = 0.5,
+    b_sd = 1)
+  )
+}
 
+default_priors_model2b <- function(){
+  list(priors = list(
+    Z_mu = 0.1,
+    Z_sd = 1,
+    Z_up = 2,
+    g_mu = 0.1,
+    g_sd = 1,
+    g_up = 2,
+    R_mu = 100,
+    R_sd = 10,
+    R_up = 3000,
+    s0_mu = 0.01,
+    s0_sd = 0.001,
+    sigma_size_sd = 1)
+  )
+}
