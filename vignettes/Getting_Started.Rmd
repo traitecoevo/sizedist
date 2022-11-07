@@ -77,7 +77,7 @@ str(standata_age) # Ta da! Your binned data is now a list!
 
 `sizedist` currently suports three types of models. We will fit `model1a` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some parameters into our data list. Any relevant parameters such as the name of the model is added automatically using the `add_pars()` function. 
 
-### Model 1: Constant Mortality and Growth model
+### Model 1: Constant growth with size
 
 `sizedist` currently supports two types of general models (`model` and `model2`) each with several variants (`model1a`, `model1b`, `model1c`,`model1d`, `model1e`, `model2a`, `model2e`). Variants of models with the prefix `model1_` (or `model2_`) all share a common growth function. `model1_` assumes **constant** mortality and growth. `model2_` assumes growth follows a **power** function with size (Refer to the 'Theory' vignette for more details). 
 
@@ -342,7 +342,7 @@ abund_fit <- fit_sizedist(standata_size_mod)
 print(abund_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
-### Model 2: Growth as a power function
+### Model 2: Growth as a power function of size
 
 Model2 fits a size distribution assuming z and g vary as power functions of size, such that $z(s)=z ̅s^b$  and $g(s)=g ̅s^c$ where scaling components $b$ and $c$ are both = 1. For more details see the "Theory" vignette.
 
@@ -402,10 +402,64 @@ model2a_fit <- fit_sizedist(standata_size_mod)
 print(model2a_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
+#### 2b: Estimating Growth, Mortality and size-at-hatch
+
+The `model2b` variant estimates the size-at-hatch $s_0$, growth rate $g ̅$ and mortality rate $z ̅$
+
+First select default pars for `model2a` to simulate a test population
+
+
+```{r}
+# Counts data
+standata_size <- size_data %>% 
+  compose_count_data()
+
+# Growth data
+growth_data <- simulate_population(default_pars("model2")) %>% 
+  add_sampling_noise(size, sd = 0.01) %>% 
+  add_sampling_noise(age, sd = 3)
+
+standata_growth <- 
+  growth_data %>% 
+  compose_growth_data(age_var = age,
+                      size_var = size)
+
+```
+
+```{r}
+pars  <- default_pars("model2")
+
+pars_model2b <- purrr::list_modify(pars,
+                        model = "model2b")
+
+# Add in default priors
+pars_model2b <- pars_model2b %>% default_priors()
+
+# Recreat sizedata
+standata_model2b <- join_stan_data(standata_size, standata_growth)
+
+str(standata_model2b)
+
+# Add in parameters to data list
+standata_model2b <- standata_model2b %>% add_pars(pars_model2b)
+
+str(standata_model2b)
+```
+
+Fit model2b
+
+```{r}
+model2b_fit <- fit_sizedist(standata_model2b,
+                            iter = 999,
+                            chains = 3)
+
+print(model2b_fit, probs=c(0.025, 0.5, 0.975))
+```
+
 
 ### Model fit diagnostics
 
-Once the models have been fit, we can extract posteriors and run diagnostics to assess model fitting. Here, we focus on output from the model estimating growth and mortality simultaneously  (`model3`), but the process is the same for each of the three models. Further methods, examples and discussion of MCMC diagnostics is provided by Gabry and Modrák (2021) in <https://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html>
+Once the models have been fit, we can extract posteriors and run diagnostics to assess model fitting. Here, we focus on output from the model estimating growth and mortality simultaneously  (`model1c`), but the process is the same for each of the three models. Further methods, examples and discussion of MCMC diagnostics is provided by Gabry and Modrák (2021) in <https://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html>
 
 We recommend are several CRAN packages that are wonderful for interacting with Stan model fit objects and visualising model diagnostics
 
