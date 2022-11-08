@@ -627,5 +627,113 @@ plot_size_dist(data, pars, binwidth = 0.1, fitted)
 ```
 
 
+### Hierachical Models
+
+The `sizedist` package also contains model variants which allow for hierarchical effects to be included. We start by allowing a random sample effect.   
+
+####Random effects: 1 lvl
+
+The `model2a_h1` variant estimates a global level exponent $b$ and constant $c$ of an abundance spectrum $n(s)= cs^{-b}$, as well as a sample level estimate $b_i$ & $c_i$.
+
+Create multiple 'samples'
+```{r}
+#Sample1
+pars1 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = 100,
+                                 g_av = 0.1,
+                                 Z_av = 0.2))
+
+pars1
+
+data1 <- simulate_population(pars1)
+
+# Compute bins for size
+data1 <- data1 %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data1$sample_index <- 1
+
+data1
+
+#Sample2
+pars2 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = 100, 
+                                 g_av = 0.15,
+                                 Z_av = 0.2))
+
+data2 <- simulate_population(pars2)
+
+# Compute bins for size
+data2 <- data2 %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data2$sample_index <- 2
+
+data2
+
+#Sample3
+pars3 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = 100,
+                                 g_av = 0.2,
+                                 Z_av = 0.2))
+
+data3 <- simulate_population(pars3)
+
+# Compute bins for size
+data3 <- data3 %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data3$sample_index <- 3
+
+data3
+```
+
+bind samples & compose data - remember to add N_samples
+```{r}
+#bind samples
+data <- rbind(data1,data2,data3)
+
+# generate sample_index for N_samples[]
+samples <- 
+  data %>% select(sample_index) %>% distinct() %>%
+  mutate(sample_index = seq_len(n()))
+
+# Compose data
+standata_size <- data %>% 
+  compose_count_data() %>%
+  purrr::list_modify(N_samples = nrow(samples))
+```
+
+Add priors for `model2a_h1`
+```{r}
+pars  <- default_pars("model2")
+
+pars_model2a_h1 <- purrr::list_modify(pars,
+                        model = "model2a_h1")
+
+# Add in default priors
+pars_model2a_h1 <- pars_model2a_h1 %>% default_priors()
+
+# Add in parameters to data list
+standata_model2a_h1 <- standata_size %>% add_pars(pars_model2a_h1)
+
+standata_model2a_h1
+```
+
+Fit `model2_h1`
+
+b_sample[1] should be = 3 (1 + (0.2/0.1))
+b_sample[2] should be = 2.3 (1 + (0.2/0.15))
+b_sample[3] should be = 2 (1 + (0.2/0.2))
+```{r}
+model2a_h1_fit <- fit_sizedist(standata_model2a_h1,
+                            iter = 999,
+                            chains = 3)
+
+print(model2a_h1_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+
+
 
 
