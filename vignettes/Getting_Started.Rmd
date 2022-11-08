@@ -554,7 +554,7 @@ print(model2a_fit, probs=c(0.025, 0.5, 0.975))
 
 #### 2b: Estimating Growth, Mortality and size-at-hatch
 
-The `model2b` variant estimates the size-at-hatch $s_0$, growth rate $g ̅$ and mortality rate $z ̅$
+The `model2b` variant estimates the size-at-hatch $s_0$, growth rate $\overline{g}$ and mortality rate $\overline{z}$
 
 First select default pars for `model2a` to simulate a test population
 
@@ -569,15 +569,14 @@ standata_size <- size_data %>%
   compose_count_data()
 
 # Growth data
-#var_g <- default_pars("model2") %>% purrr::list_modify(pars = list(log10g_sd = 0.01))
-
-
-# Growth data
 growth_data <- simulate_population(default_pars("model2")) %>% 
   add_sampling_noise(size, sd = 0.01) %>% 
   add_sampling_noise(age, sd = 0.01)
 
-growth_data <- simulate_population(var_g) 
+# Option 2: add variance to individual growth rates
+#pars_var_g <- default_pars("model2") %>% purrr::list_modify(pars = list(log10g_sd = 0.01))
+
+#growth_data <- simulate_population(pars_var_g) 
   
 standata_growth <- 
   growth_data %>% 
