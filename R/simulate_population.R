@@ -200,13 +200,13 @@ size_dist_model <- function(x, pars) {
 add_sampling_noise <- function(data, var, sd = 0.1, overwrite = TRUE){
 
   ret <- data %>%
-    dplyr::mutate({{var}} := {{var}} + stats::rnorm(length({{var}}), 0, 0.1))
+    dplyr::mutate({{var}} := {{var}} + stats::rnorm(length({{var}}), 0, sd))
 
   if(!overwrite){
     suffix <- "_noise"
 
     ret <- data %>%
-      dplyr::mutate("{{var}}{suffix}" := {{var}} + stats::rnorm(length({{var}}), 0, 0.1))
+      dplyr::mutate("{{var}}{suffix}" := {{var}} + stats::rnorm(length({{var}}), 0, sd))
   }
 
   ret

@@ -35,7 +35,8 @@ extract_fitted <- function(fit, pars){
          model1a = extract_fitted_model1a(fit, pars),
          model1b = extract_fitted_model1b(fit, pars),
          model1c = extract_fitted_model1c(fit, pars),
-         model1d = extract_fitted_model1d(fit, pars)
+         model1d = extract_fitted_model1d(fit, pars),
+         model2b = extract_fitted_model2b(fit, pars)
   )
 }
 
@@ -111,4 +112,22 @@ extract_fitted_model1d <- function(fit, pars){
   fitted
 }
 
+#' @rdname extract_fitted
+
+extract_fitted_model2b <- function(fit, pars){
+  fit_Z <- mean(rstan::extract(fit, pars="Z")[["Z"]])
+  fit_R <- mean(rstan::extract(fit, pars="R")[["R"]])
+  fit_g <- mean(rstan::extract(fit, pars="g")[["g"]])
+  fit_s0 <- mean(rstan::extract(fit, pars="s0")[["s0"]])
+
+  # fitted values for plotting
+  fitted <- list(model = pars$model,
+                 pars = list(R = fit_R,
+                             s0_av = fit_s0,
+                             z_av = fit_Z,
+                             g_av = fit_g))
+
+
+  fitted
+}
 

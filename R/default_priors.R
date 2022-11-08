@@ -105,8 +105,8 @@ default_priors_model2b <- function(){
     R_mu = 100,
     R_sd = 10,
     R_up = 3000,
-    s0_mu = 0.01,
-    s0_sd = 0.001,
+    s0_mu = -4,
+    s0_sd = 1,
     sigma_size_sd = 1)
   )
 }

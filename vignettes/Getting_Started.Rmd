@@ -86,7 +86,7 @@ In order to fit these different variants of models, you will need to specify the
 ```{r}
 # install.packages("purrr")
 
-(age_pars <- pars %>% purrr::list_modify(model = "model1a"))
+(model1a_pars <- pars %>% purrr::list_modify(model = "model1a"))
 ```
 
 #### Priors in sizedist models
@@ -94,20 +94,20 @@ In order to fit these different variants of models, you will need to specify the
 The default priors used for all sizedist models are XXX (uninformative? uniform?). We can add default priors for our model, by calling the `default_priors()` function. This function will join the priors in your pars list. Note that set of priors available depends on the model specified in `pars$model`.
 
 ```{r}
-(age_pars <- age_pars %>% default_priors())
+(model1a_pars <- model1a_pars %>% default_priors())
 ```
 
 Use the `list_modify()` function if you would like to set your own prior values. Note that the priors are nested within a the main list of `pars` so you will need to use the syntax below to update those numbers.
 
 ```{r}
-(age_pars <- age_pars %>% purrr::list_modify(priors = list(Z_sd = 15)))
+(model1a_pars <- model1a_pars %>% purrr::list_modify(priors = list(Z_sd = 15)))
 ```
 
 Once the `pars` pbject has been updated, it  will need to be joined to the data list created above. Note that `add_pars()` will by default, prune the `pars` list to the parameters that are only used in model fitting. 
 ```{r fit}
-standata_age_mod1 <- standata_age %>% add_pars(pars = age_pars) 
+standata_model1a <- standata_age %>% add_pars(pars = model1a_pars) 
 
-str(standata_age_mod1) #Model name is added to the end of the data list
+str(standata_model1a) #Model name is added to the end of the data list
 ```
 
 #### 1a: Estimating mortality from age
@@ -115,17 +115,17 @@ str(standata_age_mod1) #Model name is added to the end of the data list
 Use run the model with the `fit_sizedist()` function
 
 ```{r, results = "hide"}
-age_fit <- fit_sizedist(standata_age_mod1)
+model1a_fit <- fit_sizedist(standata_model1a)
 
-print(age_fit, probs=c(0.025, 0.5, 0.975))
+print(model1a_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
 then you can extract the fitted values for Z and R and plot that against the data
 
 ```{r, fig.align='center'}
-age_fitted <- extract_fitted(age_fit, age_pars)
+model1a_fitted <- extract_fitted(model1a_fit, model1a_pars)
 
-plot_age_dist(data, pars, binwidth = 1, age_fitted)
+plot_age_dist(data, pars, binwidth = 1, model1a_fitted)
 ```
 
 #### 1b: Mortality from size, with known growth model
@@ -150,7 +150,7 @@ In order to fit the *Constant Mortality, known Growth model* (`model1b`), we wil
 # Assign default parameters into an object
 pars  <- default_pars("model1")
 
-pars_cm_kg <- purrr::list_modify(pars,
+pars_model1b <- purrr::list_modify(pars,
                                   model = "model1b",
                                   pars = list(g_av = 0.21)) 
 ```
@@ -158,32 +158,32 @@ pars_cm_kg <- purrr::list_modify(pars,
 Now lets add our default priors again 
 
 ```{r}
-pars_cm_kg <- pars_cm_kg %>% default_priors()
+pars_model1b <- pars_model1b %>% default_priors()
 ```
 
 Similar to the first example, we will know need to add our `pars` list to our data list in order to run our model with `add_pars()`.
 
 ```{r}
-standata_size_mod2 <- standata_size %>% add_pars(pars_cm_kg)
+standata_model1b <- standata_size %>% add_pars(pars_model1b)
 
-str(standata_size_mod2)
+str(standata_model1b)
 ```
 
 Again, lets fit the model
 
 ```{r, results = 'hide'}
-knowng_fit <- fit_sizedist(standata_size_mod2)
+model1b_fit <- fit_sizedist(standata_model1b)
 
-print(knowng_fit, probs=c(0.025, 0.5, 0.975))
+print(model1b_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
 and plot the fitted values onto the data 
 
 ```{r, fig.align='center'}
 
-knowng_fitted <- extract_fitted(knowng_fit, pars_cm_kg)
+model1b_fitted <- extract_fitted(model1b_fit, pars_model1b)
 
-plot_size_dist(data, pars, binwidth = 0.1, knowng_fitted)
+plot_size_dist(data, pars, binwidth = 0.1, model1b_fitted)
 ```
 
 #### 1c: Estimating Growth and Mortality 
@@ -227,9 +227,9 @@ Now we will bring these data together using `join_stan_data()`
 
 ```{r}
 # Combining the two types of data lists together
-standata_size_growth_mod3 <- join_stan_data(standata_size, standata_growth)
+standata_model1c <- join_stan_data(standata_size, standata_growth)
 
-str(standata_size_growth_mod3)
+str(standata_model1c)
 ```
 
 To fit this model (`model1c`), we will again need to update our parameters if desired, add our priors and then and join them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
@@ -237,78 +237,78 @@ To fit this model (`model1c`), we will again need to update our parameters if de
 ```{r}
 pars  <- default_pars("model1")
 
-pars_m_g <- purrr::list_modify(pars,
+pars_model1c <- purrr::list_modify(pars,
                         model = "model1c")
 
 # Add in default priors
-pars_m_g <- pars_m_g %>% default_priors()
+pars_model1c <- pars_model1c %>% default_priors()
 
 # Add in parameters to data list
-standata_size_growth_mod3 <- standata_size_growth_mod3 %>% add_pars(pars_m_g)
-str(standata_size_growth_mod3)
+standata_model1c <- standata_model1c %>% add_pars(pars_model1c)
+str(standata_model1c)
 ```
 
 Fit model1c
 
 ```{r, eval = TRUE, results="hide"}
-m_g_fit <- fit_sizedist(standata_size_growth_mod3)
+model1c_fit <- fit_sizedist(standata_model1c)
 
-print(m_g_fit, probs=c(0.025, 0.5, 0.975))
+print(model1c_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
 and plot the fitted values onto the data 
 
 ```{r, fig.align='center'}
 
-m_g_fitted <- extract_fitted(m_g_fit, pars_cm_kg)
+model1c_fitted <- extract_fitted(model1c_fit, pars_model1c)
 
-plot_size_dist(data, pars, binwidth = 0.1, m_g_fitted)
+plot_size_dist(data, pars, binwidth = 0.1, model1c_fitted)
 ```
 
 #### 1d: Estimating Growth, Mortality and size-at-hatch.
 
-There is a version of model1 (`model1d`) which also estimates size-at-hatch `s0` from the size-at-age and size data using a similiar method to `model1c`. 
+There is a version of model1 (`model1d`) which also estimates size-at-hatch `s0` from the size-at-age and size data using a similar method to `model1c`. 
 
 ```{r}
 pars  <- default_pars("model1")
 
-pars_m_g_s0 <- purrr::list_modify(pars,
+pars_model1d <- purrr::list_modify(pars,
                         model = "model1d")
 
 # Add in default priors
-pars_m_g_s0 <- pars_m_g_s0 %>% default_priors()
+pars_model1d <- pars_model1d %>% default_priors()
 
 # Recreat sizedata
-standata_size_growth_mod4 <- join_stan_data(standata_size, standata_growth)
+standata_model1d <- join_stan_data(standata_size, standata_growth)
 
-str(standata_size_growth_mod4)
+str(standata_model1d)
 
 # Add in parameters to data list
-standata_size_growth_mod4 <- standata_size_growth_mod4 %>% add_pars(pars_m_g_s0)
+standata_model1d <- standata_model1d %>% add_pars(pars_model1d)
 
-str(standata_size_growth_mod4)
+str(standata_model1d)
 ```
 
 Fit model1d
 
 ```{r}
-m_g_s0_fit <- fit_sizedist(standata_size_growth_mod4)
+model1d_fit <- fit_sizedist(standata_model1d)
 
-print(m_g_s0_fit, probs=c(0.025, 0.5, 0.975))
+print(model1d_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
 and plot the fitted values onto the data 
 
 ```{r, fig.align='center'}
 
-m_g_s0_fitted <- extract_fitted(m_g_s0_fit, pars_cm_kg)
+model1d_fitted <- extract_fitted(model1d_fit, pars_model1d)
 
-plot_size_dist(data, pars, binwidth = 0.1, m_g_s0_fitted)
+plot_size_dist(data, pars, binwidth = 0.1, model1d_fitted)
 ```
 
 #### 1e: Estimating Slope of abundance spectra.
 
-The final version of model1 (`model1e`) fits an abundance spectra model (change in abundance as a function of size) assuming constant growth.
+The final version of model1 (`model1e`) which fits an abundance spectra model (change in abundance as a function of size) assuming constant growth, without estimating either mortality or growth individually.
 
 ```{r}
 # Compute bins for size
@@ -322,25 +322,176 @@ Add priors
 ```{r}
 pars  <- default_pars("model1")
 
-pars_abund <- purrr::list_modify(pars,
+pars_model1e <- purrr::list_modify(pars,
                         model = "model1e")
 
 # Add in default priors
-pars_abund <- pars_abund %>% default_priors()
+pars_model1e <- pars_model1e %>% default_priors()
 
 # Add in parameters to data list
-standata_size_mod <- standata_size %>% add_pars(pars_abund)
+standata_model1e <- standata_size %>% add_pars(pars_model1e)
 
-standata_size_mod
+standata_model1e
 ```
 
 Fit model1e
 
 ```{r}
-abund_fit <- fit_sizedist(standata_size_mod)
+model1e_fit <- fit_sizedist(standata_model1e)
 
-print(abund_fit, probs=c(0.025, 0.5, 0.975))
+print(model1e_fit, probs=c(0.025, 0.5, 0.975))
 ```
+
+### Model fit diagnostics
+
+Once the models have been fit, we can extract posteriors and run diagnostics to assess model fitting. Here, we focus on output from the model estimating growth and mortality simultaneously  (`model1c`), but the process is the same for each of the three models. Further methods, examples and discussion of MCMC diagnostics is provided by Gabry and Modrák (2021) in <https://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html>
+
+We recommend are several CRAN packages that are wonderful for interacting with Stan model fit objects and visualising model diagnostics
+
+```{r, message=FALSE}
+library(ggplot2) 
+library(rstan)
+library(bayesplot)
+library(patchwork)
+```
+
+#### Model convergence 
+First, we observe the mean estimate for each coefficient. Note the Gelman–Rubin statistic (Rhat) to assess convergence. Is it > or = 1?
+
+```{r, eval = FALSE}
+print(model1d_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+Next, we can plot the trace chains to see if they converged or not. Are some chains getting stuck? What you want to see here is all four chains to eventually overlap each other across most of the iterations
+```{r, fig.align='center', fig.width=7, fig.height=4}
+p_trace <- rstan::traceplot(model1d_fit, pars = c("Z", "g", "R", "s0"), 
+                            inc_warmup = TRUE) +
+  xlab("Iteration") +
+  ylab("Parameter estimate") 
+  
+p_trace
+```
+
+#### No-U-Turn-Sampler (NUTS) energy diagnostics
+
+- The first histogram uses the function `mcmc_nuts_energy()`
+Produces overlaid histograms showing energy__ πE (i.e., the value of the Hamiltonian (up to an additive constant) at each sample) vers the change in energy__ πΔE (See Betancourt (2016) for details.) In the figure, we want to *see if the histograms for πE and πΔE are approximately equal*. If the distribution of πΔE has deviated from πE (e.g., wider tails) then autocorrelation of the chains will be large. For more details check out this [paper](https://arxiv.org/abs/1604.00695).
+
+- The remaining histograms uses the function`mcmc_scatter()`
+This function produces bivariate scatterplots of the MCMC draws, with the divergent chains highlighted. Here we are checking to *see if the divergent chains are clustered in parameter space*. If the divergent chains are spread out, then they are most probably false positive results and can be discounted. If the divergences are clustered, it is indicative that sampling has not computed a reliable answer. More details on why the scatter plot with divergences is a useful diagnostic tool can be found in [Gabry et al. (2019)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssa.12378).
+
+```{r, message=FALSE, fig.align='center', fig.height=6, fig.width=7}
+color_scheme_set("red")
+np <- nuts_params(model1d_fit)
+
+nuts_1 <- mcmc_nuts_energy(np) + ggtitle("NUTS Energy Diagnostic")
+
+color_scheme_set("darkgray")
+nuts_2 <- mcmc_scatter(
+  as.matrix(model1d_fit),
+  pars = c("g", "Z"), 
+  np = nuts_params(model1d_fit), 
+  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
+)
+
+nuts_3 <- mcmc_scatter(
+  as.matrix(model1d_fit),
+  pars = c("Z", "R"), 
+  np = nuts_params(model1d_fit), 
+  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
+)
+
+nuts_4 <- mcmc_scatter(
+  as.matrix(model1d_fit),
+  pars = c("R", "g"), 
+  np = nuts_params(model1d_fit), 
+  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
+)
+
+nuts_1 / (nuts_2 + nuts_3 + nuts_4)
+```
+
+#### ShinyStan
+A GUI is available for the diagnostic analysis and visualisation for MCMC from stan. Using ShinyStan allows for the exploration of stan output through your web browser. See <https://mc-stan.org/users/interfaces/shinystan>
+```{r, message=FALSE, eval = FALSE}
+library(shinystan)
+
+launch_shinystan(model1d_fit)
+```
+
+#### Distribution of posteriors of each parameter estimate
+
+What are the things we should look out for? 
+- Sensibly behaved - biomodal or multimodel will need careful assessment - Expect unimodal unless a priori expectation?
+- Are range of values on X axis expected?
+
+```{r, fig.align='center', fig.height=5, fig.width=7}
+posterior <- as.matrix(model1d_fit)
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 89% intervals")
+post_1 <- mcmc_areas(posterior, 
+              pars = c("Z"),
+              prob = 0.89) + plot_title
+
+post_2 <-mcmc_areas(posterior, 
+           pars = c("g"),
+           prob = 0.89) + plot_title
+
+post_3 <- mcmc_areas(posterior, 
+           pars = c("R"),
+           prob = 0.89) + plot_title
+
+post_1 + post_2 + post_3
+```
+
+
+
+#### Plot fitted estimates with data.
+
+Then we can plot the fitted estimates to simulated data. First, we have to extract the fitted values using `extract_fitted()` and assigned it into a object. After, we can add this fitted object into `plot_size_dist()` so you can add a fitted line based on new model estimates to the previous size-frequency histogram.
+
+How well does the fitted line match the data?
+
+```{r, eval = TRUE, fig.align='center'}
+# extract posterior mean estimates
+fitted <- extract_fitted(model1d_fit, pars = pars_model1d)
+
+pars <- default_pars("model1") %>%
+  purrr::list_modify(model = "model1d")
+
+
+# Plot fitted values on data
+plot_size_dist(data, pars, binwidth = 0.1, fitted) 
+```
+
+We can also fit the growth model estimates to data, including posterior draws. 
+```{r, fig.align='center'}
+# extract posterior draws
+dat <- model1d_fit %>% 
+  rstan::extract() %>%
+  as.data.frame() %>% 
+  as_tibble()
+
+#plot
+p <- ggplot(growth_data, aes(x= age, y = size)) + 
+  geom_point(size = 2, alpha = 0.8) +
+  theme_bw() + 
+  xlab("Age") +
+  ylab("Size") 
+
+dat2 <- dat %>% sample_n(100)
+  
+for(i in seq_len(nrow(dat2))) {
+  p <- p + geom_abline(intercept = dat2$s0[i], slope = dat2$g[i], col = "blue", alpha = 0.1) #fit posterior draws
+  }
+
+p <- p +
+  geom_abline(intercept = fitted$pars$s0, slope = fitted$pars$g_av, col = "red") #mean fit 
+p
+```
+
+
 
 ### Model 2: Growth as a power function of size
 
@@ -372,7 +523,7 @@ Now compile data in counts per size bin
 ```{r}
 # Compute bins for size
 size_data <- data %>% summarise_bin_counts(bin_var = size, 
-                                          bin_width = 0.1)
+                     bin_width = 0.1)
 # Compose data
 standata_size <- size_data %>% compose_count_data()
 ```
@@ -381,22 +532,22 @@ Add priors for `model2a`
 ```{r}
 pars  <- default_pars("model2")
 
-pars_abund <- purrr::list_modify(pars,
+pars_model2a <- purrr::list_modify(pars,
                         model = "model2a")
 
 # Add in default priors
-pars_abund <- pars_abund %>% default_priors()
+pars_model2a <- pars_model2a %>% default_priors()
 
 # Add in parameters to data list
-standata_size_mod <- standata_size %>% add_pars(pars_abund)
+standata_model2a <- standata_size %>% add_pars(pars_model2a)
 
-standata_size_mod
+standata_model2a
 ```
 
 Fit `model2a` 
 
 ```{r}
-model2a_fit <- fit_sizedist(standata_size_mod)
+model2a_fit <- fit_sizedist(standata_model2a)
 
 print(model2a_fit, probs=c(0.025, 0.5, 0.975))
 ```
@@ -410,19 +561,28 @@ First select default pars for `model2a` to simulate a test population
 
 ```{r}
 # Counts data
+```
+
+
+```{r}
 standata_size <- size_data %>% 
   compose_count_data()
 
 # Growth data
+#var_g <- default_pars("model2") %>% purrr::list_modify(pars = list(log10g_sd = 0.01))
+
+
+# Growth data
 growth_data <- simulate_population(default_pars("model2")) %>% 
   add_sampling_noise(size, sd = 0.01) %>% 
-  add_sampling_noise(age, sd = 3)
+  add_sampling_noise(age, sd = 0.01)
 
+growth_data <- simulate_population(var_g) 
+  
 standata_growth <- 
   growth_data %>% 
   compose_growth_data(age_var = age,
                       size_var = size)
-
 ```
 
 ```{r}
@@ -455,154 +615,18 @@ model2b_fit <- fit_sizedist(standata_model2b,
 print(model2b_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
-
-### Model fit diagnostics
-
-Once the models have been fit, we can extract posteriors and run diagnostics to assess model fitting. Here, we focus on output from the model estimating growth and mortality simultaneously  (`model1c`), but the process is the same for each of the three models. Further methods, examples and discussion of MCMC diagnostics is provided by Gabry and Modrák (2021) in <https://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html>
-
-We recommend are several CRAN packages that are wonderful for interacting with Stan model fit objects and visualising model diagnostics
-
-```{r, message=FALSE}
-library(ggplot2) 
-library(rstan)
-library(bayesplot)
-library(patchwork)
-```
-
-#### Model convergence 
-First, we observe the mean estimate for each coefficient. Note the Gelman–Rubin statistic (Rhat) to assess convergence. Is it > or = 1?
-
-```{r, eval = FALSE}
-print(m_g_fit, probs=c(0.025, 0.5, 0.975))
-```
-
-Next, we can plot the trace chains to see if they converged or not. Are some chains getting stuck? What you want to see here is all four chains to eventually overlap each other across most of the iterations
-```{r, fig.align='center', fig.width=7, fig.height=4}
-p_trace <- rstan::traceplot(m_g_fit, pars = c("Z", "g", "R"), 
-                            inc_warmup = TRUE) +
-  xlab("Iteration") +
-  ylab("Parameter estimate") 
-  
-p_trace
-```
-
-#### No-U-Turn-Sampler (NUTS) energy diagnostics
-
-- The first histogram uses the function `mcmc_nuts_energy()`
-Produces overlaid histograms showing energy__ πE (i.e., the value of the Hamiltonian (up to an additive constant) at each sample) vers the change in energy__ πΔE (See Betancourt (2016) for details.) In the figure, we want to *see if the histograms for πE and πΔE are approximately equal*. If the distribution of πΔE has deviated from πE (e.g., wider tails) then autocorrelation of the chains will be large. For more details check out this [paper](https://arxiv.org/abs/1604.00695).
-
-- The remaining histograms uses the function`mcmc_scatter()`
-This function produces bivariate scatterplots of the MCMC draws, with the divergent chains highlighted. Here we are checking to *see if the divergent chains are clustered in parameter space*. If the divergent chains are spread out, then they are most probably false positive results and can be discounted. If the divergences are clustered, it is indicative that sampling has not computed a reliable answer. More details on why the scatter plot with divergences is a useful diagnostic tool can be found in [Gabry et al. (2019)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssa.12378).
-
-```{r, message=FALSE, fig.align='center', fig.height=6, fig.width=7}
-color_scheme_set("red")
-np <- nuts_params(m_g_fit)
-
-nuts_1 <- mcmc_nuts_energy(np) + ggtitle("NUTS Energy Diagnostic")
-
-color_scheme_set("darkgray")
-nuts_2 <- mcmc_scatter(
-  as.matrix(m_g_fit),
-  pars = c("g", "Z"), 
-  np = nuts_params(m_g_fit), 
-  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
-)
-
-nuts_3 <- mcmc_scatter(
-  as.matrix(m_g_fit),
-  pars = c("Z", "R"), 
-  np = nuts_params(m_g_fit), 
-  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
-)
-
-nuts_4 <- mcmc_scatter(
-  as.matrix(m_g_fit),
-  pars = c("R", "g"), 
-  np = nuts_params(m_g_fit), 
-  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
-)
-
-nuts_1 / (nuts_2 + nuts_3 + nuts_4)
-```
-
-#### ShinyStan
-A GUI is available for the diagnostic analysis and visualisation for MCMC from stan. Using ShinyStan allows for the exploration of stan output through your web browser. See <https://mc-stan.org/users/interfaces/shinystan>
-```{r, message=FALSE, eval = FALSE}
-library(shinystan)
-
-launch_shinystan(m_g_fit)
-```
-
-#### Distribution of posteriors of each parameter estimate
-
-What are the things we should look out for? 
-- Sensibly behaved - biomodal or multimodel will need careful assessment - Expect unimodal unless a priori expectation?
-- Are range of values on X axis expected?
-
-```{r, fig.align='center', fig.height=5, fig.width=7}
-posterior <- as.matrix(m_g_fit)
-
-plot_title <- ggtitle("Posterior distributions",
-                      "with medians and 89% intervals")
-post_1 <- mcmc_areas(posterior, 
-              pars = c("Z"),
-              prob = 0.89) + plot_title
-
-post_2 <-mcmc_areas(posterior, 
-           pars = c("g"),
-           prob = 0.89) + plot_title
-
-post_3 <- mcmc_areas(posterior, 
-           pars = c("R"),
-           prob = 0.89) + plot_title
-
-post_1 + post_2 + post_3
-```
-
-
-
-#### Plot fitted estimates with data.
-
-Then we can plot the fitted estimates to simulated data. First, we have to extract the fitted values using `extract_fitted()` and assigned it into a object. After, we can add this fitted object into `plot_size_dist()` so you can add a fitted line based on new model estimates to the previous size-frequency histogram.
-
-How well does the fitted line match the data?
-
-```{r, eval = TRUE, fig.align='center'}
+```{r}
 # extract posterior mean estimates
-fitted <- extract_fitted(m_g_fit, pars = pars_m_g)
+fitted <- extract_fitted(model2b_fit, pars = pars_model2b)
+
+pars <- default_pars("model2") %>%
+  purrr::list_modify(model = "model2b")
+
 
 # Plot fitted values on data
-plot_size_dist(growth_data, pars_m_g, binwidth = 0.1, fitted)
+plot_size_dist(data, pars, binwidth = 0.1, fitted) 
 ```
 
-We can also fit the growth model estimates to data, including posterior draws. 
-```{r, fig.align='center'}
-# extract posterior draws
-dat <- m_g_fit %>% 
-  rstan::extract() %>%
-  as.data.frame() %>% 
-  as_tibble()
-
-#select data for plotting
-s0 = pars_m_g$pars$s0_av #size at hatching
-
-#plot
-p <- ggplot(growth_data, aes(x= age, y = size)) + 
-  geom_point(size = 2, alpha = 0.8) +
-  theme_bw() + 
-  xlab("Age") +
-  ylab("Size")
-
-dat2 <- dat %>% sample_n(100)
-  
-for(i in seq_len(nrow(dat2))) {
-  p <- p + geom_abline(intercept = s0, slope = dat2$g[i], col = "blue", alpha = 0.1) #fit posterior draws
-  }
-
-p <- p +
-  geom_abline(intercept = s0, slope = fitted$pars$g_av, col = "red") #mean fit 
-p
-```
 
 
 
