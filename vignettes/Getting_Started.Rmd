@@ -523,7 +523,7 @@ Now compile data in counts per size bin
 ```{r}
 # Compute bins for size
 size_data <- data %>% summarise_bin_counts(bin_var = size, 
-                     bin_width = 0.1)
+                     bin_width = 0.01)
 # Compose data
 standata_size <- size_data %>% compose_count_data()
 ```
@@ -556,17 +556,16 @@ print(model2a_fit, probs=c(0.025, 0.5, 0.975))
 
 The `model2b` variant estimates the size-at-hatch $s_0$, growth rate $\overline{g}$ and mortality rate $\overline{z}$
 
-First select default pars for `model2a` to simulate a test population
+First select default pars for `model2b` to simulate a test population
 
-
-```{r}
-# Counts data
-```
 
 
 ```{r}
-standata_size <- size_data %>% 
-  compose_count_data()
+# Compute bins for size
+size_data <- data %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.01)
+# Compose data
+standata_size <- size_data %>% compose_count_data()
 
 # Growth data
 growth_data <- simulate_population(default_pars("model2")) %>% 
@@ -604,6 +603,10 @@ standata_model2b <- standata_model2b %>% add_pars(pars_model2b)
 str(standata_model2b)
 ```
 
+```{r}
+plot(standata_model2b$size_ind~standata_model2b$age)
+```
+
 Fit model2b
 
 ```{r}
@@ -623,7 +626,7 @@ pars <- default_pars("model2") %>%
 
 
 # Plot fitted values on data
-plot_size_dist(data, pars, binwidth = 0.1, fitted) 
+plot_size_dist(data, pars, binwidth = 0.01, fitted) 
 ```
 
 

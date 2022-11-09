@@ -96,24 +96,6 @@ default_priors_model2a <- function(){
   )
 }
 
-default_priors_model2a_h1 <- function(){
-  list(priors = list(
-    c_mu = 5,
-    c_sd = 1,
-    b_mu = 0.5,
-    b_sd = 1)
-  )
-}
-
-default_priors_model2a_h2 <- function(){
-  list(priors = list(
-    c_mu = 5,
-    c_sd = 1,
-    b_mu = 0.5,
-    b_sd = 1)
-  )
-}
-
 default_priors_model2b <- function(){
   list(priors = list(
     Z_mu = 0.1,
@@ -125,8 +107,29 @@ default_priors_model2b <- function(){
     R_mu = 100,
     R_sd = 10,
     R_up = 3000,
-    s0_mu = -4,
-    s0_sd = 1,
+    s0_mu = 0.1,
+    s0_sd = 0.001,
     sigma_size_sd = 1)
   )
 }
+
+default_priors_model2a_h1 <- function(){
+  list(priors = list(
+    c_mu = 5,
+    c_sd = 1,
+    b_mu = 0.5,
+    b_sd = 1)
+  )
+}
+
+
+
+default_priors_model2a_h2 <- function(){
+  list(priors = list(
+    c_mu = 5,
+    c_sd = 1,
+    b_mu = 0.5,
+    b_sd = 1)
+  )
+}
+
