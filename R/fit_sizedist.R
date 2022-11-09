@@ -30,6 +30,7 @@ fit_sizedist <- function(data, ...){
            model1e = rstan::sampling(stanmodels$model1e, data = data, ...),
            model2a = rstan::sampling(stanmodels$model2a, data = data, ...),
            model2a_h1 = rstan::sampling(stanmodels$model2a_h1, data = data, ...),
+           model2a_h2 = rstan::sampling(stanmodels$model2a_h2, data = data, ...),
            model2b = rstan::sampling(stanmodels$model2b, data = data, ...)
   )
 

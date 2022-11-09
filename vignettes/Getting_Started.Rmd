@@ -725,6 +725,7 @@ Fit `model2_h1`
 b_sample[1] should be = 3 (1 + (0.2/0.1))
 b_sample[2] should be = 2.3 (1 + (0.2/0.15))
 b_sample[3] should be = 2 (1 + (0.2/0.2))
+
 ```{r}
 model2a_h1_fit <- fit_sizedist(standata_model2a_h1,
                             iter = 999,
@@ -734,6 +735,230 @@ print(model2a_h1_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
 
+#### Random effects: 2 lvls
+
+Create multiple 'samples' from two 'groups'
+
+group1
+```{r}
+#Sample1
+pars1 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,1000,100)),
+                                 g_av = rnorm(1,0.2,0.01),
+                                 Z_av = rnorm(1,0.2,0.03)))
+
+data1 <- simulate_population(pars1) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data1$sample_index <- 1
+data1$group_index <- 1
+
+#Sample2
+pars2 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,1000,100)),
+                                 g_av = rnorm(1,0.2,0.03),
+                                 Z_av = rnorm(1,0.2,0.03)))
+
+data2 <- simulate_population(pars2) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data2$sample_index <- 2
+data2$group_index <- 1
 
 
+#Sample3
+pars3 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,1000,100)),
+                                 g_av = rnorm(1,0.2,0.03),
+                                 Z_av = rnorm(1,0.2,0.03)))
+
+data3 <- simulate_population(pars3) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data3$sample_index <- 3
+data3$group_index <- 1
+
+
+
+#Sample4
+pars4 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,1000,100)),
+                                 g_av = rnorm(1,0.2,0.03),
+                                 Z_av = rnorm(1,0.2,0.03)))
+
+data4 <- simulate_population(pars4) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data4$sample_index <- 4
+data4$group_index <- 1
+
+#Sample5
+pars5 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,1200,100)),
+                                 g_av = rnorm(1,0.22,0.03),
+                                 Z_av = rnorm(1,0.2,0.03)))
+
+data5 <- simulate_population(pars5) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data5$sample_index <- 5
+data5$group_index <- 2
+
+#Sample6
+pars6 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,1200,100)),
+                                 g_av = rnorm(1,0.22,0.03),
+                                 Z_av = rnorm(1,0.2,0.03)))
+
+data6 <- simulate_population(pars6) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data6$sample_index <- 6
+data6$group_index <- 2
+
+#sample7
+pars7 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,1200,100)),
+                                 g_av = rnorm(1,0.22,0.03),
+                                 Z_av = rnorm(1,0.2,0.03)))
+
+data7 <- simulate_population(pars7) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data7$sample_index <- 7
+data7$group_index <- 2
+
+
+#Sample8
+pars8 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,1200,100)),
+                                 g_av = rnorm(1,0.22,0.03),
+                                 Z_av = rnorm(1,0.2,0.03)))
+
+data8 <- simulate_population(pars8) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data8$sample_index <- 8
+data8$group_index <- 2
+
+
+#Sample9
+pars9 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,800,100)),
+                                 g_av = rnorm(1,0.20,0.03),
+                                 Z_av = rnorm(1,0.22,0.03)))
+
+data9 <- simulate_population(pars9) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data9$sample_index <- 9
+data9$group_index <- 3
+
+#Sample10
+pars10 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,800,100)),
+                                 g_av = rnorm(1,0.20,0.03),
+                                 Z_av = rnorm(1,0.22,0.03)))
+                     
+data10 <- simulate_population(pars10) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data10$sample_index <- 10
+data10$group_index <- 3
+
+#Sample11
+pars11 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,800,100)),
+                                 g_av = rnorm(1,0.20,0.03),
+                                 Z_av = rnorm(1,0.22,0.03)))
+
+data11 <- simulate_population(pars11) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data11$sample_index <- 11
+data11$group_index <- 3
+
+
+#Sample12
+pars12 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = round(rnorm(1,800,100)),
+                                 g_av = rnorm(1,0.20,0.03),
+                                 Z_av = rnorm(1,0.22,0.03)))
+
+data12 <- simulate_population(pars12) %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.1)
+
+data12$sample_index <- 12
+data12$group_index <- 3
+```
+
+
+
+bind samples & compose data - remember to add N_samples
+```{r}
+#bind samples
+data <- rbind(data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12)
+
+# generate for N_samples[] & N_groups
+samples <- 
+  data %>% select(sample_index) %>% distinct() %>%
+  mutate(sample_index = seq_len(n()))
+
+groups <- data %>% select(group_index) %>% distinct() %>%
+  mutate(group_index = seq_len(n()))
+```
+
+create group index of length N_samples
+```{r}
+group_by_sample <-data %>% select(group_index, sample_index) %>% distinct()
+
+#create staion index of length N_tows
+group_num <- sort(unique(data$group_index))
+
+match_group <- match(group_by_sample$group_index, group_num)
+```
+
+```{r}
+# Compose data
+standata_size <- data %>% 
+  compose_count_data() %>%
+  purrr::list_modify(N_samples = nrow(samples),
+                     N_groups = nrow(groups),
+                     group_index = match_group
+                     )
+```
+
+Add priors for `model2a_h2`
+```{r}
+pars  <- default_pars("model2")
+
+pars_model2a_h2 <- purrr::list_modify(pars,
+                        model = "model2a_h2")
+
+# Add in default priors
+pars_model2a_h2 <- pars_model2a_h2 %>% default_priors()
+
+# Add in parameters to data list
+standata_model2a_h2 <- standata_size %>% add_pars(pars_model2a_h2)
+
+standata_model2a_h2
+```
+
+
+```{r}
+model2a_h2_fit <- fit_sizedist(standata_model2a_h2,
+                            iter = 999,
+                            chains = 2
+                              )
+
+print(model2a_h2_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+```{r}
+ggplot(data, aes(x = binned_var, y = counts, col = as.factor(group_index)))  +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10() +
+  facet_wrap(~sample_index)
+```
 
