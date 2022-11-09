@@ -30,7 +30,7 @@ sample_individual_variation_model2 <- function(n, pars) {
 #' @rdname simulate_growth
 simulate_growth_model2 <- function(individual_data) {
   with(individual_data,
-       size_birth + exp(growth_rate * age)
+       size_birth*exp(growth_rate * age)
   )
 }
 
