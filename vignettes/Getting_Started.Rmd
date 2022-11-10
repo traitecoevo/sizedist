@@ -634,7 +634,7 @@ plot_size_dist(data, pars, binwidth = 0.01, fitted)
 
 The `sizedist` package also contains model variants which allow for hierarchical effects to be included. We start by allowing a random sample effect.   
 
-####Random effects: 1 lvl
+#### 2a_h1: 1 Random effect
 
 The `model2a_h1` variant estimates a global level exponent $b$ and constant $c$ of an abundance spectrum $n(s)= cs^{-b}$, as well as a sample level estimate $b_i$ & $c_i$.
 
@@ -738,7 +738,7 @@ print(model2a_h1_fit, probs=c(0.025, 0.5, 0.975))
 ```
 
 
-#### Random effects: 2 lvls
+#### 2a_h2: 2 Random effects
 
 Create multiple 'samples' from two 'groups'
 
@@ -868,11 +868,4 @@ library(shinystan)
 launch_shinystan(model2a_h2_fit)
 ```
 
-```{r}
-ggplot(data, aes(x = binned_var, y = counts, col = as.factor(group_index)))  +
-  geom_point() +
-  scale_x_log10() +
-  scale_y_log10() +
-  facet_wrap(~sample_index)
-```
 
