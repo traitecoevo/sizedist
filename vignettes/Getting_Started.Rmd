@@ -869,3 +869,163 @@ launch_shinystan(model2a_h2_fit)
 ```
 
 
+#### 2a_h1: 3 Random effects
+
+`model2a_h3` contains 3 random effects, estimate c and b for level1, level2, and level3, as well as global estimates.
+
+
+To begin, create data with three 'levels', where 'level1' is the individual sample, and levels 2 & 3 are hierarchical groups.
+
+
+```{r}
+library(tidyr)
+library(ggplot2)
+library(purrr)
+
+group_pars <- 
+  tibble(level3_index = as.character(1:4), 
+         g_gl = seq(0.15, 0.25, length.out=4)) %>% 
+  expand_grid(
+         Z_gl = seq(0.2, 0.25, length.out=4)
+          ) %>% 
+  mutate(level2_index = as.character(seq_len(n()))
+            )  %>% 
+  expand_grid(
+         R_gl = seq(100, 1000, length.out=4)
+          ) %>% 
+  mutate(
+            level1_index = as.character(seq_len(n()))
+            )
+
+generate_sample_pars <- function(R_gl, g_gl, Z_gl) {
+  
+  tibble(
+    R = round(rnorm(1, R_gl,10)),
+    g_av = rnorm(1, g_gl, 0.01),
+    Z_av = rnorm(1,Z_gl,0.01))
+}  
+
+sample_pars <- 
+  group_pars %>% 
+  mutate(
+    data = pmap(list(R_gl, g_gl, Z_gl), generate_sample_pars)) %>% 
+  unnest(data)
+
+sample_pars %>% 
+  ggplot(aes(as.character(level3_index), g_av, col = level2_index, group = level2_index)) +
+  geom_boxplot()
+
+sample_pars %>% 
+  ggplot(aes(as.character(level3_index), Z_av, col = level2_index, group = level2_index)) +
+  geom_boxplot()
+
+# now simulate pop[n for each row
+
+f_pars <- function(R, g_av, Z_av) {
+  default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = R, g_av = g_av, Z_av = Z_av))
+}
+
+
+data_full <- 
+  sample_pars %>%
+  mutate(
+    pars = pmap(list(R, g_av, Z_av), f_pars), 
+    data = map(pars, simulate_population),
+    counts = map(data, summarise_bin_counts, bin_var = size, bin_width = 0.01)
+  )
+
+data <- 
+  data_full %>%
+  select(level3_index, level2_index, level1_index, counts) %>% 
+  unnest(counts)
+
+```
+
+
+compose data - remember to add N_samples
+```{r}
+# generate for N_samples[] & N_groups
+level1 <- 
+  data %>% select(level1_index) %>% distinct() %>%
+  mutate(level1_index = seq_len(n()))
+
+level2 <- data %>% select(level2_index) %>% distinct() %>%
+  mutate(level2_index = seq_len(n()))
+
+level3 <- data %>% select(level3_index) %>% distinct() %>%
+  mutate(level3_index = seq_len(n()))
+```
+
+create Level2 index of length N_level1
+```{r}
+group_by_sample <- data %>% select(level2_index, level1_index) %>% distinct()
+
+#create staion index of length N_tows
+group_level2 <- sort(unique(data$level2_index))
+
+match_level2 <- match(group_by_sample$level2_index, group_level2)
+```
+
+create Level3 index of length N_level3
+
+```{r}
+group_by_sample <- data %>% select(level3_index, level2_index) %>% distinct()
+
+#create staion index of length N_tows
+group_level3 <- sort(unique(data$level3_index))
+
+match_level3 <- match(group_by_sample$level3_index, group_level3)
+```
+
+```{r}
+# Compose data
+standata_size <- data %>% 
+  compose_count_data() %>%
+  purrr::list_modify(N_level1 = nrow(level1),
+                     N_level2 = nrow(level2),
+                     N_level3 = nrow(level3),
+                     level2_index = match_level2,
+                     level3_index = match_level3,
+                     )
+```
+
+Add priors for `model2a_h3`
+```{r}
+pars  <- default_pars("model2")
+
+pars_model2a_h3 <- purrr::list_modify(pars,
+                        model = "model2a_h3")
+
+# Add in default priors
+pars_model2a_h3 <- pars_model2a_h3 %>% default_priors()
+
+# Add in parameters to data list
+standata_model2a_h3 <- standata_size %>% add_pars(pars_model2a_h3)
+
+standata_model2a_h3
+```
+
+
+```{r}
+model2a_h3_fit <- fit_sizedist(standata_model2a_h3,
+                            iter = 999,
+                            chains = 2
+                              )
+
+print(model2a_h3_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+
+```{r}
+rstan::traceplot(model2a_h3_fit)
+```
+
+```{r}
+library(shinystan)
+
+launch_shinystan(model2a_h3_fit)
+```
+
+
+
