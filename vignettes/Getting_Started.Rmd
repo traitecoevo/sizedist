@@ -632,6 +632,15 @@ plot_size_dist(data, pars, binwidth = 0.01, fitted)
 
 ### Hierachical Models
 
+```{r}
+#packages
+library(tidyr)
+library(ggplot2)
+library(purrr)
+library(shinystan)
+```
+
+
 The `sizedist` package also contains model variants which allow for hierarchical effects to be included. We start by allowing a random sample effect.   
 
 #### 2a_h1: 1 Random effect
@@ -744,8 +753,6 @@ Create multiple 'samples' from two 'groups'
 
 group1
 ```{r}
-library(tidyr)
-
 group_pars <- 
   tibble(group_index = as.character(1:10), 
          g_gl = seq(0.15, 0.25, length.out=10),
@@ -768,7 +775,7 @@ generate_sample_pars <- function(R_gl, g_gl, Z_gl) {
 sample_pars <- 
   group_pars %>% 
   mutate(
-    data = pmap(list(R_gl, g_gl, Z_gl), generate_sample_pars)) %>% 
+    data = purrr::pmap(list(R_gl, g_gl, Z_gl), generate_sample_pars)) %>% 
   unnest(data)
 
 sample_pars %>% 
@@ -799,8 +806,8 @@ data <-
 
 ```
 
-
 compose data - remember to add N_samples
+
 ```{r}
 # generate for N_samples[] & N_groups
 samples <- 
@@ -812,6 +819,7 @@ groups <- data %>% select(group_index) %>% distinct() %>%
 ```
 
 create group index of length N_samples
+
 ```{r}
 group_by_sample <-data %>% select(group_index, sample_index) %>% distinct()
 
@@ -863,13 +871,11 @@ rstan::traceplot(model2a_h2_fit)
 ```
 
 ```{r}
-library(shinystan)
-
 launch_shinystan(model2a_h2_fit)
 ```
 
 
-#### 2a_h1: 3 Random effects
+#### 2a_h3: 3 Random effects
 
 `model2a_h3` contains 3 random effects, estimate c and b for level1, level2, and level3, as well as global estimates.
 
@@ -878,10 +884,6 @@ To begin, create data with three 'levels', where 'level1' is the individual samp
 
 
 ```{r}
-library(tidyr)
-library(ggplot2)
-library(purrr)
-
 group_pars <- 
   tibble(level3_index = as.character(1:4), 
          g_gl = seq(0.15, 0.25, length.out=4)) %>% 
@@ -941,7 +943,6 @@ data <-
   unnest(counts)
 
 ```
-
 
 compose data - remember to add N_samples
 ```{r}
@@ -1022,10 +1023,6 @@ rstan::traceplot(model2a_h3_fit)
 ```
 
 ```{r}
-library(shinystan)
-
 launch_shinystan(model2a_h3_fit)
 ```
-
-
 
