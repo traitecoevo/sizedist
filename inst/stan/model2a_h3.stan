@@ -6,7 +6,7 @@ data {
   int N_counts; //number of bins/counts
   int N_level1; //number of samples (i.e., lvl 1)
   int N_level2; //number of 1st level groups (i.e., lvl 2)
-  int N_level3; //number of 1st level groups (i.e., lvl 3)
+  int N_level3; //number of 2nd level groups (i.e., lvl 3)
 
   real bin_lower[N_counts]; //upper bin limit
   real bin_upper[N_counts]; //lower bin limit
@@ -34,8 +34,8 @@ parameters {
   real<lower = 0> b_level2[N_level2]; //b is the slope parameter (ie., log(N)/log(s))
   real<lower = 0> c_level2[N_level2]; //c is a constant
 
-  real<lower = 0> b[N_level1]; //b is the slope parameter (ie., log(N)/log(s))
-  real<lower = 0> c[N_level1]; //c is a constant
+  real<lower = 0> b_level1[N_level1]; //b is the slope parameter (ie., log(N)/log(s))
+  real<lower = 0> c_level1[N_level1]; //c is a constant
 
   real<lower = 0> sigma_c_level3;  // level 3 variance
   real<lower = 0> sigma_b_level3;  // level 3 variance
@@ -43,8 +43,8 @@ parameters {
   real<lower = 0> sigma_c_level2[N_level3]; // level 2 variance
   real<lower = 0> sigma_b_level2[N_level3]; // level 2 variance
 
-  real<lower = 0> sigma_c[N_level2]; // level 1 variance
-  real<lower = 0> sigma_b[N_level2]; // level 1 variance
+  real<lower = 0> sigma_c_level1[N_level2]; // level 1 variance
+  real<lower = 0> sigma_b_level1[N_level2]; // level 1 variance
 
 }
 
@@ -67,19 +67,19 @@ model {
   b_level2 ~ lognormal(log(b_level3[level3_index]), sigma_b_level2[level3_index]);
 
     // sample - level 1 means
-  c ~ lognormal(log(c_level2[level2_index]), sigma_c[level2_index]);
-  b ~ lognormal(log(b_level2[level2_index]), sigma_b[level2_index]);
+  c_level1 ~ lognormal(log(c_level2[level2_index]), sigma_c_level1[level2_index]);
+  b_level1 ~ lognormal(log(b_level2[level2_index]), sigma_b_level1[level2_index]);
 
       // sample - level1 variance
-  sigma_c ~ cauchy(0, 1);
-  sigma_b ~ cauchy(0, 1);
+  sigma_c_level1 ~ cauchy(0, 1);
+  sigma_b_level1 ~ cauchy(0, 1);
 
   // Model for counts
   for(i in 1:N_counts) {
     ID = level1_index[i];
 
     counts_est[i] =
-        c[ID]/(1-b[ID]) * ((bin_upper[i]^(1-b[ID])) - (bin_lower[i]^(1-b[ID])));
+        c_level1[ID]/(1-b_level1[ID]) * ((bin_upper[i]^(1-b_level1[ID])) - (bin_lower[i]^(1-b_level1[ID])));
   }
   counts ~ poisson(counts_est);
 

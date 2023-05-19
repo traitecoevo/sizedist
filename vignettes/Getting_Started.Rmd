@@ -752,22 +752,23 @@ print(model2a_h1_fit, probs=c(0.025, 0.5, 0.975))
 Create multiple 'samples' from two 'groups'
 
 group1
+
 ```{r}
 group_pars <- 
-  tibble(group_index = as.character(1:10), 
-         g_gl = seq(0.15, 0.25, length.out=10),
+  tibble(level2_index = as.character(1:3), 
+         g_gl = seq(0.15, 0.25, length.out=3),
          Z_gl = 0.2) %>% 
   expand_grid(
-         R_gl = seq(100, 1000, length.out=10)
+         R_gl = seq(500, 500, length.out=3)
           ) %>% 
   mutate(
-            sample_index = as.character(seq_len(n()))
+            level1_index = as.character(seq_len(n()))
             )
 
 generate_sample_pars <- function(R_gl, g_gl, Z_gl) {
   
   tibble(
-    R = round(rnorm(1, R_gl,10)),
+    R = round(rnorm(1, R_gl,1)),
     g_av = rnorm(1, g_gl, 0.01),
     Z_av = rnorm(1,Z_gl,0.01))
 }  
@@ -779,7 +780,7 @@ sample_pars <-
   unnest(data)
 
 sample_pars %>% 
-  ggplot(aes(as.character(group_index), g_av)) +
+  ggplot(aes(as.character(level2_index), g_av)) +
   geom_boxplot()
 
 
@@ -801,9 +802,22 @@ data_full <-
 
 data <- 
   data_full %>%
-  select(group_index, sample_index, counts) %>% 
+  select(level2_index, level1_index, counts) %>% 
   unnest(counts)
 
+
+sample_pars %>% 
+  ggplot(aes(as.character(level2_index), 1+(Z_av/g_av), col = level2_index, group = level2_index)) +
+  geom_boxplot()
+
+pars <- sample_pars %>% 
+  group_by(level2_index) %>% 
+  mutate(level2_mu = mean(1+(Z_av/g_av))) %>% 
+  ungroup() %>% 
+  select(level2_index, level2_mu) %>% 
+  distinct()
+
+pars
 ```
 
 compose data - remember to add N_samples
@@ -811,31 +825,31 @@ compose data - remember to add N_samples
 ```{r}
 # generate for N_samples[] & N_groups
 samples <- 
-  data %>% select(sample_index) %>% distinct() %>%
-  mutate(sample_index = seq_len(n()))
+  data %>% select(level1_index) %>% distinct() %>%
+  mutate(level1_index = seq_len(n()))
 
-groups <- data %>% select(group_index) %>% distinct() %>%
-  mutate(group_index = seq_len(n()))
+groups <- data %>% select(level2_index) %>% distinct() %>%
+  mutate(level2_index = seq_len(n()))
 ```
 
 create group index of length N_samples
 
 ```{r}
-group_by_sample <-data %>% select(group_index, sample_index) %>% distinct()
+group_by_sample <-data %>% select(level2_index, level1_index) %>% distinct()
 
 #create staion index of length N_tows
-group_num <- sort(unique(data$group_index))
+group_num <- sort(unique(data$level2_index))
 
-match_group <- match(group_by_sample$group_index, group_num)
+match_group <- match(group_by_sample$level2_index, group_num)
 ```
 
 ```{r}
 # Compose data
 standata_size <- data %>% 
   compose_count_data() %>%
-  purrr::list_modify(N_samples = nrow(samples),
-                     N_groups = nrow(groups),
-                     group_index = match_group
+  purrr::list_modify(N_level1 = nrow(samples),
+                     N_level2 = nrow(groups),
+                     level2_index = match_group
                      )
 ```
 
@@ -875,6 +889,80 @@ launch_shinystan(model2a_h2_fit)
 ```
 
 
+```{r}
+posterior <- as.matrix(model2a_h2_fit)
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 89% intervals")
+post_1 <- mcmc_areas(posterior, 
+              pars = c("b_level2[1]",
+                       "b_level2[2]",
+                       "b_level2[3]"
+                       ),
+              prob = 0.89) +
+  scale_x_log10() +
+  plot_title +
+  theme_bw()
+  
+
+post_1 
+
+par_1 <- sample_pars %>% 
+  ggplot(aes(as.character(level2_index), 1+(Z_av/g_av), col = level2_index, group = level2_index)) +
+  geom_boxplot() +
+  geom_point() +
+  coord_flip() +
+  scale_y_log10(limits = c(0.9, 3.5), breaks = c(1, 2, 3)) +
+  scale_x_discrete(limits=rev) +
+  xlab("Level 2") +
+  ylab("exponent") +
+  theme_bw() +
+  ggtitle("Exponent used to simulate population")
+
+
+post_1 | par_1
+```
+
+
+```{r}
+post_2 <- mcmc_areas(posterior, 
+              pars = c("b_level1[1]",
+                       "b_level1[2]",
+                       "b_level1[3]",
+                       "b_level1[4]",
+                       "b_level1[5]",
+                       "b_level1[6]",
+                       "b_level1[7]",
+                       "b_level1[8]",
+                       "b_level1[9]"
+                       ),
+              prob = 0.89) +
+  scale_x_log10() +
+  plot_title +
+  theme_bw()
+
+
+#post_2 
+
+par_2 <- sample_pars %>% 
+  ggplot(aes(as.character(level1_index), 1+(Z_av/g_av), col = level1_index, group = level1_index)) +
+  geom_boxplot() +
+  geom_point() +
+  coord_flip() +
+  scale_y_log10(limits = c(1.7, 3), breaks = c(1.75, 2.25, 2.75)) +
+  scale_x_discrete(limits=rev) +
+  xlab("Level 1") +
+  ylab("exponent") +
+  theme_bw() +
+  ggtitle("Exponent used to simulate population")
+
+post_2 | par_2
+```
+
+```{r}
+(post_1 | par_1) / (post_2 | par_2)
+```
+
 #### 2a_h3: 3 Random effects
 
 `model2a_h3` contains 3 random effects, estimate c and b for level1, level2, and level3, as well as global estimates.
@@ -885,15 +973,15 @@ To begin, create data with three 'levels', where 'level1' is the individual samp
 
 ```{r}
 group_pars <- 
-  tibble(level3_index = as.character(1:4), 
-         g_gl = seq(0.15, 0.25, length.out=4)) %>% 
+  tibble(level3_index = as.character(1:3), 
+         g_gl = seq(0.15, 0.25, length.out=3)) %>% 
   expand_grid(
-         Z_gl = seq(0.2, 0.25, length.out=4)
+         Z_gl = seq(0.2, 0.25, length.out=3)
           ) %>% 
   mutate(level2_index = as.character(seq_len(n()))
             )  %>% 
   expand_grid(
-         R_gl = seq(100, 1000, length.out=4)
+         R_gl = seq(300, 300, length.out=3)
           ) %>% 
   mutate(
             level1_index = as.character(seq_len(n()))
@@ -902,9 +990,9 @@ group_pars <-
 generate_sample_pars <- function(R_gl, g_gl, Z_gl) {
   
   tibble(
-    R = round(rnorm(1, R_gl,10)),
-    g_av = rnorm(1, g_gl, 0.01),
-    Z_av = rnorm(1,Z_gl,0.01))
+    R = round(rnorm(1, R_gl,1)),
+    g_av = rnorm(1, g_gl, 0.005),
+    Z_av = rnorm(1,Z_gl,0.005))
 }  
 
 sample_pars <- 
@@ -918,7 +1006,7 @@ sample_pars %>%
   geom_boxplot()
 
 sample_pars %>% 
-  ggplot(aes(as.character(level3_index), Z_av, col = level2_index, group = level2_index)) +
+  ggplot(aes(as.character(level3_index), 1+(Z_av/g_av), col = level2_index, group = level2_index)) +
   geom_boxplot()
 
 # now simulate pop[n for each row
@@ -1011,7 +1099,7 @@ standata_model2a_h3
 ```{r}
 model2a_h3_fit <- fit_sizedist(standata_model2a_h3,
                             iter = 999,
-                            chains = 2
+                            chains = 3
                               )
 
 print(model2a_h3_fit, probs=c(0.025, 0.5, 0.975))
@@ -1025,4 +1113,81 @@ rstan::traceplot(model2a_h3_fit)
 ```{r}
 launch_shinystan(model2a_h3_fit)
 ```
+
+Plot posteriors 
+
+```{r}
+posterior <- as.matrix(model2a_h3_fit)
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 89% intervals")
+post_1 <- mcmc_areas(posterior, 
+              pars = c("b_level3[1]",
+                       "b_level3[2]",
+                       "b_level3[3]"
+                       ),
+              prob = 0.89) +
+  scale_x_log10() +
+  plot_title +
+  theme_bw()
+  
+
+post_1 
+
+par_1 <- sample_pars %>% 
+  ggplot(aes(as.character(level3_index), 1+(Z_av/g_av), col = level3_index, group = level3_index)) +
+  geom_boxplot() +
+  geom_point() +
+  coord_flip() +
+  scale_y_log10(limits = c(0.9, 3.5), breaks = c(1, 2, 3)) +
+  scale_x_discrete(limits=rev) +
+  xlab("Level 3") +
+  ylab("exponent") +
+  theme_bw() +
+  ggtitle("Exponent used to simulate population")
+
+
+post_1 | par_1
+```
+
+
+```{r}
+
+post_2 <- mcmc_areas(posterior, 
+              pars = c("b_level2[1]",
+                       "b_level2[2]",
+                       "b_level2[3]",
+                       "b_level2[4]",
+                       "b_level2[5]",
+                       "b_level2[6]",
+                       "b_level2[7]",
+                       "b_level2[8]",
+                       "b_level2[9]"
+                       ),
+              prob = 0.89) +
+  scale_x_log10() +
+  plot_title +
+  theme_bw()
+
+
+
+par_2 <- sample_pars %>% 
+  ggplot(aes(as.character(level2_index), 1+(Z_av/g_av), col = level2_index, group = level2_index)) +
+  geom_boxplot() +
+  geom_point() +
+  coord_flip() +
+  scale_y_log10(limits = c(1.7, 3), breaks = c(1.75, 2.25, 2.75)) +
+  scale_x_discrete(limits=rev) +
+  xlab("Level 2") +
+  ylab("exponent") +
+  theme_bw() +
+  ggtitle("Exponent used to simulate population")
+
+post_2 | par_2
+```
+
+```{r}
+(post_1 | par_1) / (post_2 | par_2)
+```
+
 
