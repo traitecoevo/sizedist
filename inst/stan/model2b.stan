@@ -45,8 +45,8 @@ model {
   Z ~ lognormal(Z_mu, Z_sd);
   g ~ lognormal(g_mu, g_sd);
   R ~ lognormal(R_mu, R_sd);
-  s0 ~ lognormal(s0_mu, s0_sd);
-  sigma_size ~ lognormal(0, sigma_size_sd);
+  s0 ~ cauchy(s0_mu, s0_sd);
+  sigma_size ~ cauchy(0, sigma_size_sd);
 
   // Model for counts
   for(i in 1:N_counts) {

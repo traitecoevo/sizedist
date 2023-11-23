@@ -523,7 +523,7 @@ Now compile data in counts per size bin
 ```{r}
 # Compute bins for size
 size_data <- data %>% summarise_bin_counts(bin_var = size, 
-                     bin_width = 0.1)
+                     bin_width = 0.01)
 # Compose data
 standata_size <- size_data %>% compose_count_data()
 ```
@@ -556,17 +556,16 @@ print(model2a_fit, probs=c(0.025, 0.5, 0.975))
 
 The `model2b` variant estimates the size-at-hatch $s_0$, growth rate $\overline{g}$ and mortality rate $\overline{z}$
 
-First select default pars for `model2a` to simulate a test population
+First select default pars for `model2b` to simulate a test population
 
-
-```{r}
-# Counts data
-```
 
 
 ```{r}
-standata_size <- size_data %>% 
-  compose_count_data()
+# Compute bins for size
+size_data <- data %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.01)
+# Compose data
+standata_size <- size_data %>% compose_count_data()
 
 # Growth data
 growth_data <- simulate_population(default_pars("model2")) %>% 
@@ -604,6 +603,10 @@ standata_model2b <- standata_model2b %>% add_pars(pars_model2b)
 str(standata_model2b)
 ```
 
+```{r}
+plot(standata_model2b$size_ind~standata_model2b$age)
+```
+
 Fit model2b
 
 ```{r}
@@ -623,9 +626,568 @@ pars <- default_pars("model2") %>%
 
 
 # Plot fitted values on data
-plot_size_dist(data, pars, binwidth = 0.1, fitted) 
+plot_size_dist(data, pars, binwidth = 0.01, fitted) 
 ```
 
 
+### Hierachical Models
+
+```{r}
+#packages
+library(tidyr)
+library(ggplot2)
+library(purrr)
+library(shinystan)
+```
+
+
+The `sizedist` package also contains model variants which allow for hierarchical effects to be included. We start by allowing a random sample effect.   
+
+#### 2a_h1: 1 Random effect
+
+The `model2a_h1` variant estimates a global level exponent $b$ and constant $c$ of an abundance spectrum $n(s)= cs^{-b}$, as well as a sample level estimate $b_i$ & $c_i$.
+
+Create multiple 'samples'
+```{r}
+#Sample1
+pars1 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = 500,
+                                 g_av = 0.1,
+                                 Z_av = 0.2))
+
+pars1
+
+data1 <- simulate_population(pars1)
+
+# Compute bins for size
+data1 <- data1 %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.01)
+
+data1$sample_index <- 1
+
+data1
+
+#Sample2
+pars2 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = 500, 
+                                 g_av = 0.15,
+                                 Z_av = 0.2))
+
+data2 <- simulate_population(pars2)
+
+# Compute bins for size
+data2 <- data2 %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.01)
+
+data2$sample_index <- 2
+
+data2
+
+#Sample3
+pars3 <- default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = 500,
+                                 g_av = 0.2,
+                                 Z_av = 0.2))
+
+data3 <- simulate_population(pars3)
+
+# Compute bins for size
+data3 <- data3 %>% summarise_bin_counts(bin_var = size, 
+                     bin_width = 0.01)
+
+data3$sample_index <- 3
+
+data3
+```
+
+bind samples & compose data - remember to add N_samples
+```{r}
+#bind samples
+data <- rbind(data1,data2,data3)
+
+# generate sample_index for N_samples[]
+samples <- 
+  data %>% select(sample_index) %>% distinct() %>%
+  mutate(sample_index = seq_len(n()))
+
+# Compose data
+standata_size <- data %>% 
+  compose_count_data() %>%
+  purrr::list_modify(N_samples = nrow(samples))
+```
+
+Add priors for `model2a_h1`
+```{r}
+pars  <- default_pars("model2")
+
+pars_model2a_h1 <- purrr::list_modify(pars,
+                        model = "model2a_h1")
+
+# Add in default priors
+pars_model2a_h1 <- pars_model2a_h1 %>% default_priors()
+
+# Add in parameters to data list
+standata_model2a_h1 <- standata_size %>% add_pars(pars_model2a_h1)
+
+standata_model2a_h1
+```
+
+Fit `model2_h1`
+
+b_sample[1] should be = 3 (1 + (0.2/0.1))
+b_sample[2] should be = 2.3 (1 + (0.2/0.15))
+b_sample[3] should be = 2 (1 + (0.2/0.2))
+
+```{r}
+model2a_h1_fit <- fit_sizedist(standata_model2a_h1,
+                            iter = 999,
+                            chains = 3)
+
+print(model2a_h1_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+
+#### 2a_h2: 2 Random effects
+
+Create multiple 'samples' from two 'groups'
+
+group1
+
+```{r}
+group_pars <- 
+  tibble(level2_index = as.character(1:3), 
+         g_gl = seq(0.15, 0.25, length.out=3),
+         Z_gl = 0.2) %>% 
+  expand_grid(
+         R_gl = seq(500, 500, length.out=3)
+          ) %>% 
+  mutate(
+            level1_index = as.character(seq_len(n()))
+            )
+
+generate_sample_pars <- function(R_gl, g_gl, Z_gl) {
+  
+  tibble(
+    R = round(rnorm(1, R_gl,1)),
+    g_av = rnorm(1, g_gl, 0.01),
+    Z_av = rnorm(1,Z_gl,0.01))
+}  
+
+sample_pars <- 
+  group_pars %>% 
+  mutate(
+    data = purrr::pmap(list(R_gl, g_gl, Z_gl), generate_sample_pars)) %>% 
+  unnest(data)
+
+sample_pars %>% 
+  ggplot(aes(as.character(level2_index), g_av)) +
+  geom_boxplot()
+
+
+# now simulate pop[n for each row
+
+f_pars <- function(R, g_av, Z_av) {
+  default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = R, g_av = g_av, Z_av = Z_av))
+}
+
+
+data_full <- 
+  sample_pars %>%
+  mutate(
+    pars = pmap(list(R, g_av, Z_av), f_pars), 
+    data = map(pars, simulate_population),
+    counts = map(data, summarise_bin_counts, bin_var = size, bin_width = 0.01)
+  )
+
+data <- 
+  data_full %>%
+  select(level2_index, level1_index, counts) %>% 
+  unnest(counts)
+
+
+sample_pars %>% 
+  ggplot(aes(as.character(level2_index), 1+(Z_av/g_av), col = level2_index, group = level2_index)) +
+  geom_boxplot()
+
+pars <- sample_pars %>% 
+  group_by(level2_index) %>% 
+  mutate(level2_mu = mean(1+(Z_av/g_av))) %>% 
+  ungroup() %>% 
+  select(level2_index, level2_mu) %>% 
+  distinct()
+
+pars
+```
+
+compose data - remember to add N_samples
+
+```{r}
+# generate for N_samples[] & N_groups
+samples <- 
+  data %>% select(level1_index) %>% distinct() %>%
+  mutate(level1_index = seq_len(n()))
+
+groups <- data %>% select(level2_index) %>% distinct() %>%
+  mutate(level2_index = seq_len(n()))
+```
+
+create group index of length N_samples
+
+```{r}
+group_by_sample <-data %>% select(level2_index, level1_index) %>% distinct()
+
+#create staion index of length N_tows
+group_num <- sort(unique(data$level2_index))
+
+match_group <- match(group_by_sample$level2_index, group_num)
+```
+
+```{r}
+# Compose data
+standata_size <- data %>% 
+  compose_count_data() %>%
+  purrr::list_modify(N_level1 = nrow(samples),
+                     N_level2 = nrow(groups),
+                     level2_index = match_group
+                     )
+```
+
+Add priors for `model2a_h2`
+```{r}
+pars  <- default_pars("model2")
+
+pars_model2a_h2 <- purrr::list_modify(pars,
+                        model = "model2a_h2")
+
+# Add in default priors
+pars_model2a_h2 <- pars_model2a_h2 %>% default_priors()
+
+# Add in parameters to data list
+standata_model2a_h2 <- standata_size %>% add_pars(pars_model2a_h2)
+
+standata_model2a_h2
+```
+
+
+```{r}
+model2a_h2_fit <- fit_sizedist(standata_model2a_h2,
+                            iter = 999,
+                            chains = 3
+                              )
+
+print(model2a_h2_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+
+```{r}
+rstan::traceplot(model2a_h2_fit)
+```
+
+```{r}
+launch_shinystan(model2a_h2_fit)
+```
+
+
+```{r}
+posterior <- as.matrix(model2a_h2_fit)
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 89% intervals")
+post_1 <- mcmc_areas(posterior, 
+              pars = c("b_level2[1]",
+                       "b_level2[2]",
+                       "b_level2[3]"
+                       ),
+              prob = 0.89) +
+  scale_x_log10() +
+  plot_title +
+  theme_bw()
+  
+
+post_1 
+
+par_1 <- sample_pars %>% 
+  ggplot(aes(as.character(level2_index), 1+(Z_av/g_av), col = level2_index, group = level2_index)) +
+  geom_boxplot() +
+  geom_point() +
+  coord_flip() +
+  scale_y_log10(limits = c(0.9, 3.5), breaks = c(1, 2, 3)) +
+  scale_x_discrete(limits=rev) +
+  xlab("Level 2") +
+  ylab("exponent") +
+  theme_bw() +
+  ggtitle("Exponent used to simulate population")
+
+
+post_1 | par_1
+```
+
+
+```{r}
+post_2 <- mcmc_areas(posterior, 
+              pars = c("b_level1[1]",
+                       "b_level1[2]",
+                       "b_level1[3]",
+                       "b_level1[4]",
+                       "b_level1[5]",
+                       "b_level1[6]",
+                       "b_level1[7]",
+                       "b_level1[8]",
+                       "b_level1[9]"
+                       ),
+              prob = 0.89) +
+  scale_x_log10() +
+  plot_title +
+  theme_bw()
+
+
+#post_2 
+
+par_2 <- sample_pars %>% 
+  ggplot(aes(as.character(level1_index), 1+(Z_av/g_av), col = level1_index, group = level1_index)) +
+  geom_boxplot() +
+  geom_point() +
+  coord_flip() +
+  scale_y_log10(limits = c(1.7, 3), breaks = c(1.75, 2.25, 2.75)) +
+  scale_x_discrete(limits=rev) +
+  xlab("Level 1") +
+  ylab("exponent") +
+  theme_bw() +
+  ggtitle("Exponent used to simulate population")
+
+post_2 | par_2
+```
+
+```{r}
+(post_1 | par_1) / (post_2 | par_2)
+```
+
+#### 2a_h3: 3 Random effects
+
+`model2a_h3` contains 3 random effects, estimate c and b for level1, level2, and level3, as well as global estimates.
+
+
+To begin, create data with three 'levels', where 'level1' is the individual sample, and levels 2 & 3 are hierarchical groups.
+
+
+```{r}
+group_pars <- 
+  tibble(level3_index = as.character(1:3), 
+         g_gl = seq(0.15, 0.25, length.out=3)) %>% 
+  expand_grid(
+         Z_gl = seq(0.2, 0.25, length.out=3)
+          ) %>% 
+  mutate(level2_index = as.character(seq_len(n()))
+            )  %>% 
+  expand_grid(
+         R_gl = seq(300, 300, length.out=3)
+          ) %>% 
+  mutate(
+            level1_index = as.character(seq_len(n()))
+            )
+
+generate_sample_pars <- function(R_gl, g_gl, Z_gl) {
+  
+  tibble(
+    R = round(rnorm(1, R_gl,1)),
+    g_av = rnorm(1, g_gl, 0.005),
+    Z_av = rnorm(1,Z_gl,0.005))
+}  
+
+sample_pars <- 
+  group_pars %>% 
+  mutate(
+    data = pmap(list(R_gl, g_gl, Z_gl), generate_sample_pars)) %>% 
+  unnest(data)
+
+sample_pars %>% 
+  ggplot(aes(as.character(level3_index), g_av, col = level2_index, group = level2_index)) +
+  geom_boxplot()
+
+sample_pars %>% 
+  ggplot(aes(as.character(level3_index), 1+(Z_av/g_av), col = level2_index, group = level2_index)) +
+  geom_boxplot()
+
+# now simulate pop[n for each row
+
+f_pars <- function(R, g_av, Z_av) {
+  default_pars("model2") %>%
+  purrr::list_modify(pars = list(R = R, g_av = g_av, Z_av = Z_av))
+}
+
+
+data_full <- 
+  sample_pars %>%
+  mutate(
+    pars = pmap(list(R, g_av, Z_av), f_pars), 
+    data = map(pars, simulate_population),
+    counts = map(data, summarise_bin_counts, bin_var = size, bin_width = 0.01)
+  )
+
+data <- 
+  data_full %>%
+  select(level3_index, level2_index, level1_index, counts) %>% 
+  unnest(counts)
+
+```
+
+compose data - remember to add N_samples
+```{r}
+# generate for N_samples[] & N_groups
+level1 <- 
+  data %>% select(level1_index) %>% distinct() %>%
+  mutate(level1_index = seq_len(n()))
+
+level2 <- data %>% select(level2_index) %>% distinct() %>%
+  mutate(level2_index = seq_len(n()))
+
+level3 <- data %>% select(level3_index) %>% distinct() %>%
+  mutate(level3_index = seq_len(n()))
+```
+
+create Level2 index of length N_level1
+```{r}
+group_by_sample <- data %>% select(level2_index, level1_index) %>% distinct()
+
+#create staion index of length N_tows
+group_level2 <- sort(unique(data$level2_index))
+
+match_level2 <- match(group_by_sample$level2_index, group_level2)
+```
+
+create Level3 index of length N_level3
+
+```{r}
+group_by_sample <- data %>% select(level3_index, level2_index) %>% distinct()
+
+#create staion index of length N_tows
+group_level3 <- sort(unique(data$level3_index))
+
+match_level3 <- match(group_by_sample$level3_index, group_level3)
+```
+
+```{r}
+# Compose data
+standata_size <- data %>% 
+  compose_count_data() %>%
+  purrr::list_modify(N_level1 = nrow(level1),
+                     N_level2 = nrow(level2),
+                     N_level3 = nrow(level3),
+                     level2_index = match_level2,
+                     level3_index = match_level3,
+                     )
+```
+
+Add priors for `model2a_h3`
+```{r}
+pars  <- default_pars("model2")
+
+pars_model2a_h3 <- purrr::list_modify(pars,
+                        model = "model2a_h3")
+
+# Add in default priors
+pars_model2a_h3 <- pars_model2a_h3 %>% default_priors()
+
+# Add in parameters to data list
+standata_model2a_h3 <- standata_size %>% add_pars(pars_model2a_h3)
+
+standata_model2a_h3
+```
+
+
+```{r}
+model2a_h3_fit <- fit_sizedist(standata_model2a_h3,
+                            iter = 999,
+                            chains = 3
+                              )
+
+print(model2a_h3_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+
+```{r}
+rstan::traceplot(model2a_h3_fit)
+```
+
+```{r}
+launch_shinystan(model2a_h3_fit)
+```
+
+Plot posteriors 
+
+```{r}
+posterior <- as.matrix(model2a_h3_fit)
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 89% intervals")
+post_1 <- mcmc_areas(posterior, 
+              pars = c("b_level3[1]",
+                       "b_level3[2]",
+                       "b_level3[3]"
+                       ),
+              prob = 0.89) +
+  scale_x_log10() +
+  plot_title +
+  theme_bw()
+  
+
+post_1 
+
+par_1 <- sample_pars %>% 
+  ggplot(aes(as.character(level3_index), 1+(Z_av/g_av), col = level3_index, group = level3_index)) +
+  geom_boxplot() +
+  geom_point() +
+  coord_flip() +
+  scale_y_log10(limits = c(0.9, 3.5), breaks = c(1, 2, 3)) +
+  scale_x_discrete(limits=rev) +
+  xlab("Level 3") +
+  ylab("exponent") +
+  theme_bw() +
+  ggtitle("Exponent used to simulate population")
+
+
+post_1 | par_1
+```
+
+
+```{r}
+
+post_2 <- mcmc_areas(posterior, 
+              pars = c("b_level2[1]",
+                       "b_level2[2]",
+                       "b_level2[3]",
+                       "b_level2[4]",
+                       "b_level2[5]",
+                       "b_level2[6]",
+                       "b_level2[7]",
+                       "b_level2[8]",
+                       "b_level2[9]"
+                       ),
+              prob = 0.89) +
+  scale_x_log10() +
+  plot_title +
+  theme_bw()
+
+
+
+par_2 <- sample_pars %>% 
+  ggplot(aes(as.character(level2_index), 1+(Z_av/g_av), col = level2_index, group = level2_index)) +
+  geom_boxplot() +
+  geom_point() +
+  coord_flip() +
+  scale_y_log10(limits = c(1.7, 3), breaks = c(1.75, 2.25, 2.75)) +
+  scale_x_discrete(limits=rev) +
+  xlab("Level 2") +
+  ylab("exponent") +
+  theme_bw() +
+  ggtitle("Exponent used to simulate population")
+
+post_2 | par_2
+```
+
+```{r}
+(post_1 | par_1) / (post_2 | par_2)
+```
 
 

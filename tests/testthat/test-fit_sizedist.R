@@ -88,7 +88,7 @@ data <- simulate_population(pars)
 
 
 size_data <- data %>% summarise_bin_counts(bin_var = size,
-                                           bin_width = 0.1)
+                                           bin_width = 0.01)
 standata_size <- size_data %>% compose_count_data()
 
 pars  <- default_pars("model2")
