@@ -6,6 +6,7 @@
 \alias{extract_fitted_model1b}
 \alias{extract_fitted_model1c}
 \alias{extract_fitted_model1d}
+\alias{extract_fitted_model2b}
 \title{Extract fitted values for Z, R, g}
 \usage{
 extract_fitted(fit, pars)
@@ -17,6 +18,8 @@ extract_fitted_model1b(fit, pars)
 extract_fitted_model1c(fit, pars)
 
 extract_fitted_model1d(fit, pars)
+
+extract_fitted_model2b(fit, pars)
 }
 \arguments{
 \item{fit}{model fit for growth model}
