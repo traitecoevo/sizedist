@@ -9,4 +9,5 @@ ignore/
 /Meta/
 *.o
 *.tmp
+*.dll
 ignore/
