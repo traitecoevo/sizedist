@@ -5,6 +5,8 @@
 \alias{default_priors_model1a}
 \alias{default_priors_model1b}
 \alias{default_priors_model1c}
+\alias{default_priors_model1d}
+\alias{default_priors_model1e}
 \title{Load default priors for a specific model}
 \usage{
 default_priors(pars, model = pars$model)
@@ -14,6 +16,10 @@ default_priors_model1a()
 default_priors_model1b()
 
 default_priors_model1c()
+
+default_priors_model1d()
+
+default_priors_model1e()
 }
 \arguments{
 \item{pars}{pars list object you want to join priors to}

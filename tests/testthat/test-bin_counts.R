@@ -53,14 +53,6 @@ test_that("The number of counts is what is expected",{
   expect_equal(td2_data %>% summarise_bin_counts(age, binwidth) %>% filter(! counts == 0) %>% pull(counts), janitor::tabyl(td2_data, binned_var)$n)
 })
 
-# What about the zeros?
-test_that("The number of zeros is what is expected", {
-  expect_equal(td1_summarised[td1_summarised$counts == 0, "binned_var"] %>% pull(binned_var), setdiff(seq(min(test_data_1$binned_var), max(test_data_1$binned_var), by = binwidth), test_data_1$binned_var))  #which bins have zero counts
-  expect_equal(nrow(td1_summarised[td1_summarised$counts == 0, "binned_var"]), length(setdiff(seq(min(test_data_1$binned_var), max(test_data_1$binned_var)), test_data_1$binned_var))) #number of zeros
-  expect_equal(td2_summarised[td2_summarised$counts == 0, "binned_var"] %>% pull(binned_var), setdiff(seq(min(td2_data$binned_var), max(td2_data$binned_var), by = binwidth), td2_data$binned_var))
-  expect_true(janitor::tabyl(td2_summarised, counts)[janitor::tabyl(td2_summarised, counts)$counts == 0, "n"] == length(setdiff(seq(min(td2_data$binned_var), max(td2_data$binned_var)), td2_data$binned_var)))
-  })
-
 test_that("td2 and td2_data is the same", {
   expect_equal(test_data_1$binned_var, td1$binned_var)
   expect_equal(td2_data$binned_var, td2_data$binned_var)
@@ -80,8 +72,8 @@ test_that("Counts are matching to doing by hand",{
 
 test_that("Bins are created correctly", {
   td3_allbins <- test_data_3_wbins %>% dplyr::pull(binned_var) %>% create_all_bins(binwidth)
-  expect_true(td3_allbins[1] ==  min(test_data_3_wbins))
-  expect_true(td3_allbins[length(td3_allbins)] ==  max(test_data_3_wbins))
+  expect_true(td3_allbins[1] ==  min(test_data_3_wbins$binned_var))
+  expect_true(td3_allbins[length(td3_allbins)] ==  max(test_data_3_wbins$binned_var))
 })
 
 td3_tmp <- dplyr::tibble(

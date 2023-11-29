@@ -17,24 +17,34 @@ knitr::opts_chunk$set(
 ```{r setup, eval=FALSE}
 library(sizedist)
 ```
+
 The `sizedist` package provides functions to both simulate and fit size and age-structured populations models to data. Let $s$ be the size of an individual, $g(s)$ be its growth rate (size per unit time) and $z(s)$ be its instantaneous mortality rate, and $n(s)$ be the size density distribution of individuals. Both growth and mortality rates can vary as a function of individual size. Given specifieid relationships, the theory of size-structured populations enables us to solve $n$ from $z$ and $g$ (de Roos 1997, Muller-Landau et al. 2006).  
 
 # Theory
 
 Predictions are derived from the general McKendrick-von Foerster partial differential equation (PDE) for size structured population dynamics (Von Foerster 1959; Sinko and Streifer 1967): 
 
-$$\frac{\partial n(s)}{\partial t}=\ -\frac{\partial\left[g(s) n(s)\right]}{\partial s}-z(s) n(s).$$ 
+$$
+\frac{\partial n(s)}{\partial t}=\ -\frac{\partial\left[g(s) n(s)\right]}{\partial s}-z(s) n(s).
+$$
 
 Following de Roos 1997, the PDE can be solved to give an equation for $n$, as 
-$$n\left(s\right)=n\left(s_0 \right)\ \exp{\left(-\int_{0}^{t_b(s)}{\left(\frac{\delta g\left(s(t^\prime)\right)}{\delta s}+z\left(s(t^\prime)\right)\right)dt^\prime}\right)},$$
+$$
+n\left(s\right)=n\left(s_0 \right)\ \exp{\left(-\int_{0}^{t_b(s)}{\left(\frac{\delta g\left(s(t^\prime)\right)}{\delta s}+z\left(s(t^\prime)\right)\right)dt^\prime}\right)},
+$$
 where $n\left(s_0\right)$ is the initial density of recruits, $s(a^\prime,E)$ is the size of individuals age $t^\prime$ , and $t_b(s)$ is the age of individuals size $s$. By linking the flux of individuals across the lower bound $s_0$ of the size distribution to the rate $R$ at which new individuals arrive (i.e., birth rate), we can substitute 
-$$n\left(s_0\right)= \frac{R}{g(s_0)}.$$
-Further, we can reorganise eq. xxx  so that the integral is expressed in terms of size, not age. Following equation 22 of de Roos (1997), we get 
-$$n\left(s\right)=\frac{R}{g\left(s\right)}\ \exp{\left(-\int_{s_0}^{s}{\frac{z\left(s^\prime\right)}{g\left(s^\prime\right)}ds^\prime}\right)}.$$
+$$
+n\left(s_0\right)= \frac{R}{g(s_0)}.
+$$
+Further, we can reorganise eq. xxx  so that the integral is expressed in terms of size, not age. Following equation 22 of de Roos (1997), we get
+
+$$
+n\left(s\right)=\frac{R}{g\left(s\right)}\ \exp{\left(-\int_{s_0}^{s}{\frac{z\left(s^\prime\right)}{g\left(s^\prime\right)}ds^\prime}\right)}.
+$$
 
 Substituting in specific functions for $z(s)$ and $g(s)$, leads to a solution for $n$ (Muller-Landau et al. 2006).
 
-Below we outline XXX models withe exact analytic solutions. The different models will apply to different kinds of organisms. In each case, we are interested in XXX outcomes:
+Below we outline 2 models with exact analytic solutions. The different models will apply to different kinds of organisms. In each case, we are interested in outcomes of:
 
 * Individual size as a function of time: $s(t) = s_0 + \int_{0}^{t} g\left(s(t^\prime)\right) dt^\prime$
 * Survival of individual to age $t$: $Z(t) =\int_{0}^{t} z\left(s(t^\prime)\right) dt^\prime$
@@ -53,32 +63,117 @@ The simplest model assumes growth and mortality rates are constants, independent
 Growth rate: $g = r.$
 Mortality rate: $z = d.$
 
-Individual size as a function of time: $s(t) = s_0 + r \, t.$
+Individual size as a function of time: 
+
+$$s(t) = s_0 + r \, t.$$
 
 Survival of individual to age $t$: 
 
 $$Z(t) = d \,t$$
 
+### `model1a`
+Age density distribution of individuals:
+
+$$
+n_a(t)= -R \ \exp{\left(-d\ t\right)}.
+$$
+
+Total number of individuals between ages $a_1, a_2$: 
+
+$$
+N_a{(a_1, a_2)}=\ -\frac{R}{d}\left(\exp{\left(-d\ \ a_2\right)}-\exp{\left(-d\ \ a_1\right)}\right).
+$$
+
+### `model1b-d`
+
 Size density distribution of individuals: 
 
-$$n\left(s\right)=\ \frac{R\left(t\right)}{r}\ \exp{\left(-\frac{d}{r}\left(s-s_0\right)\right)}.$$
+$$
+n\left(s\right)=\ \frac{R\left(t\right)}{r}\ \exp{\left(-\frac{d}{r}\left(s-s_0\right)\right)}.
+$$
 
 Total number of individuals between sizes $s_1, s_2$:
 
-$$N(s_1, s_2)=\ -\frac{R}{d}\ \left(\exp{\left(-\frac{d}{r}\ \left(s_2-s_0\right)\right)}-\exp{\left(-\frac{d}{r}\ \left(s_1-s_0\right)\right)}\right).$$
-Age density distribution of individuals:
+$$
+N(s_1, s_2)=\ -\frac{R}{d}\ \left(\exp{\left(-\frac{d}{r}\ \left(s_2-s_0\right)\right)}-\exp{\left(-\frac{d}{r}\ \left(s_1-s_0\right)\right)}\right).
+$$
+### `model1e`
 
-$$n_a(t)= -R \ \exp{\left(-d\ t\right)}.$$
-Total number of individuals between ages $a_1, a_2$: 
+Size density distribution of individuals can also be expressed:
 
-$$N_a{(a_1, a_2)}=\ -\frac{R}{d}\left(\exp{\left(-d\ \ a_2\right)}-\exp{\left(-d\ \ a_1\right)}\right).$$
-## Model 2: 
+$$
+n(s) = c \ exp(-b\ s)
+$$
+Total number of individuals between sizes $s_1, s_2$:
 
-## Model 3: 
+$$
+c * (exp(-b \ s_1)/b - exp(-b \ s_2)/b)
+$$
 
-## Model 4: 
+
+## Model 2: Growth as power function
+
+The second model assumes $z$ and $g$ vary as power functions of size, such that 
+
+Growth rate: $g(s) = \overline{g} \,s^\gamma$
+
+Mortality rate: $z(s) = \overline{z} \,s^\phi$
+
+where scaling components $\phi$ and $\gamma$ are both = 1:
+
+### `model2a`
+
+If we assume the assume the size spectrum is approximately stable (i.e., $\frac{∂n}{∂t} = 0$) and expand the derivative on the right-hand side of eq. 1, the slope of the normalised abundance spectrum can be expressed (i.e., the slope of $log n$ versus $log s$) as
+
+$$
+\frac{\partial\log\,n}{\partial\log\,s} = -(\frac{\overline{z}}{\overline{g}}+1+\frac{\partial\log\,\overline{g}}{\partial\log\,s}).
+$$
+Therefore, the size density distribution of individuals can also be expressed as 
+
+$$
+n(s) = c\,s^{-b}
+$$
+where $c$ is a constant and $b = (\frac{\overline{z}}{\overline{g}}+1+\frac{\partial\log\,\overline{g}}{\partial\log\,s})$
+
+In this expression, the total number of individuals between sizes $s_1, s_2$:
+
+$$
+N(s_1, s_2)= \frac{c}{1-b}(s_2^{1-b} - s_1^{1-b})
+$$
+### `model2b`
+
+To resolve $\overline{g}$ and $\overline{z}$, using `model2b`, individual size as a function of time is given as: 
+
+$$
+s(t) = s_0 + exp(\overline{g} \,t).
+$$
+
+Survival of individual to age $t$: 
+
+$$Z(t) = \overline{z} \,t$$
+
+Size density distribution of individuals: 
+
+$$n\left(s\right)=\ \frac{R\,s_0^{\overline{z} /\overline{g}}}{g ̅ }\ s^{-\gamma-\overline{z} /\overline{g}}.$$
+
+Total number of individuals between sizes $s_1, s_2$:
+
+$$
+N(s_1, s_2)=\ -\frac{R}{\overline{z}}s_0^{\overline{z} /\overline{g}} \,(s_2^{\overline{z} /\overline{g}} - s_1^{\overline{z} /\overline{g}}) 
+$$
+
 
 # Fitting models to data
 
 The size distributions outlined above predict the number of individuals within an interval of size, i.e. $N(s_1, s_2)$. This estimate can be compared to the observed counts using a Poisson probability distribution
 $$Pr(N_{obs}(s_1, s_2), N(s_1, s_2)) = \textrm{Poisson}\left(N_{obs}(s_1, s_2), N(s_1, s_2)\right).$$
+
+# References
+
+Muller‐Landau H. C., Condit R. S., Harms K. E., Marks C. O., Thomas S. C., Bunyavejchewin S., Chuyong G., Co L., Davies S., Foster R., & Gunatilleke S. (2006) Comparing tropical forest tree size distributions with the predictions of metabolic ecology and equilibrium models. Ecology Letters 9, 589–602.
+
+von Foerster H. (1959) Some remarks on changing populations. In: Stohlman F. (ed.) The kinetics of cellular proliferation (pp. 382-407) Grune and Stratton, New York, NY.
+
+de Roos A. M. (1997) A gentle introduction to physiologically structured population models. In: Tuljapurkar S. & Caswell H. (ed.) Structured-population models in marine, terrestrial, and freshwater systems (pp. 119-204), Springer, Boston, MA.
+
+Sinko J. W. & Streifer W. (1967) A new model for age-size structure of a population. Ecology 48, 910–918.

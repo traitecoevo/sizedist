@@ -13,8 +13,6 @@ sample_individual_variation(n, pars)
 }
 \value{
 list of parameter values for the size-distribution model, including model name
-
-
 }
 \description{
 Sample variation in parameters among individuals across the population under a particular size-distribution model

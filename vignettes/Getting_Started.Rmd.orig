@@ -1,0 +1,639 @@
+---
+title: "Getting Started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, set up, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  results = "hold",
+  fig.path="figures/"
+)
+
+knitr::opts_knit$set(
+  base.dir = "vignettes/"
+)
+
+# Precompile the RMD as a background job
+# job::job({knitr::knit("vignettes/Getting_Started.Rmd.orig", output = "vignettes/Getting_Started.Rmd")})
+
+library(sizedist)
+library(dplyr)
+```
+
+`sizedist`  is an R interface for Stan and provides functions to simulate and fit size and age-structured populations models to data. In this *Getting Started* vignette, we will cover the simplest model that is implemented in the package. `model1` assumes mortality and growth are constants. See the Theory vignette for more details on the various models in `sizedist`
+
+### Simulating age- and size- structured data
+
+To begin, let's first start by simulating some data of a hypothetical population. We first need to set some **-parameters** that are used to inform the simulation. See the XXX vignette on the definitions for each parameter. `sizedist` has default parameters that you can access using the `default_pars()` function. Note that these parameters are organised as a **list** object and will also be used during model fitting. Learn more about [lists](https://www.tutorialspoint.com/r/r_lists.html)
+
+```{r params}
+library(sizedist)
+
+#Calling this function will return a list of parameters
+#Tip: Assign this function into an object for later use
+pars <- default_pars("model1")
+
+pars
+```
+
+We can now use these parameters to simulate some data using the `simulate_population()` function.
+
+```{r simulate}
+#Tip: Assign this function to an object so you have access to the data
+data <- simulate_population(pars)
+
+data
+```
+
+We created two plotting functions to visualise the distribution of size and age of the simulated population
+
+```{r visualise, fig.align = "center"}
+plot_age_dist(data, pars, binwidth = 1)
+```
+
+### Creating binned data for size
+
+In order to estimate a distribution for size/age in our models, we need  to create bins or 'class intervals' for these variables and tally up the number of observations that fall into each of these bins. The `summarise_bin_counts()` function will do the trick!
+
+```{r age counts}
+# Compute bins for age
+age_data <- data %>% summarise_bin_counts(bin_var = age,
+                                          bin_width = 1)
+
+age_data
+```
+
+### Compose data for model fitting
+
+`sizedist` relies on Stan for estimating size/age distribution models. Stan requires our input data to be a specific list format. Conveniently, the `compose_count_data()` function will translate your binned data into a list for you. Each column from your bin data is converted into a list element with the same name. Learn more about [lists](https://www.tutorialspoint.com/r/r_lists.html)
+
+```{r compose}
+standata_age <- age_data %>% compose_count_data()
+
+str(standata_age) # Ta da! Your binned data is now a list!
+```
+
+### Fitting your model
+
+`sizedist` currently suports three types of models. We will fit `model1a` which assumes that mortality and growth are constant over time. All models can be viewed using this XXX function. A more detailed overview of each of these models are found in the **Theory vignette**. Before we fit our first model, we need to add some parameters into our data list. Any relevant parameters such as the name of the model is added automatically using the `add_pars()` function.
+
+### Model 1: Constant growth with size
+
+`sizedist` currently supports two types of general models (`model` and `model2`) each with several variants (`model1a`, `model1b`, `model1c`,`model1d`, `model1e`, `model2a`, `model2e`). Variants of models with the prefix `model1_` (or `model2_`) all share a common growth function. `model1_` assumes **constant** mortality and growth. `model2_` assumes growth follows a **power** function with size (Refer to the 'Theory' vignette for more details).
+
+In order to fit these different variants of models, you will need to specify the name using the `list_modify()` from the `purrr` package,
+
+```{r}
+# install.packages("purrr")
+
+(model1a_pars <- pars %>% purrr::list_modify(model = "model1a"))
+```
+
+#### Priors in sizedist models
+
+The default priors used for all sizedist models are XXX (uninformative? uniform?). We can add default priors for our model, by calling the `default_priors()` function. This function will join the priors in your pars list. Note that set of priors available depends on the model specified in `pars$model`.
+
+```{r}
+(model1a_pars <- model1a_pars %>% default_priors())
+```
+
+Use the `list_modify()` function if you would like to set your own prior values. Note that the priors are nested within a the main list of `pars` so you will need to use the syntax below to update those numbers.
+
+```{r}
+(model1a_pars <- model1a_pars %>% purrr::list_modify(priors = list(Z_sd = 15)))
+```
+
+Once the `pars` pbject has been updated, it  will need to be joined to the data list created above. Note that `add_pars()` will by default, prune the `pars` list to the parameters that are only used in model fitting.
+```{r fit}
+standata_model1a <- standata_age %>% add_pars(pars = model1a_pars)
+
+str(standata_model1a) #Model name is added to the end of the data list
+```
+
+#### 1a: Estimating mortality from age
+
+Use run the model with the `fit_sizedist()` function
+
+```{r, results = "hide"}
+model1a_fit <- fit_sizedist(standata_model1a)
+
+print(model1a_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+then you can extract the fitted values for Z and R and plot that against the data
+
+```{r, fig.align='center'}
+model1a_fitted <- extract_fitted(model1a_fit, model1a_pars)
+
+plot_age_dist(data, pars, binwidth = 1, model1a_fitted)
+```
+
+#### 1b: Mortality from size, with known growth model
+
+In some instances, a known growth rate found in the literature or other studies can be used to inform the model that is estimating the size distribution. In this example, we will use the simulated size data.
+
+```{r, fig.align='center'}
+plot_size_dist(data, pars, binwidth = 0.1)
+```
+
+```{r size counts}
+# Compute bins for size
+size_data <- data %>% summarise_bin_counts(bin_var = size,
+                                          bin_width = 0.1)
+# Compose data
+standata_size <- size_data %>% compose_count_data()
+```
+
+In order to fit the *Constant Mortality, known Growth model* (`model1b`), we will need to edit the model name using `list_modify()`. Similarly, you can edit the values  for `g_av` which represents the average growth rate and `s0_av` which represents the average size at hatching/birth within the same function. Note that the parameters `g_av ` and `s0_av` are within a nested list of `pars` so you will need to use some special syntax to update those numbers.
+
+```{r}
+# Assign default parameters into an object
+pars  <- default_pars("model1")
+
+pars_model1b <- purrr::list_modify(pars,
+                                  model = "model1b",
+                                  pars = list(g_av = 0.21))
+```
+
+Now lets add our default priors again
+
+```{r}
+pars_model1b <- pars_model1b %>% default_priors()
+```
+
+Similar to the first example, we will know need to add our `pars` list to our data list in order to run our model with `add_pars()`.
+
+```{r}
+standata_model1b <- standata_size %>% add_pars(pars_model1b)
+
+str(standata_model1b)
+```
+
+Again, lets fit the model
+
+```{r, results = 'hide'}
+model1b_fit <- fit_sizedist(standata_model1b)
+
+print(model1b_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+and plot the fitted values onto the data
+
+```{r, fig.align='center'}
+
+model1b_fitted <- extract_fitted(model1b_fit, pars_model1b)
+
+plot_size_dist(data, pars, binwidth = 0.1, model1b_fitted)
+```
+
+#### 1c: Estimating Growth and Mortality
+
+The next model that `sizedist` currently supports (`model1c`) can estimate mortality and growth simultaneously using size and age data. In our simulated dataset, we have information on individual's sizes at particular ages as well as the overall distribution of sizes across the population. These data were simulated with no sampling error.
+
+```{r, fig.align='center', message=FALSE}
+library(ggplot2)
+
+ggplot(data, aes(size, age)) +
+  geom_point()
+```
+
+We need to first add some sampling noise to the size observations before we can fit the model using the `add_sampling_noise()` function. Otherwise, the model will have a hard time running! This step is not needed if you are using your own data! See XXX case study.
+
+```{r, fig.align='center'}
+growth_data <- simulate_population(default_pars("model1")) %>%
+  add_sampling_noise(size, sd = 0.5)
+
+ggplot(growth_data, aes(age, size)) +
+  geom_point()
+```
+
+Then we can put the growth data in the correct Stan friendly format using `compose_growth_data()`.
+
+```{r}
+# Counts data
+standata_size <- size_data %>%
+  compose_count_data()
+
+# Growth data
+standata_growth <-
+  growth_data %>%
+  compose_growth_data(age_var = age,
+                      size_var = size)
+
+str(standata_growth)
+```
+
+Now we will bring these data together using `join_stan_data()`
+
+```{r}
+# Combining the two types of data lists together
+standata_model1c <- join_stan_data(standata_size, standata_growth)
+
+str(standata_model1c)
+```
+
+To fit this model (`model1c`), we will again need to update our parameters if desired, add our priors and then and join them to our combined data list before fitting. Again, you can supply your own value for `s0_av` which represents the average size at hatching/birth using `list_modify()`
+
+```{r}
+pars  <- default_pars("model1")
+
+pars_model1c <- purrr::list_modify(pars,
+                        model = "model1c")
+
+# Add in default priors
+pars_model1c <- pars_model1c %>% default_priors()
+
+# Add in parameters to data list
+standata_model1c <- standata_model1c %>% add_pars(pars_model1c)
+str(standata_model1c)
+```
+
+Fit model1c
+
+```{r, eval = TRUE, results="hide"}
+model1c_fit <- fit_sizedist(standata_model1c)
+
+print(model1c_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+and plot the fitted values onto the data
+
+```{r, fig.align='center'}
+
+model1c_fitted <- extract_fitted(model1c_fit, pars_model1c)
+
+plot_size_dist(data, pars, binwidth = 0.1, model1c_fitted)
+```
+
+#### 1d: Estimating Growth, Mortality and size-at-hatch.
+
+There is a version of model1 (`model1d`) which also estimates size-at-hatch `s0` from the size-at-age and size data using a similar method to `model1c`.
+
+```{r}
+pars  <- default_pars("model1")
+
+pars_model1d <- purrr::list_modify(pars,
+                        model = "model1d")
+
+# Add in default priors
+pars_model1d <- pars_model1d %>% default_priors()
+
+# Recreat sizedata
+standata_model1d <- join_stan_data(standata_size, standata_growth)
+
+str(standata_model1d)
+
+# Add in parameters to data list
+standata_model1d <- standata_model1d %>% add_pars(pars_model1d)
+
+str(standata_model1d)
+```
+
+Fit model1d
+
+```{r}
+model1d_fit <- fit_sizedist(standata_model1d)
+
+print(model1d_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+and plot the fitted values onto the data
+
+```{r, fig.align='center'}
+
+model1d_fitted <- extract_fitted(model1d_fit, pars_model1d)
+
+plot_size_dist(data, pars, binwidth = 0.1, model1d_fitted)
+```
+
+#### 1e: Estimating Slope of abundance spectra.
+
+The final version of model1 (`model1e`) which fits an abundance spectra model (change in abundance as a function of size) assuming constant growth, without estimating either mortality or growth individually.
+
+```{r}
+# Compute bins for size
+size_data <- data %>% summarise_bin_counts(bin_var = size,
+                                          bin_width = 0.1)
+# Compose data
+standata_size <- size_data %>% compose_count_data()
+```
+
+Add priors
+```{r}
+pars  <- default_pars("model1")
+
+pars_model1e <- purrr::list_modify(pars,
+                        model = "model1e")
+
+# Add in default priors
+pars_model1e <- pars_model1e %>% default_priors()
+
+# Add in parameters to data list
+standata_model1e <- standata_size %>% add_pars(pars_model1e)
+
+standata_model1e
+```
+
+Fit model1e
+
+```{r}
+model1e_fit <- fit_sizedist(standata_model1e)
+
+print(model1e_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+### Model fit diagnostics
+
+Once the models have been fit, we can extract posteriors and run diagnostics to assess model fitting. Here, we focus on output from the model estimating growth and mortality simultaneously  (`model1c`), but the process is the same for each of the three models. Further methods, examples and discussion of MCMC diagnostics is provided by Gabry and Modrák (2021) in <https://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html>
+
+We recommend are several CRAN packages that are wonderful for interacting with Stan model fit objects and visualising model diagnostics
+
+```{r, message=FALSE}
+library(ggplot2)
+library(rstan)
+library(bayesplot)
+library(patchwork)
+```
+
+#### Model convergence
+First, we observe the mean estimate for each coefficient. Note the Gelman–Rubin statistic (Rhat) to assess convergence. Is it > or = 1?
+
+```{r, eval = FALSE}
+print(model1d_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+Next, we can plot the trace chains to see if they converged or not. Are some chains getting stuck? What you want to see here is all four chains to eventually overlap each other across most of the iterations
+```{r, fig.align='center', fig.width=7, fig.height=4}
+p_trace <- rstan::traceplot(model1d_fit, pars = c("Z", "g", "R", "s0"),
+                            inc_warmup = TRUE) +
+  xlab("Iteration") +
+  ylab("Parameter estimate")
+
+p_trace
+```
+
+#### No-U-Turn-Sampler (NUTS) energy diagnostics
+
+- The first histogram uses the function `mcmc_nuts_energy()`
+Produces overlaid histograms showing energy__ πE (i.e., the value of the Hamiltonian (up to an additive constant) at each sample) vers the change in energy__ πΔE (See Betancourt (2016) for details.) In the figure, we want to *see if the histograms for πE and πΔE are approximately equal*. If the distribution of πΔE has deviated from πE (e.g., wider tails) then autocorrelation of the chains will be large. For more details check out this [paper](https://arxiv.org/abs/1604.00695).
+
+- The remaining histograms uses the function`mcmc_scatter()`
+This function produces bivariate scatterplots of the MCMC draws, with the divergent chains highlighted. Here we are checking to *see if the divergent chains are clustered in parameter space*. If the divergent chains are spread out, then they are most probably false positive results and can be discounted. If the divergences are clustered, it is indicative that sampling has not computed a reliable answer. More details on why the scatter plot with divergences is a useful diagnostic tool can be found in [Gabry et al. (2019)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssa.12378).
+
+```{r, message=FALSE, fig.align='center', fig.height=6, fig.width=7}
+color_scheme_set("red")
+np <- nuts_params(model1d_fit)
+
+nuts_1 <- mcmc_nuts_energy(np) + ggtitle("NUTS Energy Diagnostic")
+
+color_scheme_set("darkgray")
+nuts_2 <- mcmc_scatter(
+  as.matrix(model1d_fit),
+  pars = c("g", "Z"),
+  np = nuts_params(model1d_fit),
+  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
+)
+
+nuts_3 <- mcmc_scatter(
+  as.matrix(model1d_fit),
+  pars = c("Z", "R"),
+  np = nuts_params(model1d_fit),
+  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
+)
+
+nuts_4 <- mcmc_scatter(
+  as.matrix(model1d_fit),
+  pars = c("R", "g"),
+  np = nuts_params(model1d_fit),
+  np_style = scatter_style_np(div_color = "green", div_alpha = 0.8)
+)
+
+nuts_1 / (nuts_2 + nuts_3 + nuts_4)
+```
+
+#### ShinyStan
+A GUI is available for the diagnostic analysis and visualisation for MCMC from stan. Using ShinyStan allows for the exploration of stan output through your web browser. See <https://mc-stan.org/users/interfaces/shinystan>
+```{r, message=FALSE, eval = FALSE}
+library(shinystan)
+
+launch_shinystan(model1d_fit)
+```
+
+#### Distribution of posteriors of each parameter estimate
+
+What are the things we should look out for?
+- Sensibly behaved - biomodal or multimodel will need careful assessment - Expect unimodal unless a priori expectation?
+- Are range of values on X axis expected?
+
+```{r, fig.align='center', fig.height=5, fig.width=7}
+posterior <- as.matrix(model1d_fit)
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 89% intervals")
+post_1 <- mcmc_areas(posterior,
+              pars = c("Z"),
+              prob = 0.89) + plot_title
+
+post_2 <-mcmc_areas(posterior,
+           pars = c("g"),
+           prob = 0.89) + plot_title
+
+post_3 <- mcmc_areas(posterior,
+           pars = c("R"),
+           prob = 0.89) + plot_title
+
+post_1 + post_2 + post_3
+```
+
+
+
+#### Plot fitted estimates with data.
+
+Then we can plot the fitted estimates to simulated data. First, we have to extract the fitted values using `extract_fitted()` and assigned it into a object. After, we can add this fitted object into `plot_size_dist()` so you can add a fitted line based on new model estimates to the previous size-frequency histogram.
+
+How well does the fitted line match the data?
+
+```{r, eval = TRUE, fig.align='center'}
+# extract posterior mean estimates
+fitted <- extract_fitted(model1d_fit, pars = pars_model1d)
+
+pars <- default_pars("model1") %>%
+  purrr::list_modify(model = "model1d")
+
+
+# Plot fitted values on data
+plot_size_dist(data, pars, binwidth = 0.1, fitted)
+```
+
+We can also fit the growth model estimates to data, including posterior draws.
+```{r, fig.align='center'}
+# extract posterior draws
+dat <- model1d_fit %>%
+  rstan::extract() %>%
+  as.data.frame() %>%
+  as_tibble()
+
+#plot
+p <- ggplot(growth_data, aes(x= age, y = size)) +
+  geom_point(size = 2, alpha = 0.8) +
+  theme_bw() +
+  xlab("Age") +
+  ylab("Size")
+
+dat2 <- dat %>% sample_n(100)
+
+for(i in seq_len(nrow(dat2))) {
+  p <- p + geom_abline(intercept = dat2$s0[i], slope = dat2$g[i], col = "blue", alpha = 0.1) #fit posterior draws
+  }
+
+p <- p +
+  geom_abline(intercept = fitted$pars$s0, slope = fitted$pars$g_av, col = "red") #mean fit
+p
+```
+
+
+
+### Model 2: Growth as a power function of size
+
+Model2 fits a size distribution assuming z and g vary as power functions of size, such that $z(s)=z ̅s^b$  and $g(s)=g ̅s^c$ where scaling components $b$ and $c$ are both = 1. For more details see the "Theory" vignette.
+
+To fit variants of `model2`, the process is the same as fitting `model1` although we need to change the pars & priors to the appropriate model.
+
+
+#### 2a: Slope of abundance spectrum
+
+The `model2a` variant estimates the exponent $b$ and constant $c$ of an abundance spectrum $n(s)= cs^{-b}$
+
+First select default pars for `model2` to simulate a test population
+```{r}
+pars <- default_pars("model2")
+
+pars
+```
+
+We can now use these parameters to simulate some data using the `simulate_population()` function.
+
+```{r}
+data <- simulate_population(pars)
+
+data
+```
+
+Now compile data in counts per size bin
+```{r}
+# Compute bins for size
+size_data <- data %>% summarise_bin_counts(bin_var = size,
+                     bin_width = 0.01)
+# Compose data
+standata_size <- size_data %>% compose_count_data()
+```
+
+Add priors for `model2a`
+```{r}
+pars  <- default_pars("model2")
+
+pars_model2a <- purrr::list_modify(pars,
+                        model = "model2a")
+
+# Add in default priors
+pars_model2a <- pars_model2a %>% default_priors()
+
+# Add in parameters to data list
+standata_model2a <- standata_size %>% add_pars(pars_model2a)
+
+standata_model2a
+```
+
+Fit `model2a`
+
+```{r}
+model2a_fit <- fit_sizedist(standata_model2a)
+
+print(model2a_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+#### 2b: Estimating Growth, Mortality and size-at-hatch
+
+The `model2b` variant estimates the size-at-hatch $s_0$, growth rate $\overline{g}$ and mortality rate $\overline{z}$
+
+First select default pars for `model2b` to simulate a test population
+
+
+
+```{r}
+# Compute bins for size
+size_data <- data %>% summarise_bin_counts(bin_var = size,
+                     bin_width = 0.01)
+# Compose data
+standata_size <- size_data %>% compose_count_data()
+
+# Growth data
+growth_data <- simulate_population(default_pars("model2")) %>%
+  add_sampling_noise(size, sd = 0.01) %>%
+  add_sampling_noise(age, sd = 0.01)
+
+# Option 2: add variance to individual growth rates
+#pars_var_g <- default_pars("model2") %>% purrr::list_modify(pars = list(log10g_sd = 0.01))
+
+#growth_data <- simulate_population(pars_var_g)
+
+standata_growth <-
+  growth_data %>%
+  compose_growth_data(age_var = age,
+                      size_var = size)
+```
+
+```{r}
+pars  <- default_pars("model2")
+
+pars_model2b <- purrr::list_modify(pars,
+                        model = "model2b")
+
+# Add in default priors
+pars_model2b <- pars_model2b %>% default_priors()
+
+# Recreat sizedata
+standata_model2b <- join_stan_data(standata_size, standata_growth)
+
+str(standata_model2b)
+
+# Add in parameters to data list
+standata_model2b <- standata_model2b %>% add_pars(pars_model2b)
+
+str(standata_model2b)
+```
+
+```{r}
+plot(standata_model2b$size_ind~standata_model2b$age)
+```
+
+Fit model2b
+
+```{r}
+model2b_fit <- fit_sizedist(standata_model2b,
+                            iter = 999,
+                            chains = 3)
+
+print(model2b_fit, probs=c(0.025, 0.5, 0.975))
+```
+
+```{r}
+# extract posterior mean estimates
+fitted <- extract_fitted(model2b_fit, pars = pars_model2b)
+
+pars <- default_pars("model2") %>%
+  purrr::list_modify(model = "model2b")
+
+
+# Plot fitted values on data
+plot_size_dist(data, pars, binwidth = 0.01, fitted)
+```
+
